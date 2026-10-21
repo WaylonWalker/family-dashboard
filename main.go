@@ -132,22 +132,27 @@ func newID() string {
 }
 
 type Event struct {
-	Date           string
-	Weekday        string
-	Time           string
-	Start          string
-	End            string
-	Relative       string
-	AllDay         bool
-	SpanDays       int
-	Status         string
-	Countdown      string
-	LeaveLabel     string
-	LeaveAt        string
-	LeaveCountdown string
-	TravelLabel    string
-	Title          string
-	Category       string
+	Date             string
+	Weekday          string
+	Time             string
+	Start            string
+	End              string
+	Relative         string
+	AllDay           bool
+	SpanDays         int
+	Status           string
+	Countdown        string
+	LeaveLabel       string
+	LeaveAt          string
+	LeaveCountdown   string
+	TravelLabel      string
+	WeatherAt        string
+	WeatherIcon      string
+	WeatherTemp      string
+	WeatherCondition string
+	WeatherWear      string
+	Title            string
+	Category         string
 }
 
 type travelRule struct {
@@ -424,6 +429,7 @@ func (a *app) page(now time.Time) Page {
 		}
 	}
 	wv := a.weather.snapshot(n)
+	addEventWeather(nextUp, wv.Forecast, a.tz)
 	weatherKind := "unknown"
 	if len(wv.Slots) > 0 {
 		weatherKind = wv.Slots[0].Icon

@@ -67,7 +67,7 @@ func TestWeatherForecastCachedAndNoKeyInHTML(t *testing.T) {
 	defer server.Close()
 	wf := &weatherFeed{key: key, lat: 40.7, lon: -89.5, place: "Peoria area", tz: loc, base: server.URL, client: server.Client()}
 	view := wf.snapshot(now)
-	if view.Badge != "LIVE WEATHER" || len(view.Slots) != 5 {
+	if view.Badge != "LIVE WEATHER" || len(view.Slots) != 5 || len(view.Forecast) != 4 {
 		t.Fatalf("unexpected forecast: %+v", view)
 	}
 	if view.Current.Temp != "53°" || view.Current.Condition != "cloudy" || view.Current.Feels != "49°" {
@@ -106,6 +106,28 @@ func TestWeatherForecastCachedAndNoKeyInHTML(t *testing.T) {
 	}
 	if strings.Contains(rr.Body.String(), key) {
 		t.Fatal("API key leaked into response")
+	}
+	if !strings.Contains(rr.Body.String(), `class="next-up-weather"`) || !strings.Contains(rr.Body.String(), "light rain") || !strings.Contains(rr.Body.String(), "Warm coat &amp; layers · rain shell · wind layer") {
+		t.Fatal("next-up event weather and clothing advice missing from rendered card")
+	}
+}
+
+func TestAddEventWeatherUsesNearestForecastAndAllDayNoon(t *testing.T) {
+	loc := chicago(t)
+	forecast := []weatherSlot{
+		{At: dateIn(t, "2026-10-22 10:00"), Temp: "48°", Wear: "Jacket & layers"},
+		{At: dateIn(t, "2026-10-22 13:00"), Temp: "55°", Wear: "Long sleeves", Condition: "cloudy", Icon: "cloud"},
+		{At: dateIn(t, "2026-10-22 16:00"), Temp: "51°", Wear: "Light jacket"},
+	}
+	event := Event{Start: dateIn(t, "2026-10-22 16:30").Format(time.RFC3339)}
+	addEventWeather(&event, forecast, loc)
+	if event.WeatherAt != "Thu 4 PM" || event.WeatherTemp != "51°" || event.WeatherWear != "Light jacket" {
+		t.Fatalf("timed event weather = %+v", event)
+	}
+	allDay := Event{Start: dateIn(t, "2026-10-22 00:00").Format(time.RFC3339), AllDay: true}
+	addEventWeather(&allDay, forecast, loc)
+	if allDay.WeatherAt != "Thu 1 PM" || allDay.WeatherTemp != "55°" {
+		t.Fatalf("all-day event weather = %+v", allDay)
 	}
 }
 

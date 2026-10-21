@@ -21,12 +21,14 @@ import (
 const weatherAPIBase = "https://api.openweathermap.org"
 
 type weatherSlot struct {
+	At                                                        time.Time
 	Day, Hour, Icon, Condition, Temp, Feels, Rain, Wind, Wear string
 }
 type weatherView struct {
 	Badge, Note, Message, Location, Air string
 	Current                             weatherSlot
 	Slots                               []weatherSlot
+	Forecast                            []weatherSlot
 }
 type weatherFeed struct {
 	key      string
@@ -159,10 +161,11 @@ func (wf *weatherFeed) fetch(now time.Time) (weatherView, error) {
 		}
 	}
 	view.Current = makeWeatherSlot(current, "Today", "Now", false)
+	view.Current.At = now
 	view.Slots = append(view.Slots, view.Current)
 	for _, p := range forecast.List {
 		at := time.Unix(p.DT, 0).In(wf.tz)
-		if !at.After(now) || at.Hour() < 6 || at.Hour() > 21 {
+		if !at.After(now) {
 			continue
 		}
 		day := "Today"
@@ -170,12 +173,49 @@ func (wf *weatherFeed) fetch(now time.Time) (weatherView, error) {
 			day = at.Format("Mon Jan 2")
 		}
 		slot := makeWeatherSlot(p, day, at.Format("3 PM"), true)
-		view.Slots = append(view.Slots, slot)
-		if len(view.Slots) == 6 {
-			break
+		slot.At = at
+		view.Forecast = append(view.Forecast, slot)
+		if at.Hour() >= 6 && at.Hour() <= 21 && len(view.Slots) < 6 {
+			view.Slots = append(view.Slots, slot)
 		}
 	}
 	return view, nil
+}
+
+func addEventWeather(event *Event, forecast []weatherSlot, loc *time.Location) {
+	if event == nil {
+		return
+	}
+	at, err := time.Parse(time.RFC3339, event.Start)
+	if err != nil {
+		return
+	}
+	if event.AllDay {
+		at = time.Date(at.In(loc).Year(), at.In(loc).Month(), at.In(loc).Day(), 12, 0, 0, 0, loc)
+	}
+	best := -1
+	var bestDistance time.Duration
+	for i := range forecast {
+		distance := forecast[i].At.Sub(at)
+		if distance < 0 {
+			distance = -distance
+		}
+		if best < 0 || distance < bestDistance {
+			best = i
+			bestDistance = distance
+		}
+	}
+	// OpenWeather forecasts in three-hour steps. Avoid presenting an estimate
+	// that is too far from the event time as if it were event-specific.
+	if best < 0 || bestDistance > 2*time.Hour {
+		return
+	}
+	slot := forecast[best]
+	event.WeatherAt = slot.At.In(loc).Format("Mon 3 PM")
+	event.WeatherIcon = slot.Icon
+	event.WeatherTemp = slot.Temp
+	event.WeatherCondition = slot.Condition
+	event.WeatherWear = slot.Wear
 }
 
 func weatherIcon(s string) string {
