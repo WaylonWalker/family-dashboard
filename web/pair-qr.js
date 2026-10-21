@@ -1270,7 +1270,7 @@ module.exports = QRCode;
   var QRCode=req('index');var EC=req('QRErrorCorrectLevel');
   var qr=new QRCode(0,EC.M);qr.addData(data);qr.make();
   var total=qr.getModuleCount(),quiet=4,ns='http://www.w3.org/2000/svg';
-  var svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox','0 0 '+(total+quiet*2)+' '+(total+quiet*2));svg.setAttribute('role','img');svg.setAttribute('aria-label','Scan to approve photo frame');
+  var svg=document.createElementNS(ns,'svg');var viewportWidth=document.documentElement.clientWidth||window.innerWidth||320;var viewportHeight=document.documentElement.clientHeight||window.innerHeight||240;var edge=Math.floor(Math.max(96,Math.min(220,viewportWidth-64,viewportHeight*.32)));svg.setAttribute('width',String(edge));svg.setAttribute('height',String(edge));svg.setAttribute('viewBox','0 0 '+(total+quiet*2)+' '+(total+quiet*2));svg.setAttribute('role','img');svg.setAttribute('aria-label','Scan to approve photo frame');
   var bg=document.createElementNS(ns,'rect');bg.setAttribute('width','100%');bg.setAttribute('height','100%');bg.setAttribute('fill','#fff');svg.appendChild(bg);
   var path='',y,x;for(y=0;y<total;y++){for(x=0;x<total;x++){if(qr.isDark(y,x)){path+='M'+(x+quiet)+' '+(y+quiet)+'h1v1h-1z';}}}
   var ink=document.createElementNS(ns,'path');ink.setAttribute('d',path);ink.setAttribute('fill','#172c28');svg.appendChild(ink);
