@@ -6,8 +6,8 @@
   <meta http-equiv="refresh" content="900">
   <meta name="theme-color" content="#fdf6e3">
   <title>Family HQ</title>
-  <link rel="stylesheet" href="/style.css?v=5">
-  <script src="/app.js?v=5" defer></script>
+  <link rel="stylesheet" href="/style.css?v=6">
+  <script src="/app.js?v=6" defer></script>
   <noscript><style>
     .feature-pane[hidden]{display:flex!important}
     .feature-tabs,.feature-actions,.feature-bottom{display:none!important}
@@ -54,6 +54,7 @@
       <section class="calendar panel" aria-labelledby="calendar-title">
         <div class="section-top"><div><p class="eyebrow">ON THE HORIZON</p><h2 id="calendar-title">The week ahead</h2></div><span class="connection {{if eq .CalendarBadge "GOOGLE CALENDAR"}}connected{{end}}"><svg class="icon"><use href="#i-calendar" xlink:href="#i-calendar"/></svg> {{.CalendarBadge}}</span></div>
         <div class="week-strip" aria-label="Next seven days">{{range .Days}}<div class="day {{if .Today}}selected{{end}}"><span>{{.Label}}</span><strong>{{.Number}}</strong></div>{{end}}</div>
+        {{with .NextUp}}<article class="next-up" aria-label="{{.Status}}: {{.Title}}"><div class="next-up-copy"><p class="next-up-kicker">{{.Status}}</p><h3>{{.Title}}</h3><span class="next-up-meta">{{.Date}} · {{if .AllDay}}All day{{if gt .SpanDays 1}} · {{.SpanDays}} days{{end}}{{else}}{{.Time}}{{end}}</span></div><div class="next-up-count"><strong{{if and (not .AllDay) (ne .Countdown "NOW")}} class="event-relative" data-start="{{.Start}}"{{end}}>{{.Countdown}}</strong><span>{{if .AllDay}}ALL DAY{{else if eq .Countdown "NOW"}}IN PROGRESS{{else}}UNTIL START{{end}}</span></div></article>{{end}}
         <div class="event-list" aria-label="Upcoming appointments">
           {{range .Events}}<article class="event {{if .AllDay}}event-all-day{{end}}"><div class="event-date"><strong>{{.Date}}</strong><span>{{.Weekday}}</span></div><span class="event-mark {{.Category}}" aria-hidden="true"></span><div class="event-main"><h3>{{.Title}}</h3>{{if .AllDay}}<div class="event-details"><span class="event-kind">All day</span>{{if gt .SpanDays 1}}<span class="event-span">{{.SpanDays}} days</span>{{end}}</div>{{else}}<span>{{.Time}}</span> <time class="event-relative" datetime="{{.Start}}" data-start="{{.Start}}">{{.Relative}}</time>{{end}}</div></article>{{else}}<p class="empty">The calendar is clear. Enjoy the breathing room.</p>{{end}}
         </div>

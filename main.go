@@ -131,15 +131,18 @@ func newID() string {
 }
 
 type Event struct {
-	Date     string
-	Weekday  string
-	Time     string
-	Start    string
-	Relative string
-	AllDay   bool
-	SpanDays int
-	Title    string
-	Category string
+	Date      string
+	Weekday   string
+	Time      string
+	Start     string
+	End       string
+	Relative  string
+	AllDay    bool
+	SpanDays  int
+	Status    string
+	Countdown string
+	Title     string
+	Category  string
 }
 type Day struct {
 	Label  string
@@ -157,6 +160,7 @@ type Page struct {
 	Clock           string
 	Days            []Day
 	Events          []Event
+	NextUp          *Event
 	Tasks           []Task
 	Count           int
 	CSRF            string
@@ -249,7 +253,8 @@ func (a *app) page(now time.Time) Page {
 		}
 		clock, _ := time.ParseInLocation("3:04 PM", x.Clock, a.tz)
 		start := time.Date(d.Year(), d.Month(), d.Day(), clock.Hour(), clock.Minute(), 0, 0, a.tz)
-		events = append(events, Event{Date: label, Weekday: d.Format("Mon"), Time: x.Clock, Start: start.Format(time.RFC3339), Relative: relativeTime(start, n), Title: x.Title, Category: x.Category})
+		end := start.Add(time.Hour)
+		events = append(events, Event{Date: label, Weekday: d.Format("Mon"), Time: x.Clock, Start: start.Format(time.RFC3339), End: end.Format(time.RFC3339), Relative: relativeTime(start, n), Title: x.Title, Category: x.Category})
 	}
 	badge, note, message := "DEMO CALENDAR", "Sample events · connect Google Calendar in .env", "No Google account connected. These are illustrative events only."
 	if a.calendar != nil {
@@ -272,12 +277,13 @@ func (a *app) page(now time.Time) Page {
 			} else if item.end.Sub(item.start) > time.Hour {
 				clock = clock + " – " + item.end.In(a.tz).Format("3:04 PM")
 			}
-			events = append(events, Event{Date: label, Weekday: d.Format("Mon"), Time: clock, Start: item.start.Format(time.RFC3339), Relative: relativeTime(item.start, n), AllDay: item.allDay, SpanDays: allDayDays(item.start, item.end, a.tz), Title: item.title, Category: "family"})
+			events = append(events, Event{Date: label, Weekday: d.Format("Mon"), Time: clock, Start: item.start.Format(time.RFC3339), End: item.end.Format(time.RFC3339), Relative: relativeTime(item.start, n), AllDay: item.allDay, SpanDays: allDayDays(item.start, item.end, a.tz), Title: item.title, Category: "family"})
 		}
 		if len(events) == 0 && message == "" {
 			message = "No upcoming events this week."
 		}
 	}
+	nextUp, events := nextEvent(events, n)
 	tasks := a.store.list()
 	count := 0
 	for _, t := range tasks {
@@ -290,7 +296,7 @@ func (a *app) page(now time.Time) Page {
 	if len(wv.Slots) > 0 {
 		weatherKind = wv.Slots[0].Icon
 	}
-	return Page{WeatherKind: weatherKind, Hour24: n.Hour(), Today: n.Format("Monday, January 2"), Clock: n.Format("3:04 PM"), Days: days, Events: events, Tasks: tasks, Count: count, CSRF: a.csrf, CalendarBadge: badge, CalendarNote: note, CalendarMessage: message, Weather: wv}
+	return Page{WeatherKind: weatherKind, Hour24: n.Hour(), Today: n.Format("Monday, January 2"), Clock: n.Format("3:04 PM"), Days: days, Events: events, NextUp: nextUp, Tasks: tasks, Count: count, CSRF: a.csrf, CalendarBadge: badge, CalendarNote: note, CalendarMessage: message, Weather: wv}
 }
 
 // relativeTime gives calendar items a compact label that fits beside their time.
@@ -336,6 +342,33 @@ func allDayDays(start, end time.Time, loc *time.Location) int {
 		days++
 	}
 	return days
+}
+
+func nextEvent(events []Event, now time.Time) (*Event, []Event) {
+	for i, event := range events {
+		start, startErr := time.Parse(time.RFC3339, event.Start)
+		end, endErr := time.Parse(time.RFC3339, event.End)
+		if startErr != nil || endErr != nil || !end.After(now) {
+			continue
+		}
+		event.Status = "NEXT UP"
+		switch {
+		case event.AllDay:
+			if !start.After(now) {
+				event.Status = "HAPPENING TODAY"
+				event.Countdown = "TODAY"
+			} else {
+				event.Countdown = event.Date
+			}
+		case !start.After(now):
+			event.Status = "HAPPENING NOW"
+			event.Countdown = "NOW"
+		default:
+			event.Countdown = relativeTime(start, now)
+		}
+		return &event, append(events[:i], events[i+1:]...)
+	}
+	return nil, events
 }
 
 func (a *app) renderPage(w http.ResponseWriter, kiosk bool) {
