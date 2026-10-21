@@ -120,7 +120,7 @@ OpenTelemetry HTTP metrics are exposed at `/metrics` for Prometheus. The
 `family-dashboard` ServiceMonitor scrapes this endpoint every 30 seconds, and
 the NetworkPolicy allows only the in-cluster Prometheus pods and Traefik to
 reach the app. In Grafana, search Tempo for service `family-dashboard` to view
-traces, and query Prometheus metrics with the `service_name="family-dashboard"`
+traces, and query Prometheus metrics with the `"service.name"="family-dashboard"`
 label. The OTLP endpoint is set in `k8s/deployment.yaml`.
 
 ## Container and release
