@@ -36,7 +36,19 @@ kubectl -n argocd get application family-dashboard >/dev/null || {
 just check
 just container-build
 just container-push
-just pin-image "$image"
+if [[ "${CONTAINER_ENGINE:-podman}" == podman ]]; then
+  podman pull --tls-verify=false "$image" >/dev/null
+  digest=$(podman image inspect --format '{{.Digest}}' "$image")
+else
+  "${CONTAINER_ENGINE:-docker}" pull "$image" >/dev/null
+  repo_digest=$("${CONTAINER_ENGINE:-docker}" image inspect --format '{{index .RepoDigests 0}}' "$image")
+  digest="${repo_digest##*@}"
+fi
+if [[ ! "$digest" =~ ^sha256:[a-f0-9]{64}$ ]]; then
+  echo "Could not resolve a registry manifest digest for $image" >&2
+  exit 2
+fi
+just pin-image "$image@$digest"
 if ! git diff --quiet -- k8s/deployment.yaml; then
   git add k8s/deployment.yaml
   git commit -m "chore(deploy): promote family-dashboard to ${image##*:}"

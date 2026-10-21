@@ -78,10 +78,12 @@ It is read-only; Google Calendar stays the source of truth.
 
 Security: `.env` is ignored by Git. Do not place the secret address in the
 front-end, a public repository, browser JavaScript, query parameters, or logs.
-**Only expose a deployed server after hlab-auth registration and proxy verification;**
-opening a private calendar on the LAN or public internet without authentication
-would disclose your family's schedule to viewers. You can revoke a leaked link
-in Google Calendar by resetting the Secret address.
+The public home page contains no family data; the calendar and tasks remain
+behind hlab-auth at `/dashboard`. The public `/og` endpoint serves its share
+image. Keep the authenticated routes behind the verified proxy, since opening
+the private calendar without authentication would disclose your family's
+schedule. You can revoke a leaked link in Google Calendar by resetting the
+Secret address.
 
 ### Deploy a calendar to K3s later
 
@@ -152,7 +154,7 @@ just deploy
 ```
 
 The recipe preflights Git and Argo access, runs checks, builds and pushes an
-immutable image, pins that exact tag in `k8s/deployment.yaml`, commits and
+immutable image, resolves and pins its registry digest in `k8s/deployment.yaml`, commits and
 pushes **only the deployment manifest**, then refreshes and syncs Argo and verifies
 the rollout. No `kubectl set image` drift. This Git push is an intentional
 side effect; `just publish` builds/pushes an image **without** deployment.
@@ -341,15 +343,15 @@ On **the same computer**, open `http://127.0.0.1:8080/kiosk`. The pairing screen
 ### Deploy behind hlab-auth
 
 1. Register Family HQ and its protected routes for all four hostnames in `hlab-auth`. Grant household members `family-hq:read` and administrators **both** `family-hq:read` and `family-hq:manage`. The proxy should enforce your app route access; the backend checks scopes again for privileged actions. This registration is an operator action: the GitOps manifests cannot automatically provision hlab-auth's app/role database.
-2. Review the `k8s/ingress.yaml` **Traefik IngressRoute**, `k8s/middleware.yaml` ForwardAuth chain and `k8s/networkpolicy.yaml`. The HTTPS public kiosk routes (`/kiosk`, `/style.css`, `/app.js`, `/pair-qr.js`) do **not** use human ForwardAuth, but the backend always checks device credentials for private display data. All other routes, including approval and device management, are protected by ForwardAuth.
+2. Review the `k8s/ingress.yaml` **Traefik IngressRoute**, `k8s/middleware.yaml` ForwardAuth chain and `k8s/networkpolicy.yaml`. The HTTPS public routes (`/`, `/og`, `/kiosk`, `/style.css`, `/app.js`, `/pair-qr.js`) do **not** use human ForwardAuth. The calendar and tasks are served at `/dashboard` behind ForwardAuth; kiosk data still requires device credentials. All other routes, including approval and device management, are protected by ForwardAuth.
 3. **Check the actual Traefik pod selectors and source IPs in your running cluster.** The current Traefik pod is `10.42.0.15` on `falcon2`; the configured source range is `10.42.0.0/24`, and NetworkPolicy limits app ingress to Traefik pods in `kube-system`. Recheck the source after Traefik moves or restarts. The NetworkPolicy uses `kube-system` and `app.kubernetes.io/name=traefik`; adjust if your controller uses different namespace/labels.
 4. Verify `letsencrypt-dns` is the intended cert-manager ClusterIssuer and that all four configured hostnames are reachable via Traefik. Both human and frame routes must use HTTPS. IngressRoute TLS requires the Certificate resource included in the manifest.
 5. Deploy immutable image using your existing `just deploy` flow. Confirm `FAMILY_AUTH_MODE=proxy`, `FAMILY_PUBLIC_URL=https://family.wayl.one`, `FAMILY_TRUSTED_PROXY_CIDRS=...`, and `DEVICES_FILE=/data/devices.json`. The paired device record lives next to tasks on the same persistent Longhorn claim, not in Git.
-6. From a phone, open `https://family.wayl.one/` and verify that `hlab-auth` redirects and authenticates. Then open `https://family.wayl.one/kiosk` on the frame and approve through the QR link. The other hostnames are HTTPS aliases.
+6. From a phone, open `https://family.wayl.one/` to see the public landing page, then select **Open Family HQ** and verify that `hlab-auth` redirects and authenticates at `/dashboard`. Then open `https://family.wayl.one/kiosk` on the frame and approve through the QR link. The other hostnames are HTTPS aliases.
 
 ### Verify the security boundary
 
-- **Unauthenticated human:** `GET /` and `GET /devices` must be blocked; sending forged `X-Hlab-User-Id` from outside Traefik must not work.
+- **Unauthenticated human:** `GET /` and `/og` serve only public marketing content; `GET /dashboard` and `/devices` must be blocked. Sending forged `X-Hlab-User-Id` from outside Traefik must not work.
 - **Unpaired frame:** `GET /kiosk` only returns a pairing page, never private calendar events. The public QR link does **not** approve on GET; an authorized administrator must submit the confirmation POST.
 - **Paired frame:** `GET /kiosk` shows the dashboard and allows only `POST /kiosk/tasks` with `action=toggle`. `add`, `delete`, `/devices` and human administrative routes must be denied.
 - **Revoke:** `/devices` → Revoke immediately invalidates the frame, even if its cookie has not expired. New device pairing is required.
