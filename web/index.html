@@ -91,7 +91,7 @@
             {{if not .KioskMode}}<form class="add-task" method="post" action="{{$.TaskAction}}"><input type="hidden" name="csrf" value="{{.CSRF}}"><input type="hidden" name="action" value="add"><label class="visually-hidden" for="new-task">New family task</label><input id="new-task" type="text" name="title" maxlength="120" placeholder="Add a family task…" required><button type="submit">Add</button></form>{{end}}
           </section>
         </div>
-        <div class="feature-bottom"><span id="rotation-hint">Auto-switches every 30s · swipe to explore</span><div class="pager" aria-label="Panel position"><span class="pager-dot active"></span><span class="pager-dot"></span></div></div>
+        <div class="feature-bottom"><span id="rotation-hint">Auto-switches every 30s · swipe to explore</span><div class="pager" aria-label="Panel position"><span class="pager-dot active"></span><span class="pager-dot"></span></div><span id="rotation-progress" class="switch-progress" role="progressbar" aria-label="Time until next panel" aria-valuemin="0" aria-valuemax="30" aria-valuenow="0" aria-valuetext="Auto-switch paused" hidden></span></div>
       </aside>
     </main>
     <footer class="footer"><span><svg class="icon"><use href="#i-spark" xlink:href="#i-spark"/></svg> Make room for the good stuff.</span><span>Family HQ · Made for our home</span></footer>

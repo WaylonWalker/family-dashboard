@@ -7,6 +7,7 @@
   var panes = [document.getElementById('pane-weather'), document.getElementById('pane-tasks')];
   var tabs = [document.getElementById('tab-weather'), document.getElementById('tab-tasks')];
   var pager = document.querySelectorAll('.pager-dot');
+  var rotationProgress = document.getElementById('rotation-progress');
   var name = document.getElementById('feature-title');
   var hint = document.getElementById('rotation-hint');
   var drawer = document.getElementById('settings');
@@ -19,6 +20,7 @@
   var rotate = document.getElementById('rotate-toggle');
   var active = 0;
   var holdUntil = 0;
+  var rotationStartedAt = 0;
   var lastFocus = null;
 
   function read(key, fallback) {
@@ -76,11 +78,20 @@
   updateClock();
   window.setInterval(function () { if (theme.value === 'auto') applyTheme(); updateClock(); }, 60000);
 
-  function pause() { holdUntil = Date.now() + 120000; refreshHint(); }
+  function resetRotationProgress() {
+    rotationStartedAt = 0;
+    rotationProgress.hidden = true;
+    rotationProgress.style.transform = 'scaleX(0)';
+    rotationProgress.setAttribute('aria-valuenow', '0');
+    rotationProgress.setAttribute('aria-valuetext', 'Auto-switch paused');
+  }
+  function pause() { holdUntil = Date.now() + 120000; resetRotationProgress(); refreshHint(); }
   function refreshHint() {
     var remaining = Math.max(0, Math.ceil((holdUntil-Date.now())/1000));
     if (!rotate.checked) hint.textContent = 'Auto-switch off · swipe or tap to change';
+    else if (!drawer.hidden) hint.textContent = 'Settings open · auto-switch paused';
     else if (remaining > 0) hint.textContent = 'Your choice held for ' + (remaining > 60 ? Math.ceil(remaining / 60) + ' min' : remaining + ' sec');
+    else if (panel.contains(document.activeElement) && document.activeElement !== body) hint.textContent = 'Finish interacting to resume auto-switch';
     else hint.textContent = 'Auto-switches every 30s · swipe to explore';
   }
   function show(index, manual) {
@@ -115,11 +126,26 @@
   panel.addEventListener('focusin',function () { pause(); });
   panel.addEventListener('click',function () { pause(); });
   window.setInterval(function () {
-    refreshHint();
-    if (!rotate.checked || Date.now()<holdUntil || document.hidden || !drawer.hidden) return;
-    if (panel.contains(document.activeElement) && document.activeElement !== body) return;
-    show(active+1,false);
-  },30000);
+    var now = Date.now();
+    var blocked = !rotate.checked || now < holdUntil || document.hidden || !drawer.hidden;
+    if (!blocked && panel.contains(document.activeElement) && document.activeElement !== body) blocked = true;
+    if (blocked) { resetRotationProgress(); return; }
+    if (!rotationStartedAt) rotationStartedAt = now;
+    var elapsed = now - rotationStartedAt;
+    var progress = Math.min(1, elapsed / 30000);
+    var secondsLeft = Math.max(0, Math.ceil((30000 - elapsed) / 1000));
+    rotationProgress.hidden = false;
+    rotationProgress.style.transform = 'scaleX(' + progress + ')';
+    rotationProgress.setAttribute('aria-valuenow', String(Math.floor(progress * 30)));
+    rotationProgress.setAttribute('aria-valuetext', secondsLeft + ' seconds until next panel');
+    if (elapsed >= 30000) {
+      show(active + 1, false);
+      rotationStartedAt = Date.now();
+      rotationProgress.style.transform = 'scaleX(0)';
+      rotationProgress.setAttribute('aria-valuenow', '0');
+      rotationProgress.setAttribute('aria-valuetext', '30 seconds until next panel');
+    }
+  },100);
   window.setInterval(refreshHint,1000);
   /* Retain the currently selected tasks pane after a task form POST / redirect. */
   var submitted = document.querySelectorAll('#pane-tasks form');
