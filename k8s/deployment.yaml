@@ -72,6 +72,10 @@ spec:
                 secretKeyRef:
                   name: family-dashboard-travel
                   key: FAMILY_TRAVEL_RULES_JSON
+            - name: OTEL_SERVICE_NAME
+              value: family-dashboard
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://otel-collector-opentelemetry-collector.observability.svc.cluster.local:4318
           resources:
             requests:
               cpu: 10m

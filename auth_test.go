@@ -130,7 +130,7 @@ func TestPairApproveRevokeFrame(t *testing.T) {
 	}
 	req = humanReq("GET", "/pair/approve?code="+code, "", "family-hq:manage")
 	w = served(a, req)
-	if w.Code != 200 || !strings.Contains(w.Body.String(), "Approve this Fire TV?") || !strings.Contains(w.Body.String(), "/style.css?v=approve-3") {
+	if w.Code != 200 || w.Header().Get("Referrer-Policy") != "origin" || !strings.Contains(w.Body.String(), "Approve this Fire TV?") || !strings.Contains(w.Body.String(), "/style.css?v=approve-3") {
 		t.Fatalf("approval page: %d %s", w.Code, w.Body.String())
 	}
 	approvalCookie := cookieNamed(t, w, approvalCookieName)
@@ -152,7 +152,11 @@ func TestPairApproveRevokeFrame(t *testing.T) {
 		t.Fatalf("paired confirmation did not render themed page: %s", w.Body.String())
 	}
 	// The approval cannot be repeated.
-	if w = served(a, good); w.Code != 410 {
+	duplicate := humanReq("POST", "/pair/approve", vals.Encode(), "family-hq:manage")
+	duplicate.Host = "fam.wayl.one"
+	duplicate.Header.Set("Origin", "https://fam.wayl.one")
+	duplicate.AddCookie(approvalCookie)
+	if w = served(a, duplicate); w.Code != 410 {
 		t.Fatalf("duplicate approve: %d", w.Code)
 	}
 	poll := httptest.NewRequest("GET", "/kiosk/pair/status", nil)
@@ -208,6 +212,29 @@ func TestPairApproveRevokeFrame(t *testing.T) {
 	show.AddCookie(frameCookie)
 	if w = served(a, show); !strings.Contains(w.Body.String(), "Connect this display") {
 		t.Fatalf("revoked frame was not sent to pairing page (%d)", w.Code)
+	}
+}
+
+func TestSameOriginAliasesAndRefererFallback(t *testing.T) {
+	a := proxyApp(t)
+	for _, tc := range []struct {
+		name, origin, referer string
+		want                  bool
+	}{
+		{"alias origin", "https://fam.wayl.one", "", true},
+		{"default HTTPS port", "https://fam.wayl.one:443", "", true},
+		{"same-site referer when Origin is omitted", "", "https://fam.wayl.one/pair/approve?code=private", true},
+		{"do not use referer to override a bad Origin", "https://attacker.invalid", "https://fam.wayl.one/pair/approve", false},
+		{"reject path in Origin", "https://fam.wayl.one/pair/approve", "", false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			r := httptest.NewRequest(http.MethodPost, "https://fam.wayl.one/pair/approve", nil)
+			r.Header.Set("Origin", tc.origin)
+			r.Header.Set("Referer", tc.referer)
+			if got := a.sameOrigin(r); got != tc.want {
+				t.Fatalf("sameOrigin() = %t, want %t", got, tc.want)
+			}
+		})
 	}
 }
 

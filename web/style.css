@@ -58,6 +58,11 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
 .pair-page .pair-url a:focus-visible,.approve-page a:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:3px}
 .pair-page h1{font-family:var(--heading);font-size:30px;letter-spacing:-.8px;margin:0 0 10px}
 .pair-page .pair-small{font-size:15px;opacity:.72}
+.pair-page .pair-expiry{max-width:320px;margin:16px auto 12px;text-align:left}
+.pair-page .pair-expiry-label{display:flex;justify-content:space-between;align-items:center;font-size:14px;opacity:.8}
+.pair-page .pair-expiry-label strong{font-variant-numeric:tabular-nums;font-size:18px;color:var(--ink)}
+.pair-page .pair-expiry-track{height:8px;margin-top:7px;overflow:hidden;border-radius:99px;background:var(--line)}
+.pair-page .pair-expiry-track span{display:block;width:100%;height:100%;border-radius:inherit;background:var(--accent);transform-origin:left center;transition:transform .5s linear}
 .approve-page{display:grid;place-items:center;min-height:100vh;padding:18px}
 .approve-page .approve-card{position:relative;z-index:1;width:100%;max-width:520px;padding:26px;background:var(--surface);color:var(--ink);border-color:var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
 .approve-page h1{font-family:var(--heading);font-size:28px;letter-spacing:-.7px;margin:0 0 12px}
@@ -66,3 +71,26 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
 .approve-page input{width:100%;min-height:48px;padding:11px 13px;border:1px solid var(--line);border-radius:11px;background:var(--soft);color:var(--ink)}
 .approve-page button,.approve-page .approve-return{display:flex;align-items:center;justify-content:center;min-height:48px;margin-top:7px;padding:12px 18px;border:0;border-radius:11px;background:var(--accent);color:var(--surface);font:700 15px var(--body);text-decoration:none}
 .approve-page .approve-note{margin:18px 0 0;color:var(--muted);font-size:12px;line-height:1.45}
+
+/* Travel cards stay informational until the leave time is close. */
+.next-up[data-leave-at]{background:var(--soft);color:var(--ink);border-left:4px solid var(--line)}
+.next-up[data-leave-at] .next-up-kicker{color:var(--accent)}
+.next-up[data-leave-at] .next-up-meta,.next-up[data-leave-at] .next-up-travel{color:var(--muted);opacity:1}
+.next-up[data-leave-at] .next-up-count{display:none}
+.next-up[data-leave-at].is-approaching{border-left-color:var(--accent)}
+.next-up[data-leave-at].is-approaching .next-up-count{display:flex;flex-direction:row;align-items:center;gap:9px;max-width:none;text-align:left}
+.next-up[data-leave-at].is-approaching .next-up-count strong{font-size:24px;letter-spacing:-.5px;color:var(--accent)}
+.next-up[data-leave-at] .next-up-count span{margin:0;font-size:11px;font-weight:650;letter-spacing:0;text-transform:none;color:var(--muted);opacity:1}
+@media (max-width:520px){
+  .next-up[data-leave-at]{align-items:flex-start;flex-direction:column;gap:8px;padding:14px 15px}
+  .next-up[data-leave-at].is-approaching .next-up-count{align-self:flex-start}
+  .weather-now{padding:11px 12px 12px}
+  .weather-now-label{margin-bottom:7px}
+  .weather-now-main{grid-template-columns:30px auto minmax(0,1fr);gap:8px 10px}
+  .weather-now-icon{width:28px;height:28px}
+  .weather-now-temp{font-size:39px}
+  .weather-now-copy strong{font-size:13px}
+  .weather-now-copy span{font-size:11px}
+  .weather-now-copy small{display:flex;align-items:baseline;gap:9px;margin-top:4px;padding-top:8px}
+  .weather-now-wear-label{flex:none;color:var(--accent)!important;font-size:8px!important;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+}

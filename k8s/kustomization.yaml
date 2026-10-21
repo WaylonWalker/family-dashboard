@@ -8,6 +8,7 @@ resources:
   - ingress.yaml
   - middleware.yaml
   - networkpolicy.yaml
+  - servicemonitor.yaml
   - family-dashboard-weather.sealed.yaml
   - family-dashboard-calendar.sealed.yaml
   - family-dashboard-travel.sealed.yaml

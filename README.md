@@ -110,6 +110,21 @@ frame will only receive rendered event titles/times, not Google credentials.
 
 ## Container and release
 
+## Server observability
+
+The deployed server exports HTTP request traces over OTLP/HTTP to the cluster's
+OpenTelemetry Collector. Server spans include the matched HTTP route; calendar
+and weather calls appear as child spans with the destination host and response
+status. Request URLs, calendar credentials, and the weather API key are not
+recorded.
+
+OpenTelemetry HTTP metrics are exposed at `/metrics` for Prometheus. The
+`family-dashboard` ServiceMonitor scrapes this endpoint every 30 seconds, and
+the NetworkPolicy allows only the in-cluster Prometheus pods and Traefik to
+reach the app. In Grafana, search Tempo for service `family-dashboard` to view
+traces, and query Prometheus metrics with the `service_name="family-dashboard"`
+label. The OTLP endpoint is set in `k8s/deployment.yaml`.
+
 ```sh
 just image           # default: registry.wayl.one/family-dashboard:sha-<git SHA>
 just container-build

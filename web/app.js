@@ -111,6 +111,11 @@
     for (var j = 0; j < leaveLabels.length; j++) {
       var remaining = Math.ceil((Date.parse(leaveLabels[j].getAttribute('data-leave-at')) - now) / 1000);
       if (!isFinite(remaining)) continue;
+      var card = leaveLabels[j].parentNode.parentNode;
+      if (card && card.classList) {
+        if (remaining <= 3600) card.classList.add('is-approaching');
+        else card.classList.remove('is-approaching');
+      }
       var text = 'NOW';
       if (remaining > 0) {
         if (remaining < 60) text = remaining + 's';
@@ -132,8 +137,8 @@
       if (caption) {
         var pickup = leaveLabels[j].classList.contains('pickup-countdown');
         caption.textContent = pickup
-          ? (remaining <= 0 ? 'LEAVE FOR PICKUP NOW' : 'UNTIL LEAVE FOR PICKUP')
-          : (remaining <= 0 ? 'LEAVE NOW' : 'UNTIL LEAVE');
+          ? (remaining <= 0 ? 'Leave for pickup now' : 'Leave for pickup in')
+          : (remaining <= 0 ? 'Leave now' : 'Leave in');
       }
     }
   }

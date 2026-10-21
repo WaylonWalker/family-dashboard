@@ -117,7 +117,7 @@ func (wf *weatherFeed) get(ctx context.Context, path string, out any) error {
 	if err != nil {
 		return errors.New("could not prepare weather request")
 	}
-	resp, err := wf.client.Do(req)
+	resp, err := tracedRequest(ctx, "weather.fetch", wf.client, req)
 	if err != nil {
 		return errors.New("weather service unreachable; check your connection and retry")
 	}
@@ -140,6 +140,10 @@ func (wf *weatherFeed) get(ctx context.Context, path string, out any) error {
 func (wf *weatherFeed) fetch(now time.Time) (weatherView, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 12*time.Second)
 	defer cancel()
+	return wf.fetchContext(ctx, now)
+}
+
+func (wf *weatherFeed) fetchContext(ctx context.Context, now time.Time) (weatherView, error) {
 	var forecast owForecast
 	if err := wf.get(ctx, "/data/2.5/forecast", &forecast); err != nil {
 		return weatherView{}, err
@@ -370,6 +374,10 @@ func demoWeather() weatherView {
 }
 
 func (wf *weatherFeed) snapshot(now time.Time) weatherView {
+	return wf.snapshotContext(context.Background(), now)
+}
+
+func (wf *weatherFeed) snapshotContext(ctx context.Context, now time.Time) weatherView {
 	if wf == nil {
 		return demoWeather()
 	}
@@ -378,7 +386,9 @@ func (wf *weatherFeed) snapshot(now time.Time) weatherView {
 	if now.Before(wf.next) {
 		return wf.value
 	}
-	view, err := wf.fetch(now)
+	fetchCtx, cancel := context.WithTimeout(ctx, 12*time.Second)
+	view, err := wf.fetchContext(fetchCtx, now)
+	cancel()
 	if err != nil {
 		wf.next = now.Add(2 * time.Minute)
 		if wf.hasGood {

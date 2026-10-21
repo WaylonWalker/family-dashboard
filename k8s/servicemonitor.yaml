@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: family-dashboard
+  labels:
+    app.kubernetes.io/name: family-dashboard
+spec:
+  namespaceSelector:
+    matchNames:
+      - family-dashboard
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: family-dashboard
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s

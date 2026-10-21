@@ -310,17 +310,18 @@ func readAuthConfig() (authConfig, error) {
 		return cfg, errors.New("FAMILY_PUBLIC_URL must be the exact HTTPS origin, e.g. https://family.wayl.one")
 	}
 	cfg.publicURL = u.String()
-	cfg.allowedOrigins = map[string]struct{}{strings.ToLower(u.Scheme + "://" + u.Host): {}}
+	publicOrigin, _ := normalizedHTTPSOrigin(cfg.publicURL, false)
+	cfg.allowedOrigins = map[string]struct{}{publicOrigin: {}}
 	for _, value := range strings.Split(os.Getenv("FAMILY_ALLOWED_ORIGINS"), ",") {
 		value = strings.TrimSpace(value)
 		if value == "" {
 			continue
 		}
-		origin, err := url.Parse(value)
-		if err != nil || origin.Scheme != "https" || origin.Host == "" || origin.User != nil || origin.Path != "" || origin.RawQuery != "" || origin.Fragment != "" {
+		originKey, ok := normalizedHTTPSOrigin(value, false)
+		if !ok {
 			return cfg, errors.New("FAMILY_ALLOWED_ORIGINS must be comma-separated exact HTTPS origins")
 		}
-		cfg.allowedOrigins[strings.ToLower(origin.Scheme+"://"+origin.Host)] = struct{}{}
+		cfg.allowedOrigins[originKey] = struct{}{}
 	}
 	for _, part := range strings.Split(os.Getenv("FAMILY_TRUSTED_PROXY_CIDRS"), ",") {
 		part = strings.TrimSpace(part)
@@ -340,6 +341,32 @@ func readAuthConfig() (authConfig, error) {
 		return cfg, errors.New("FAMILY_TRUSTED_PROXY_CIDRS required in proxy mode: specify actual Traefik source addresses")
 	}
 	return cfg, nil
+}
+
+func normalizedHTTPSOrigin(raw string, allowPath bool) (string, bool) {
+	u, err := url.Parse(raw)
+	if err != nil || !strings.EqualFold(u.Scheme, "https") || u.Host == "" || u.User != nil || u.Opaque != "" {
+		return "", false
+	}
+	if !allowPath && (u.Path != "" || u.RawPath != "" || u.RawQuery != "" || u.Fragment != "") {
+		return "", false
+	}
+	host := strings.ToLower(u.Hostname())
+	if host == "" {
+		return "", false
+	}
+	port := u.Port()
+	if strings.Contains(host, ":") {
+		host = "[" + host + "]"
+	}
+	if port != "" && port != "443" {
+		if strings.HasPrefix(host, "[") {
+			host = net.JoinHostPort(strings.Trim(host, "[]"), port)
+		} else {
+			host += ":" + port
+		}
+	}
+	return "https://" + host, true
 }
 func (a *app) trustedProxy(r *http.Request) bool {
 	host, _, err := net.SplitHostPort(r.RemoteAddr)
@@ -410,12 +437,20 @@ func (a *app) sameOrigin(r *http.Request) bool {
 	if !a.auth.enabled {
 		return true
 	}
-	origin, err := url.Parse(r.Header.Get("Origin"))
-	if err != nil || origin.Scheme != "https" || origin.Host == "" || origin.User != nil || origin.Path != "" || origin.RawQuery != "" || origin.Fragment != "" {
-		return false
+	rawOrigin := r.Header.Get("Origin")
+	originKey, ok := normalizedHTTPSOrigin(rawOrigin, false)
+	if rawOrigin == "" {
+		originKey, ok = normalizedHTTPSOrigin(r.Referer(), true)
 	}
-	_, ok := a.auth.allowedOrigins[strings.ToLower(origin.Scheme+"://"+origin.Host)]
-	return ok
+	_, allowed := a.auth.allowedOrigins[originKey]
+	if ok && allowed {
+		return true
+	}
+	if !ok {
+		originKey = "invalid-or-missing"
+	}
+	log.Printf("rejected same-origin request host=%q origin=%q", r.Host, originKey)
+	return false
 }
 func csrfOK(r *http.Request, secret string) bool {
 	if err := r.ParseForm(); err != nil {
@@ -443,7 +478,7 @@ func (a *app) kioskPage(w http.ResponseWriter, r *http.Request) {
 		a.pairPage(w, r)
 		return
 	}
-	a.renderPage(w, true)
+	a.renderPage(w, r, true)
 }
 func (a *app) pairPage(w http.ResponseWriter, r *http.Request) {
 	securityHeaders(w)
@@ -468,8 +503,9 @@ func (a *app) pairPage(w http.ResponseWriter, r *http.Request) {
 	_ = a.pairTpl.Execute(w, struct {
 		URL         string
 		Expires     string
+		ExpiresAt   int64
 		DisplayKind string
-	}{link, item.Created.Add(pairingTTL).Format("3:04 PM"), item.DisplayKind})
+	}{link, item.Created.Add(pairingTTL).Format("3:04 PM"), item.Created.Add(pairingTTL).UnixMilli(), item.DisplayKind})
 }
 func (a *app) pairingStatus(w http.ResponseWriter, r *http.Request) {
 	securityHeaders(w)
@@ -488,6 +524,9 @@ func (a *app) pairingStatus(w http.ResponseWriter, r *http.Request) {
 }
 func (a *app) approvePage(w http.ResponseWriter, r *http.Request) {
 	securityHeaders(w)
+	// Some older embedded browsers omit Origin on form POSTs. Send only the
+	// page origin as Referer, never the one-time approval code in the query.
+	w.Header().Set("Referrer-Policy", "origin")
 	code := r.URL.Query().Get("code")
 	if !a.pairings.validClaim(code, a.now()) {
 		http.Error(w, "This pairing code is invalid, expired, or already used. Reload the frame to start again.", 410)

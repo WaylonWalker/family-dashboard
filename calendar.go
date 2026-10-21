@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -62,10 +63,14 @@ func newCalendarFeed(secretURL string, tz *time.Location) (*calendarFeed, error)
 // snapshot synchronizes only when the interval expires. Failed requests are
 // retried on a short cooldown; the previous known-good snapshot remains visible.
 func (f *calendarFeed) snapshot(now time.Time) ([]calendarItem, string, string) {
+	return f.snapshotContext(context.Background(), now)
+}
+
+func (f *calendarFeed) snapshotContext(ctx context.Context, now time.Time) ([]calendarItem, string, string) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	if !now.Before(f.next) {
-		entries, err := f.download(now)
+		entries, err := f.download(ctx, now)
 		if err != nil {
 			f.problem = "Calendar unavailable: " + err.Error()
 			f.next = now.Add(time.Minute)
@@ -86,13 +91,13 @@ func (f *calendarFeed) snapshot(now time.Time) ([]calendarItem, string, string) 
 	return result, "Google Calendar · synced " + f.fetched.In(f.tz).Format("3:04 PM"), ""
 }
 
-func (f *calendarFeed) download(now time.Time) ([]calendarItem, error) {
-	req, err := http.NewRequest(http.MethodGet, f.url, nil)
+func (f *calendarFeed) download(ctx context.Context, now time.Time) ([]calendarItem, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, f.url, nil)
 	if err != nil {
 		return nil, errors.New("invalid calendar request")
 	}
 	req.Header.Set("Accept", "text/calendar")
-	resp, err := f.client.Do(req)
+	resp, err := tracedRequest(ctx, "calendar.fetch", f.client, req)
 	if err != nil {
 		return nil, errors.New("calendar request failed")
 	} // never include secret URL from net/http error

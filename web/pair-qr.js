@@ -1277,11 +1277,28 @@ module.exports = QRCode;
   target.appendChild(svg);
  }
  var target=document.getElementById('pair-qr');if(target){try{drawQR(target,target.getAttribute('data-url'));}catch(e){target.textContent='Unable to create QR; open the pairing link on your phone.';}}
+ var expiry=document.getElementById('pair-expiry');
+ var expiresAt=expiry?Number(expiry.getAttribute('data-expires-at')):0;
+ var countdown=document.getElementById('pair-countdown');
+ var progress=document.getElementById('pair-expiry-progress');
+ var progressbar=document.querySelector('.pair-expiry-track');
+ var refreshing=false;
+ function updateExpiry() {
+  if(!expiresAt||refreshing)return;
+  var remaining=Math.max(0,expiresAt-Date.now());
+  var seconds=Math.ceil(remaining/1000);
+  if(countdown){var secondsText=String(seconds%60);countdown.textContent=Math.floor(seconds/60)+':'+('0'+secondsText).slice(-2);}
+  var ratio=Math.max(0,Math.min(1,remaining/300000));
+  if(progress)progress.style.transform='scaleX('+ratio+')';
+  if(progressbar)progressbar.setAttribute('aria-valuenow',String(Math.ceil(remaining/1000)));
+  if(remaining===0){refreshing=true;document.getElementById('pair-status').textContent='Getting a fresh link…';window.location.reload();}
+ }
+ updateExpiry();window.setInterval(updateExpiry,250);
  function poll() {
   var xhr=new XMLHttpRequest();xhr.open('GET','/kiosk/pair/status',true);
   xhr.onreadystatechange=function(){if(xhr.readyState!==4)return;if(xhr.status===200){try{var status=JSON.parse(xhr.responseText).status;
    if(status==='paired'){window.location.replace('/kiosk');return;}
-   if(status==='expired'){document.getElementById('pair-status').textContent='Code expired. Refresh this screen to get a new one.';return;}
+   if(status==='expired'){document.getElementById('pair-status').textContent='Getting a fresh link…';window.location.reload();return;}
   }catch(e){}}};xhr.send();
  }
  if(target){window.setInterval(poll,3000);poll();}

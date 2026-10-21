@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/rand"
 	"crypto/subtle"
 	"embed"
@@ -15,9 +16,11 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 	_ "time/tzdata"
 	"unicode"
@@ -341,6 +344,7 @@ type app struct {
 	pairings       *pairingPool
 	devMode        bool
 	devVersion     string
+	metricsHandler http.Handler
 	pairTpl        *template.Template
 	approveTpl     *template.Template
 	approveDoneTpl *template.Template
@@ -404,6 +408,10 @@ func newApp(path string) (*app, error) {
 }
 
 func (a *app) page(now time.Time) Page {
+	return a.pageContext(context.Background(), now)
+}
+
+func (a *app) pageContext(ctx context.Context, now time.Time) Page {
 	n := now.In(a.tz)
 	days := make([]Day, 0, 7)
 	for i := 0; i < 7; i++ {
@@ -437,7 +445,7 @@ func (a *app) page(now time.Time) Page {
 	}
 	badge, note, message := "DEMO CALENDAR", "Sample events · connect Google Calendar in .env", "No Google account connected. These are illustrative events only."
 	if a.calendar != nil {
-		items, status, problem := a.calendar.snapshot(n)
+		items, status, problem := a.calendar.snapshotContext(ctx, n)
 		badge = "GOOGLE CALENDAR"
 		note = status
 		message = problem
@@ -473,7 +481,7 @@ func (a *app) page(now time.Time) Page {
 			count++
 		}
 	}
-	wv := a.weather.snapshot(n)
+	wv := a.weather.snapshotContext(ctx, n)
 	addEventWeather(nextUp, wv, n, a.tz)
 	weatherKind := "unknown"
 	if len(wv.Slots) > 0 {
@@ -558,10 +566,10 @@ func nextEvent(events []Event, now time.Time) (*Event, []Event) {
 	return nil, events
 }
 
-func (a *app) renderPage(w http.ResponseWriter, kiosk bool) {
+func (a *app) renderPage(w http.ResponseWriter, r *http.Request, kiosk bool) {
 	securityHeaders(w)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	pg := a.page(a.now())
+	pg := a.pageContext(r.Context(), a.now())
 	pg.KioskMode = kiosk
 	pg.DevMode = a.devMode
 	if kiosk {
@@ -584,7 +592,7 @@ func (a *app) routes() http.Handler {
 		a.publicHome(w, r)
 	})
 	mux.HandleFunc("GET /dashboard", a.requireHuman("family-hq:read", func(w http.ResponseWriter, r *http.Request) {
-		a.renderPage(w, false)
+		a.renderPage(w, r, false)
 	}))
 	mux.HandleFunc("GET /og", a.openGraphImage)
 	mux.HandleFunc("GET /manifest.webmanifest", func(w http.ResponseWriter, r *http.Request) {
@@ -738,9 +746,16 @@ func (a *app) routes() http.Handler {
 		w.Header().Set("Content-Type", "text/plain")
 		io.WriteString(w, "ok\n")
 	})
+	mux.HandleFunc("GET /metrics", func(w http.ResponseWriter, r *http.Request) {
+		if a.metricsHandler == nil {
+			http.NotFound(w, r)
+			return
+		}
+		a.metricsHandler.ServeHTTP(w, r)
+	})
 	mux.HandleFunc("POST /tasks", a.requireHuman("family-hq:read", a.mutate))
 	a.authRoutes(mux)
-	return mux
+	return instrumentHTTP(mux)
 }
 
 // publicHome serves a data-free landing page. The private dashboard lives at
@@ -844,6 +859,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	telemetry, err := setupTelemetry(context.Background())
+	if err != nil {
+		log.Fatalf("initialize telemetry: %v", err)
+	}
+	a.metricsHandler = telemetry.metricsHandler
 	addr := os.Getenv("LISTEN_ADDR")
 	if addr == "" {
 		addr = ":8080"
@@ -854,5 +874,22 @@ func main() {
 	}
 	a.authSummary()
 	log.Printf("family dashboard listening %s", addr)
-	log.Fatal(server.ListenAndServe())
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-stop
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := server.Shutdown(ctx); err != nil {
+			log.Printf("server shutdown: %v", err)
+		}
+	}()
+	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		log.Printf("server: %v", err)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := telemetry.shutdown(ctx); err != nil {
+		log.Printf("telemetry shutdown: %v", err)
+	}
 }
