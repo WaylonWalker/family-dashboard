@@ -71,6 +71,21 @@ func TestAllDayDaysCountsCalendarDatesAcrossDST(t *testing.T) {
 	}
 }
 
+func TestNextEventSkipsEventsAlreadyInProgress(t *testing.T) {
+	now := time.Date(2026, time.October, 21, 19, 7, 0, 0, time.UTC)
+	events := []Event{
+		{Title: "No school", Start: now.Add(-12 * time.Hour).Format(time.RFC3339), End: now.Add(12 * time.Hour).Format(time.RFC3339), AllDay: true},
+		{Title: "Ayla Vv", Start: now.Add(2 * time.Hour).Format(time.RFC3339), End: now.Add(4 * time.Hour).Format(time.RFC3339)},
+	}
+	next, remaining := nextEvent(events, now)
+	if next == nil || next.Title != "Ayla Vv" || next.Countdown != "in 2h" {
+		t.Fatalf("next event = %+v, want Ayla Vv in 2h", next)
+	}
+	if len(remaining) != 1 || remaining[0].Title != "No school" {
+		t.Fatalf("remaining events = %+v, want in-progress all-day event retained", remaining)
+	}
+}
+
 func TestRejectBadTaskMutations(t *testing.T) {
 	a, err := newApp(filepath.Join(t.TempDir(), "tasks.json"))
 	if err != nil {

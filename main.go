@@ -348,22 +348,13 @@ func nextEvent(events []Event, now time.Time) (*Event, []Event) {
 	for i, event := range events {
 		start, startErr := time.Parse(time.RFC3339, event.Start)
 		end, endErr := time.Parse(time.RFC3339, event.End)
-		if startErr != nil || endErr != nil || !end.After(now) {
+		if startErr != nil || endErr != nil || !start.After(now) || !end.After(now) {
 			continue
 		}
 		event.Status = "NEXT UP"
-		switch {
-		case event.AllDay:
-			if !start.After(now) {
-				event.Status = "HAPPENING TODAY"
-				event.Countdown = "TODAY"
-			} else {
-				event.Countdown = event.Date
-			}
-		case !start.After(now):
-			event.Status = "HAPPENING NOW"
-			event.Countdown = "NOW"
-		default:
+		if event.AllDay {
+			event.Countdown = event.Date
+		} else {
 			event.Countdown = relativeTime(start, now)
 		}
 		return &event, append(events[:i], events[i+1:]...)
