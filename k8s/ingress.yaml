@@ -1,0 +1,40 @@
+# Public kiosk route still requires a revocable device cookie inside the app.
+# Human routes are protected by the hlab-auth ForwardAuth chain below.
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: family-dashboard
+spec:
+  entryPoints: [websecure]
+  tls:
+    secretName: family-dashboard-tls
+  routes:
+    - match: "(Host(`family.wayl.one`) || Host(`fam.wayl.one`) || Host(`family.waylonwalker.com`) || Host(`fam.waylonwalker.com`)) && (PathPrefix(`/kiosk`) || Path(`/style.css`) || Path(`/app.js`) || Path(`/pair-qr.js`))"
+      kind: Rule
+      priority: 100
+      services:
+        - name: family-dashboard
+          port: http
+    - match: "Host(`family.wayl.one`) || Host(`fam.wayl.one`) || Host(`family.waylonwalker.com`) || Host(`fam.waylonwalker.com`)"
+      kind: Rule
+      priority: 10
+      middlewares:
+        - name: family-dashboard-auth
+      services:
+        - name: family-dashboard
+          port: http
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: family-dashboard-tls
+spec:
+  secretName: family-dashboard-tls
+  dnsNames:
+    - family.wayl.one
+    - fam.wayl.one
+    - family.waylonwalker.com
+    - fam.waylonwalker.com
+  issuerRef:
+    name: letsencrypt-dns
+    kind: ClusterIssuer

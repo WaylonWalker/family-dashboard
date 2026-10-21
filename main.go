@@ -1,0 +1,408 @@
+package main
+
+import (
+	"crypto/rand"
+	"crypto/subtle"
+	"embed"
+	"encoding/hex"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"html/template"
+	"io"
+	"log"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
+	"sync"
+	"time"
+	_ "time/tzdata"
+)
+
+//go:embed web/*
+var webFS embed.FS
+
+type Task struct {
+	ID    string `json:"id"`
+	Title string `json:"title"`
+	Done  bool   `json:"done"`
+}
+
+type taskStore struct {
+	mu    sync.Mutex
+	path  string
+	tasks []Task
+}
+
+func openStore(path string) (*taskStore, error) {
+	s := &taskStore{path: path}
+	data, err := os.ReadFile(path)
+	if errors.Is(err, os.ErrNotExist) {
+		s.tasks = []Task{{ID: newID(), Title: "Set the table"}, {ID: newID(), Title: "Take out recycling"}, {ID: newID(), Title: "Plan the weekend"}}
+		return s, s.save()
+	}
+	if err != nil {
+		return nil, err
+	}
+	if err := json.Unmarshal(data, &s.tasks); err != nil {
+		return nil, fmt.Errorf("decode tasks: %w", err)
+	}
+	if s.tasks == nil {
+		s.tasks = []Task{}
+	}
+	return s, nil
+}
+
+func (s *taskStore) list() []Task {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return append([]Task(nil), s.tasks...)
+}
+
+func (s *taskStore) save() error {
+	if err := os.MkdirAll(filepath.Dir(s.path), 0700); err != nil {
+		return err
+	}
+	data, err := json.MarshalIndent(s.tasks, "", "  ")
+	if err != nil {
+		return err
+	}
+	tmp, err := os.CreateTemp(filepath.Dir(s.path), ".tasks-*")
+	if err != nil {
+		return err
+	}
+	defer os.Remove(tmp.Name())
+	if err := tmp.Chmod(0600); err != nil {
+		tmp.Close()
+		return err
+	}
+	if _, err := tmp.Write(append(data, '\n')); err != nil {
+		tmp.Close()
+		return err
+	}
+	if err := tmp.Sync(); err != nil {
+		tmp.Close()
+		return err
+	}
+	if err := tmp.Close(); err != nil {
+		return err
+	}
+	return os.Rename(tmp.Name(), s.path)
+}
+
+func (s *taskStore) add(title string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if len(s.tasks) >= 100 {
+		return errors.New("task limit reached")
+	}
+	s.tasks = append(s.tasks, Task{ID: newID(), Title: title})
+	return s.save()
+}
+
+func (s *taskStore) change(id, action string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for i, task := range s.tasks {
+		if task.ID != id {
+			continue
+		}
+		switch action {
+		case "toggle":
+			s.tasks[i].Done = !task.Done
+		case "delete":
+			s.tasks = append(s.tasks[:i], s.tasks[i+1:]...)
+		default:
+			return errors.New("invalid action")
+		}
+		return s.save()
+	}
+	return errors.New("task not found")
+}
+
+func newID() string {
+	var buf [16]byte
+	if _, err := rand.Read(buf[:]); err != nil {
+		panic(err)
+	}
+	return hex.EncodeToString(buf[:])
+}
+
+type Event struct {
+	Date     string
+	Weekday  string
+	Time     string
+	Title    string
+	Category string
+}
+type Day struct {
+	Label  string
+	Number string
+	Today  bool
+}
+type Page struct {
+	WeatherKind     string
+	Hour24          int
+	CalendarBadge   string
+	CalendarNote    string
+	CalendarMessage string
+	Weather         weatherView
+	Today           string
+	Clock           string
+	Days            []Day
+	Events          []Event
+	Tasks           []Task
+	Count           int
+	CSRF            string
+	KioskMode       bool
+	TaskAction      string
+}
+
+type app struct {
+	calendar   *calendarFeed
+	weather    *weatherFeed
+	store      *taskStore
+	tmpl       *template.Template
+	csrf       string
+	tz         *time.Location
+	now        func() time.Time
+	auth       authConfig
+	devices    *deviceStore
+	pairings   *pairingPool
+	pairTpl    *template.Template
+	approveTpl *template.Template
+	devicesTpl *template.Template
+}
+
+func newApp(path string) (*app, error) {
+	store, err := openStore(path)
+	if err != nil {
+		return nil, err
+	}
+	tpl, err := template.ParseFS(webFS, "web/index.html")
+	if err != nil {
+		return nil, err
+	}
+	tz, err := time.LoadLocation("America/Chicago")
+	if err != nil {
+		return nil, err
+	}
+	secretURL := strings.TrimSpace(os.Getenv("GOOGLE_CALENDAR_ICAL_URL"))
+	feed, err := newCalendarFeed(secretURL, tz)
+	if err != nil {
+		if os.Getenv("FAMILY_DASHBOARD_DEV_MODE") != "1" {
+			return nil, err
+		}
+		// A bad local .env shouldn't stop the UI developer. The page still
+		// prominently labels all sample events as DEMO CALENDAR.
+		log.Printf("Calendar configuration warning:\n%v\n\nContinuing in DEMO CALENDAR mode because 'just serve' is for development. Fix .env and restart to use real events.", err)
+		feed = nil
+	} else if secretURL == "" && os.Getenv("FAMILY_DASHBOARD_DEV_MODE") == "1" {
+		log.Printf("Calendar: using DEMO CALENDAR events (no GOOGLE_CALENDAR_ICAL_URL configured). Add the private iCal address to .env to show real events.")
+	}
+	weather, err := newWeatherFeed(tz)
+	if err != nil {
+		if os.Getenv("FAMILY_DASHBOARD_DEV_MODE") != "1" {
+			return nil, err
+		}
+		log.Printf("Weather configuration warning: %v\nContinuing without weather in local development; fix .env and restart just serve.", err)
+	}
+	a := &app{store: store, tmpl: tpl, csrf: newID(), tz: tz, now: time.Now, calendar: feed, weather: weather}
+	if err := a.initializeAuth(path); err != nil {
+		return nil, err
+	}
+	return a, nil
+}
+
+func (a *app) page(now time.Time) Page {
+	n := now.In(a.tz)
+	days := make([]Day, 0, 7)
+	for i := 0; i < 7; i++ {
+		d := n.AddDate(0, 0, i)
+		days = append(days, Day{Label: d.Format("Mon"), Number: d.Format("2"), Today: i == 0})
+	}
+	sample := []struct {
+		Offset   int
+		Clock    string
+		Title    string
+		Category string
+	}{
+		{0, "6:30 PM", "Family dinner", "family"},
+		{1, "4:00 PM", "School activity", "school"},
+		{2, "5:30 PM", "Music practice", "activities"},
+		{4, "10:00 AM", "Weekend plans", "family"},
+	}
+	events := make([]Event, 0, len(sample))
+	for _, x := range sample {
+		d := n.AddDate(0, 0, x.Offset)
+		label := d.Format("Jan 2")
+		if x.Offset == 0 {
+			label = "Today"
+		} else if x.Offset == 1 {
+			label = "Tomorrow"
+		}
+		events = append(events, Event{Date: label, Weekday: d.Format("Mon"), Time: x.Clock, Title: x.Title, Category: x.Category})
+	}
+	badge, note, message := "DEMO CALENDAR", "Sample events · connect Google Calendar in .env", "No Google account connected. These are illustrative events only."
+	if a.calendar != nil {
+		items, status, problem := a.calendar.snapshot(n)
+		badge = "GOOGLE CALENDAR"
+		note = status
+		message = problem
+		events = make([]Event, 0, len(items))
+		for _, item := range items {
+			d := item.start.In(a.tz)
+			label := d.Format("Jan 2")
+			if midnight(d, a.tz).Equal(midnight(n, a.tz)) {
+				label = "Today"
+			} else if midnight(d, a.tz).Equal(midnight(n, a.tz).AddDate(0, 0, 1)) {
+				label = "Tomorrow"
+			}
+			clock := d.Format("3:04 PM")
+			if item.allDay {
+				clock = "All day"
+			} else if item.end.Sub(item.start) > time.Hour {
+				clock = clock + " – " + item.end.In(a.tz).Format("3:04 PM")
+			}
+			events = append(events, Event{Date: label, Weekday: d.Format("Mon"), Time: clock, Title: item.title, Category: "family"})
+		}
+		if len(events) == 0 && message == "" {
+			message = "No upcoming events this week."
+		}
+	}
+	tasks := a.store.list()
+	count := 0
+	for _, t := range tasks {
+		if !t.Done {
+			count++
+		}
+	}
+	wv := a.weather.snapshot(n)
+	weatherKind := "unknown"
+	if len(wv.Slots) > 0 {
+		weatherKind = wv.Slots[0].Icon
+	}
+	return Page{WeatherKind: weatherKind, Hour24: n.Hour(), Today: n.Format("Monday, January 2"), Clock: n.Format("3:04 PM"), Days: days, Events: events, Tasks: tasks, Count: count, CSRF: a.csrf, CalendarBadge: badge, CalendarNote: note, CalendarMessage: message, Weather: wv}
+}
+
+func (a *app) renderPage(w http.ResponseWriter, kiosk bool) {
+	securityHeaders(w)
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	pg := a.page(a.now())
+	pg.KioskMode = kiosk
+	if kiosk {
+		pg.TaskAction = "/kiosk/tasks"
+	} else {
+		pg.TaskAction = "/tasks"
+	}
+	if err := a.tmpl.Execute(w, pg); err != nil {
+		log.Printf("render: %v", err)
+	}
+}
+
+func (a *app) routes() http.Handler {
+	mux := http.NewServeMux()
+	mux.HandleFunc("GET /", a.requireHuman("family-hq:read", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/" {
+			http.NotFound(w, r)
+			return
+		}
+		a.renderPage(w, false)
+	}))
+	mux.HandleFunc("GET /app.js", func(w http.ResponseWriter, r *http.Request) {
+		b, err := webFS.ReadFile("web/app.js")
+		if err != nil {
+			http.Error(w, "unavailable", 500)
+			return
+		}
+		w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+		w.Header().Set("Cache-Control", "public, max-age=60")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Write(b)
+	})
+	mux.HandleFunc("GET /style.css", func(w http.ResponseWriter, r *http.Request) {
+		b, err := webFS.ReadFile("web/style.css")
+		if err != nil {
+			http.Error(w, "unavailable", 500)
+			return
+		}
+		w.Header().Set("Content-Type", "text/css; charset=utf-8")
+		w.Header().Set("Cache-Control", "public, max-age=600")
+		w.Write(b)
+	})
+	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		io.WriteString(w, "ok\n")
+	})
+	mux.HandleFunc("POST /tasks", a.requireHuman("family-hq:read", a.mutate))
+	a.authRoutes(mux)
+	return mux
+}
+
+func (a *app) mutate(w http.ResponseWriter, r *http.Request) {
+	if !a.sameOrigin(r) {
+		http.Error(w, "invalid request origin", 403)
+		return
+	}
+	r.Body = http.MaxBytesReader(w, r.Body, 4096)
+	if ct := r.Header.Get("Content-Type"); !strings.HasPrefix(ct, "application/x-www-form-urlencoded") {
+		http.Error(w, "form required", http.StatusUnsupportedMediaType)
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "bad form", 400)
+		return
+	}
+	if subtle.ConstantTimeCompare([]byte(r.PostForm.Get("csrf")), []byte(a.csrf)) != 1 {
+		http.Error(w, "forbidden", 403)
+		return
+	}
+	action := r.PostForm.Get("action")
+	if (action == "add" || action == "delete") && !a.human(r, "family-hq:manage") {
+		http.Error(w, "Family HQ management access required", 403)
+		return
+	}
+	var err error
+	switch action {
+	case "add":
+		title := strings.TrimSpace(r.PostForm.Get("title"))
+		if len(title) == 0 || len(title) > 120 || strings.ContainsAny(title, "\x00\r\n") {
+			http.Error(w, "task title must be 1–120 characters", 400)
+			return
+		}
+		err = a.store.add(title)
+	case "toggle", "delete":
+		err = a.store.change(r.PostForm.Get("id"), action)
+	default:
+		http.Error(w, "invalid action", 400)
+		return
+	}
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func main() {
+	path := os.Getenv("TASKS_FILE")
+	if path == "" {
+		path = "./data/tasks.json"
+	}
+	a, err := newApp(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	addr := os.Getenv("LISTEN_ADDR")
+	if addr == "" {
+		addr = ":8080"
+	}
+	server := &http.Server{Addr: addr, Handler: a.routes(), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 10 * time.Second, WriteTimeout: 10 * time.Second, IdleTimeout: 30 * time.Second}
+	if err := a.validateProductionStart(addr); err != nil {
+		log.Fatal(err)
+	}
+	a.authSummary()
+	log.Printf("family dashboard listening %s", addr)
+	log.Fatal(server.ListenAndServe())
+}

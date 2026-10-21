@@ -1,0 +1,19 @@
+# Place this ONE file in WaylonWalker/homelab-argo/argo-apps/apps/.
+# The application's source code and K8s manifests live in its own repository.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: family-dashboard
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/WaylonWalker/family-dashboard.git
+    targetRevision: main
+    path: k8s
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: family-dashboard
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true

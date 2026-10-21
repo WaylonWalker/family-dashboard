@@ -1,0 +1,12 @@
+const fs = require('fs');
+const vm = require('vm');
+const assert = require('assert');
+const child = {children:[],setAttribute(n,v){this[n]=v;},appendChild(e){this.children.push(e);},getAttribute(n){return n==='data-url'?'https://family.wayl.one/pair/approve?code='+'a'.repeat(64):null;}};
+const qrTarget = { ...child, children:[] };
+const document = {getElementById(n){return n==='pair-qr'?qrTarget:{textContent:''}}, createElementNS(ns,name){return {name,attributes:{},children:[],setAttribute(n,v){this.attributes[n]=v},appendChild(child){this.children.push(child)}}}};
+const context={document,XMLHttpRequest:function(){this.open=()=>{};this.send=()=>{};},window:{setInterval(){}}};
+vm.runInNewContext(fs.readFileSync('web/pair-qr.js','utf8'),context,{timeout:4000});
+assert.strictEqual(qrTarget.children[0].name,'svg');
+assert(qrTarget.children[0].attributes.viewBox);
+assert(qrTarget.children[0].children[1].attributes.d.length > 2000);
+console.log('Offline pairing QR generation passed');

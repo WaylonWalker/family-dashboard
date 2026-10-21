@@ -1,0 +1,12 @@
+.git
+.github
+.env
+.env.*
+data
+dist
+*_test.go
+k8s
+docs
+scripts
+README.md
+justfile

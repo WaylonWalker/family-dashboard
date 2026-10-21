@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en" data-theme="everforest-light" data-texture="paper" data-font="system" data-style="balanced">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta http-equiv="refresh" content="900">
+  <meta name="theme-color" content="#fdf6e3">
+  <title>Family HQ</title>
+  <link rel="stylesheet" href="/style.css?v=2">
+  <script src="/app.js?v=2" defer></script>
+  <noscript><style>
+    .feature-pane[hidden]{display:flex!important}
+    .feature-tabs,.feature-actions,.feature-bottom{display:none!important}
+    .feature-window{overflow:auto}
+    .feature-pane{height:auto;min-height:400px}
+    .feature-pane + .feature-pane{border-top:2px solid var(--line);margin-top:15px;padding-top:15px}
+  </style></noscript>
+</head>
+<body data-weather="{{.WeatherKind}}" data-hour="{{.Hour24}}">
+  <!-- SVG symbols are embedded: no emoji fonts, CDN, or external requests required. -->
+  <svg class="svg-sprite" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" focusable="false">
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1zM9 21v-7h6v7"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h12M9 12h12M9 18h12M4 6h.01M4 12h.01M4 18h.01"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.2 2.2m8.4 8.4 2.2 2.2m0-12.8-2.2 2.2M7.8 16.2l-2.2 2.2"/><circle cx="12" cy="12" r="4"/></symbol>
+    <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+    <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 19a5 5 0 1 1 1-9.9A7 7 0 0 1 21 12a4 4 0 0 1-3 7z"/></symbol>
+    <symbol id="i-rain" viewBox="0 0 24 24"><path d="M7 16a5 5 0 1 1 1-9.9A7 7 0 0 1 21 9a4 4 0 0 1-3 7zM8 19l-1 2m6-2-1 2m6-2-1 2"/></symbol>
+    <symbol id="i-snow" viewBox="0 0 24 24"><path d="M7 15a5 5 0 1 1 1-9.9A7 7 0 0 1 21 8a4 4 0 0 1-3 7zM9 18v4m-2-2h4m6-2v4m-2-2h4"/></symbol>
+    <symbol id="i-storm" viewBox="0 0 24 24"><path d="M7 15a5 5 0 1 1 1-9.9A7 7 0 0 1 21 8a4 4 0 0 1-3 7zM13 15l-3 4h3l-2 4"/></symbol>
+    <symbol id="i-haze" viewBox="0 0 24 24"><path d="M3 8h18M3 12h18M3 16h18M7 4h10M7 20h10"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 2 2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m3 0-1 14H7L6 7m4 4v6m4-6v6"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h13a3 3 0 1 0-3-3M2 12h17a3 3 0 1 1-3 3M3 16h6a3 3 0 1 1-3 3"/></symbol>
+    <symbol id="i-umbrella" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 18 0H3m9-9v16a3 3 0 0 0 6 0"/></symbol>
+  </svg>
+
+  <div class="shell">
+    <header class="header">
+      <div class="brand"><span class="brand-icon"><svg class="icon"><use href="#i-home" xlink:href="#i-home"/></svg></span>
+        <div><h1>Family HQ<span class="brand-period">.</span></h1><p>Our little corner of the world</p></div>
+      </div>
+      <div class="header-right">
+        <div class="clock-block"><strong id="live-clock">{{.Clock}}</strong><span id="live-date">{{.Today}}</span></div>
+        <button id="open-settings" class="icon-button settings-launch" type="button" aria-label="Open display settings" aria-controls="settings" aria-expanded="false" title="Theme & display settings"><svg class="icon"><use href="#i-settings" xlink:href="#i-settings"/></svg></button>
+      </div>
+    </header>
+
+    <main class="dashboard">
+      <section class="calendar panel" aria-labelledby="calendar-title">
+        <div class="section-top"><div><p class="eyebrow">ON THE HORIZON</p><h2 id="calendar-title">The week ahead</h2></div><span class="connection {{if eq .CalendarBadge "GOOGLE CALENDAR"}}connected{{end}}"><svg class="icon"><use href="#i-calendar" xlink:href="#i-calendar"/></svg> {{.CalendarBadge}}</span></div>
+        <div class="week-strip" aria-label="Next seven days">{{range .Days}}<div class="day {{if .Today}}selected{{end}}"><span>{{.Label}}</span><strong>{{.Number}}</strong></div>{{end}}</div>
+        <div class="event-list" aria-label="Upcoming appointments">
+          {{range .Events}}<article class="event"><div class="event-date"><strong>{{.Date}}</strong><span>{{.Weekday}}</span></div><span class="event-mark {{.Category}}" aria-hidden="true"></span><div class="event-main"><h3>{{.Title}}</h3><span>{{.Time}}</span></div></article>{{else}}<p class="empty">The calendar is clear. Enjoy the breathing room.</p>{{end}}
+        </div>
+        <div class="panel-footer"><span class="note">{{.CalendarNote}}</span>{{if .CalendarMessage}}<span class="note">{{.CalendarMessage}}</span>{{end}}</div>
+      </section>
+
+      <aside class="feature panel" aria-label="Weather and family tasks" id="feature-panel">
+        <div class="feature-header"><div><p class="eyebrow">EVERYDAY ESSENTIALS</p><h2 id="feature-title">Outside today</h2></div>
+          <div class="feature-actions">
+            <button class="icon-button arrow" id="feature-prev" type="button" aria-label="Previous panel"><svg class="icon"><use href="#i-chevron-left" xlink:href="#i-chevron-left"/></svg></button>
+            <button class="icon-button arrow" id="feature-next" type="button" aria-label="Next panel"><svg class="icon"><use href="#i-chevron-right" xlink:href="#i-chevron-right"/></svg></button>
+          </div>
+        </div>
+        <div class="feature-tabs" role="tablist" aria-label="Dashboard panels">
+          <button role="tab" type="button" id="tab-weather" aria-controls="pane-weather" aria-selected="true" class="feature-tab is-active"><svg class="icon"><use href="#i-sun" xlink:href="#i-sun"/></svg> Weather</button>
+          <button role="tab" type="button" id="tab-tasks" aria-controls="pane-tasks" aria-selected="false" tabindex="-1" class="feature-tab"><svg class="icon"><use href="#i-list" xlink:href="#i-list"/></svg> Tasks <span class="pill-count">{{.Count}}</span></button>
+        </div>
+        <div class="feature-window" id="feature-window">
+          <section class="feature-pane is-active" id="pane-weather" role="tabpanel" aria-labelledby="tab-weather">
+            <div class="wx-heading"><div><div class="wx-kicker">{{.Weather.Location}}</div><strong>What to wear</strong></div><span class="wx-status">{{.Weather.Badge}}</span></div>
+            {{if .Weather.Slots}}
+            <div class="weather-timeline" aria-label="Three-hour weather forecast and outfit suggestions">
+              {{range .Weather.Slots}}<div class="weather-slot">
+                <div class="weather-slot-time"><strong>{{.Hour}}</strong><small>{{.Day}}</small></div>
+                <div class="weather-slot-temp"><svg class="icon wx-icon"><use href="#i-{{.Icon}}" xlink:href="#i-{{.Icon}}"/></svg><strong>{{.Temp}}</strong></div>
+                <div class="weather-slot-wear"><strong>{{.Wear}}</strong><span>{{.Condition}} · feels {{.Feels}} · rain {{.Rain}} · wind {{.Wind}}</span></div>
+              </div>{{end}}
+            </div>
+            {{else}}<div class="empty-weather"><svg class="icon"><use href="#i-sun" xlink:href="#i-sun"/></svg><p>Connect the Play Outside key to get a live clothing timeline.</p></div>{{end}}
+            <p class="subtle-message" role="status">{{.Weather.Note}}{{if .Weather.Air}} · {{.Weather.Air}}{{end}}{{if .Weather.Message}} — {{.Weather.Message}}{{end}}</p>
+          </section>
+          <section class="feature-pane" id="pane-tasks" role="tabpanel" aria-labelledby="tab-tasks" hidden>
+            <div class="tasks-heading"><strong>Family tasks</strong><span>{{.Count}} to go</span></div>
+            <div class="task-list">{{range .Tasks}}<div class="task-row {{if .Done}}completed{{end}}"><form method="post" action="{{$.TaskAction}}"><input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="action" value="toggle"><input type="hidden" name="id" value="{{.ID}}"><button class="task-toggle" type="submit" aria-label="Toggle {{.Title}}">{{if .Done}}<svg class="icon"><use href="#i-check" xlink:href="#i-check"/></svg>{{else}}<span class="task-circle" aria-hidden="true"></span>{{end}}</button></form><span class="task-name">{{.Title}}</span>{{if not $.KioskMode}}<form method="post" action="{{$.TaskAction}}"><input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="{{.ID}}"><button class="remove icon-button" type="submit" aria-label="Delete {{.Title}}"><svg class="icon"><use href="#i-trash" xlink:href="#i-trash"/></svg></button></form>{{end}}</div>{{else}}<p class="empty">Nothing on the list. Enjoy the calm!</p>{{end}}</div>
+            {{if not .KioskMode}}<form class="add-task" method="post" action="{{$.TaskAction}}"><input type="hidden" name="csrf" value="{{.CSRF}}"><input type="hidden" name="action" value="add"><label class="visually-hidden" for="new-task">New family task</label><input id="new-task" type="text" name="title" maxlength="120" placeholder="Add a family task…" required><button type="submit">Add</button></form>{{end}}
+          </section>
+        </div>
+        <div class="feature-bottom"><span id="rotation-hint">Auto-switches every 30s · swipe to explore</span><div class="pager" aria-label="Panel position"><span class="pager-dot active"></span><span class="pager-dot"></span></div></div>
+      </aside>
+    </main>
+    <footer class="footer"><span><svg class="icon"><use href="#i-spark" xlink:href="#i-spark"/></svg> Make room for the good stuff.</span><span>Family HQ · Made for our home</span></footer>
+  </div>
+
+  <div class="settings-backdrop" id="settings-backdrop" hidden></div>
+  <aside class="settings-drawer" id="settings" aria-labelledby="settings-title" aria-modal="true" role="dialog" hidden>
+    <div class="settings-head"><div><p class="eyebrow">MAKE IT YOURS</p><h2 id="settings-title">Display settings</h2></div><button type="button" id="close-settings" class="icon-button" aria-label="Close settings">×</button></div>
+    <div class="settings-inner">
+      <label class="setting-label" for="theme-select">Palette</label><select id="theme-select"><option value="auto">Automatic · light / dark / weather</option><option value="everforest-light">Everforest Light</option><option value="everforest-dark">Everforest Dark</option><option value="catppuccin-latte">Catppuccin Latte</option><option value="catppuccin-mocha">Catppuccin Mocha</option><option value="gruvbox-light">Gruvbox Light</option><option value="gruvbox-dark">Gruvbox Dark</option><option value="kanagawa-lotus">Kanagawa Lotus</option><option value="kanagawa-wave">Kanagawa Wave</option></select>
+      <p id="auto-description" class="setting-helper">Automatic follows time of day and current conditions.</p>
+      <label class="setting-label" for="texture-select">Surface texture</label><select id="texture-select"><option value="paper">Paper grain</option><option value="screenprint">Screenprint</option><option value="halftone">Halftone</option><option value="none">Clean / none</option></select>
+      <label class="setting-label" for="style-select">Layout aesthetic</label><select id="style-select"><option value="balanced">Balanced · soft cards</option><option value="precision">Precision · crisp lines</option><option value="elevated">Elevated · layered cards</option><option value="brutal">Brutal · poster blocks</option><option value="minimal">Minimal · quiet layout</option></select>
+      <label class="setting-label" for="font-select">Typography</label><select id="font-select"><option value="system">System · clear</option><option value="editorial">Editorial · warm serif</option><option value="modern">Modern · geometric</option><option value="mono">Mono · utility</option></select>
+      <div class="setting-row"><label for="rotate-toggle">Auto-rotate panels <small>Every 30 seconds. Your touch pauses it for 2 minutes.</small></label><input id="rotate-toggle" type="checkbox" checked></div>
+      <button type="button" class="reset-button" id="reset-settings">Reset display defaults</button>
+      {{if not .KioskMode}}<p class="setting-helper"><a href="/devices">Manage paired photo frames</a></p>{{end}}
+    </div>
+  </aside>
+</body>
+</html>

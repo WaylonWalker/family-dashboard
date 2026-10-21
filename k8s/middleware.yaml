@@ -1,0 +1,43 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: family-dashboard-strip-hlab
+spec:
+  headers:
+    customRequestHeaders:
+      X-Hlab-User-Id: ""
+      X-Hlab-Username: ""
+      X-Hlab-Display-Name: ""
+      X-Hlab-Email: ""
+      X-Hlab-Groups: ""
+      X-Hlab-Roles: ""
+      X-Hlab-Scopes: ""
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: family-dashboard-forward-auth
+spec:
+  forwardAuth:
+    address: http://hlab-auth.hlab-auth.svc.cluster.local:8000/api/v1/forward-auth
+    trustForwardHeader: false
+    addAuthCookiesToResponse:
+      - __Host-hlab-app-session
+    authResponseHeaders:
+      - X-Hlab-User-Id
+      - X-Hlab-Username
+      - X-Hlab-Display-Name
+      - X-Hlab-Email
+      - X-Hlab-Groups
+      - X-Hlab-Roles
+      - X-Hlab-Scopes
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: family-dashboard-auth
+spec:
+  chain:
+    middlewares:
+      - name: family-dashboard-strip-hlab
+      - name: family-dashboard-forward-auth
