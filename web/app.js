@@ -237,4 +237,9 @@
     }
   });
   refreshHint();
+  if ('serviceWorker' in navigator && window.isSecureContext) {
+    navigator.serviceWorker.register('/sw.js').catch(function () {
+      /* The dashboard remains usable when the browser blocks service workers. */
+    });
+  }
 })();

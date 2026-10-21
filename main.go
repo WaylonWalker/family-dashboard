@@ -586,6 +586,45 @@ func (a *app) routes() http.Handler {
 		a.renderPage(w, false)
 	}))
 	mux.HandleFunc("GET /og", a.openGraphImage)
+	mux.HandleFunc("GET /manifest.webmanifest", func(w http.ResponseWriter, r *http.Request) {
+		b, err := webFS.ReadFile("web/manifest.webmanifest")
+		if err != nil {
+			http.Error(w, "unavailable", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/manifest+json; charset=utf-8")
+		w.Header().Set("Cache-Control", "public, max-age=3600")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		_, _ = w.Write(b)
+	})
+	mux.HandleFunc("GET /sw.js", func(w http.ResponseWriter, r *http.Request) {
+		b, err := webFS.ReadFile("web/sw.js")
+		if err != nil {
+			http.Error(w, "unavailable", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+		w.Header().Set("Cache-Control", "no-cache")
+		w.Header().Set("Service-Worker-Allowed", "/")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		_, _ = w.Write(b)
+	})
+	mux.HandleFunc("GET /icons/{name}", func(w http.ResponseWriter, r *http.Request) {
+		name := r.PathValue("name")
+		if name != "family-hq-192.png" && name != "family-hq-512.png" && name != "family-hq-maskable-512.png" {
+			http.NotFound(w, r)
+			return
+		}
+		b, err := webFS.ReadFile("web/icons/" + name)
+		if err != nil {
+			http.Error(w, "unavailable", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "image/png")
+		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		_, _ = w.Write(b)
+	})
 	mux.HandleFunc("GET /session", a.requireHuman("family-hq:read", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "private, no-store")
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
