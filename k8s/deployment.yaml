@@ -27,7 +27,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: dashboard
-          image: ghcr.io/waylonwalker/family-dashboard:sha-6125a9117596ec6105d483361fc3b8d5c61aecbf@sha256:23258e2ff827510ed26d996dec4309382249d03aa02a65face93fb58c06d4060
+          image: ghcr.io/waylonwalker/family-dashboard:sha-c0aab99ca022441b69e436ce2dad320f4546d68f@sha256:11ec0b0f9e610a59eeddb41813f92b0379cbbffa4af8fe39e822b4ec455f29aa
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
