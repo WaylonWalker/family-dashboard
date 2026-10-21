@@ -5,7 +5,7 @@
   var devices = document.getElementById('devices-link');
 
   function showSignedOut() {
-    status.textContent = 'Not signed in yet. Sign in here, or use this TV with your phone.';
+    status.textContent = 'Not signed in yet. Sign in here, or pair a display with your phone.';
     dashboard.textContent = 'Sign in to Family HQ';
     devices.hidden = true;
   }

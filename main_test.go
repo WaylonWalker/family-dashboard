@@ -204,7 +204,7 @@ func TestPhotoFrameAssetsAndIconNames(t *testing.T) {
 	}
 	landing := httptest.NewRecorder()
 	h.ServeHTTP(landing, httptest.NewRequest(http.MethodGet, "/", nil))
-	if landing.Code != http.StatusOK || !strings.Contains(landing.Body.String(), "Sign in to Family HQ") || !strings.Contains(landing.Body.String(), "Use this TV with your phone") || strings.Contains(landing.Body.String(), "Family tasks") {
+	if landing.Code != http.StatusOK || !strings.Contains(landing.Body.String(), "Sign in to Family HQ") || !strings.Contains(landing.Body.String(), "Pair a display with your phone") || strings.Contains(landing.Body.String(), "Family tasks") {
 		t.Errorf("public landing page leaked dashboard data or failed: %d", landing.Code)
 	}
 	og := httptest.NewRecorder()

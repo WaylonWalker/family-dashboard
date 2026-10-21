@@ -165,6 +165,7 @@ type pairAttempt struct {
 	SetupHash   string
 	ClaimHash   string
 	ClaimRaw    string // only held for the five-minute in-memory approval URL
+	DisplayKind string
 	Created     time.Time
 	Approved    bool
 	DeviceToken string // only transferred to the original device via HttpOnly cookie
@@ -183,7 +184,7 @@ func (p *pairingPool) prune(now time.Time) {
 		}
 	}
 }
-func (p *pairingPool) getOrCreate(setup string, now time.Time) (*pairAttempt, string, error) {
+func (p *pairingPool) getOrCreate(setup, displayKind string, now time.Time) (*pairAttempt, string, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	p.prune(now)
@@ -198,7 +199,7 @@ func (p *pairingPool) getOrCreate(setup string, now time.Time) (*pairAttempt, st
 	}
 	setup = randomSecret()
 	claim := randomSecret()
-	item := &pairAttempt{SetupHash: hashSecret(setup), ClaimHash: hashSecret(claim), ClaimRaw: claim, Created: now}
+	item := &pairAttempt{SetupHash: hashSecret(setup), ClaimHash: hashSecret(claim), ClaimRaw: claim, DisplayKind: displayKind, Created: now}
 	p.pending[item.SetupHash] = item
 	copy := *item
 	return &copy, setup, nil
@@ -254,11 +255,41 @@ func (p *pairingPool) validClaim(claim string, now time.Time) bool {
 	}
 	return false
 }
+func (p *pairingPool) displayKind(claim string, now time.Time) string {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	p.prune(now)
+	for _, item := range p.pending {
+		if subtle.ConstantTimeCompare([]byte(hashSecret(claim)), []byte(item.ClaimHash)) == 1 {
+			if item.DisplayKind != "" {
+				return item.DisplayKind
+			}
+			return "display"
+		}
+	}
+	return "display"
+}
+
+func detectDisplayKind(userAgent string) string {
+	ua := strings.ToLower(userAgent)
+	if !strings.Contains(ua, "silk") && !strings.Contains(ua, "amazonwebappplatform") && !strings.Contains(ua, "amazonwebview") {
+		return "display"
+	}
+	for _, token := range strings.FieldsFunc(ua, func(r rune) bool {
+		return !((r >= 'a' && r <= 'z') || (r >= '0' && r <= '9'))
+	}) {
+		if strings.HasPrefix(token, "aft") && len(token) > 3 {
+			return "Fire TV"
+		}
+	}
+	return "display"
+}
 
 type authConfig struct {
-	enabled    bool
-	publicURL  string
-	proxyCIDRs []netip.Prefix
+	enabled        bool
+	publicURL      string
+	allowedOrigins map[string]struct{}
+	proxyCIDRs     []netip.Prefix
 }
 
 func readAuthConfig() (authConfig, error) {
@@ -279,6 +310,18 @@ func readAuthConfig() (authConfig, error) {
 		return cfg, errors.New("FAMILY_PUBLIC_URL must be the exact HTTPS origin, e.g. https://family.wayl.one")
 	}
 	cfg.publicURL = u.String()
+	cfg.allowedOrigins = map[string]struct{}{strings.ToLower(u.Scheme + "://" + u.Host): {}}
+	for _, value := range strings.Split(os.Getenv("FAMILY_ALLOWED_ORIGINS"), ",") {
+		value = strings.TrimSpace(value)
+		if value == "" {
+			continue
+		}
+		origin, err := url.Parse(value)
+		if err != nil || origin.Scheme != "https" || origin.Host == "" || origin.User != nil || origin.Path != "" || origin.RawQuery != "" || origin.Fragment != "" {
+			return cfg, errors.New("FAMILY_ALLOWED_ORIGINS must be comma-separated exact HTTPS origins")
+		}
+		cfg.allowedOrigins[strings.ToLower(origin.Scheme+"://"+origin.Host)] = struct{}{}
+	}
 	for _, part := range strings.Split(os.Getenv("FAMILY_TRUSTED_PROXY_CIDRS"), ",") {
 		part = strings.TrimSpace(part)
 		if part == "" {
@@ -367,7 +410,12 @@ func (a *app) sameOrigin(r *http.Request) bool {
 	if !a.auth.enabled {
 		return true
 	}
-	return r.Header.Get("Origin") == a.auth.publicURL
+	origin, err := url.Parse(r.Header.Get("Origin"))
+	if err != nil || origin.Scheme != "https" || origin.Host == "" || origin.User != nil || origin.Path != "" || origin.RawQuery != "" || origin.Fragment != "" {
+		return false
+	}
+	_, ok := a.auth.allowedOrigins[strings.ToLower(origin.Scheme+"://"+origin.Host)]
+	return ok
 }
 func csrfOK(r *http.Request, secret string) bool {
 	if err := r.ParseForm(); err != nil {
@@ -403,7 +451,7 @@ func (a *app) pairPage(w http.ResponseWriter, r *http.Request) {
 	if c, e := r.Cookie(setupCookieName); e == nil {
 		setup = c.Value
 	}
-	item, newSetup, err := a.pairings.getOrCreate(setup, a.now())
+	item, newSetup, err := a.pairings.getOrCreate(setup, detectDisplayKind(r.UserAgent()), a.now())
 	if err != nil {
 		http.Error(w, "Pairing temporarily unavailable; retry shortly.", 503)
 		return
@@ -418,9 +466,10 @@ func (a *app) pairPage(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	_ = a.pairTpl.Execute(w, struct {
-		URL     string
-		Expires string
-	}{link, item.Created.Add(pairingTTL).Format("3:04 PM")})
+		URL         string
+		Expires     string
+		DisplayKind string
+	}{link, item.Created.Add(pairingTTL).Format("3:04 PM"), item.DisplayKind})
 }
 func (a *app) pairingStatus(w http.ResponseWriter, r *http.Request) {
 	securityHeaders(w)
@@ -444,10 +493,11 @@ func (a *app) approvePage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "This pairing code is invalid, expired, or already used. Reload the frame to start again.", 410)
 		return
 	}
+	displayKind := a.pairings.displayKind(code, a.now())
 	csrf := randomSecret()
 	a.cookie(w, approvalCookieName, csrf, "/pair", a.now().Add(pairingTTL))
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = a.approveTpl.Execute(w, struct{ Code, CSRF string }{code, csrf})
+	_ = a.approveTpl.Execute(w, struct{ Code, CSRF, DisplayKind, DefaultName string }{code, csrf, displayKind, "Family " + displayKind})
 }
 func (a *app) approvePost(w http.ResponseWriter, r *http.Request) {
 	securityHeaders(w)
@@ -465,9 +515,10 @@ func (a *app) approvePost(w http.ResponseWriter, r *http.Request) {
 	}
 	name := strings.TrimSpace(r.PostForm.Get("name"))
 	if len(name) < 1 || len(name) > 48 || strings.ContainsAny(name, "\n\r\x00") {
-		http.Error(w, "Frame name must be 1–48 characters", 400)
+		http.Error(w, "Display name must be 1–48 characters", 400)
 		return
 	}
+	displayKind := a.pairings.displayKind(r.PostForm.Get("code"), a.now())
 	// Erase one-time approval CSRF cookie.
 	http.SetCookie(w, &http.Cookie{Name: approvalCookieName, Path: "/pair", MaxAge: -1, Secure: a.auth.enabled, HttpOnly: true, SameSite: http.SameSiteStrictMode})
 	id := r.Header.Get("X-Hlab-User-Id")
@@ -479,7 +530,7 @@ func (a *app) approvePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	io.WriteString(w, "<!doctype html><html><meta name='viewport' content='width=device-width'><title>Frame paired</title><body><h1>Frame paired</h1><p>You can return to your photo frame. It will open Family HQ automatically.</p></body></html>")
+	_ = a.approveDoneTpl.Execute(w, struct{ DisplayKind string }{displayKind})
 }
 func (a *app) devicesPage(w http.ResponseWriter, r *http.Request) {
 	securityHeaders(w)
@@ -556,6 +607,10 @@ func (a *app) initializeAuth(path string) error {
 		return err
 	}
 	a.approveTpl, err = template.ParseFS(webFS, "web/approve.html")
+	if err != nil {
+		return err
+	}
+	a.approveDoneTpl, err = template.ParseFS(webFS, "web/approve-done.html")
 	if err != nil {
 		return err
 	}

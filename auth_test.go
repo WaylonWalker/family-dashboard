@@ -15,6 +15,7 @@ func proxyApp(t *testing.T) *app {
 	t.Helper()
 	t.Setenv("FAMILY_AUTH_MODE", "proxy")
 	t.Setenv("FAMILY_PUBLIC_URL", "https://family.wayl.one")
+	t.Setenv("FAMILY_ALLOWED_ORIGINS", "https://fam.wayl.one,https://family.waylonwalker.com,https://fam.waylonwalker.com")
 	t.Setenv("FAMILY_TRUSTED_PROXY_CIDRS", "10.42.0.0/16")
 	a, err := newApp(filepath.Join(t.TempDir(), "tasks.json"))
 	if err != nil {
@@ -73,7 +74,7 @@ func TestProxyTrustAndScopes(t *testing.T) {
 func TestHomeOffersOptionsBasedOnSession(t *testing.T) {
 	a := proxyApp(t)
 	public := served(a, httptest.NewRequest("GET", "/", nil))
-	for _, want := range []string{`src="/home.js"`, `href="/dashboard"`, `href="/kiosk"`, `id="devices-link"`} {
+	for _, want := range []string{`src="/home.js?v=display-2"`, `href="/dashboard"`, `href="/kiosk"`, `id="devices-link"`} {
 		if !strings.Contains(public.Body.String(), want) {
 			t.Errorf("home page is missing %q", want)
 		}
@@ -94,9 +95,14 @@ func TestHomeOffersOptionsBasedOnSession(t *testing.T) {
 
 func TestPairApproveRevokeFrame(t *testing.T) {
 	a := proxyApp(t)
-	w := served(a, httptest.NewRequest("GET", "/kiosk", nil))
+	kiosk := httptest.NewRequest("GET", "/kiosk", nil)
+	kiosk.Header.Set("User-Agent", "Mozilla/5.0 (Linux; Android 9; AFTMM Build/PS7652) AppleWebKit/537.36 (KHTML, like Gecko) Silk/116.4 like Chrome/116.0 Safari/537.36")
+	w := served(a, kiosk)
 	if w.Code != 200 {
 		t.Fatalf("kiosk status %d", w.Code)
+	}
+	if !strings.Contains(w.Body.String(), "Connect this Fire TV") {
+		t.Fatalf("Fire TV user agent was not recognized: %s", w.Body.String())
 	}
 	pairCookie := cookieNamed(t, w, setupCookieName)
 	if !pairCookie.HttpOnly || !pairCookie.Secure || pairCookie.SameSite != http.SameSiteStrictMode {
@@ -124,7 +130,7 @@ func TestPairApproveRevokeFrame(t *testing.T) {
 	}
 	req = humanReq("GET", "/pair/approve?code="+code, "", "family-hq:manage")
 	w = served(a, req)
-	if w.Code != 200 || !strings.Contains(w.Body.String(), "Approve this photo frame") {
+	if w.Code != 200 || !strings.Contains(w.Body.String(), "Approve this Fire TV?") || !strings.Contains(w.Body.String(), "/style.css?v=approve-3") {
 		t.Fatalf("approval page: %d %s", w.Code, w.Body.String())
 	}
 	approvalCookie := cookieNamed(t, w, approvalCookieName)
@@ -136,9 +142,14 @@ func TestPairApproveRevokeFrame(t *testing.T) {
 		t.Fatalf("cross-origin approve %d", w.Code)
 	}
 	good := humanReq("POST", "/pair/approve", vals.Encode(), "family-hq:manage")
+	good.Host = "fam.wayl.one"
+	good.Header.Set("Origin", "https://fam.wayl.one")
 	good.AddCookie(approvalCookie)
 	if w = served(a, good); w.Code != 200 {
 		t.Fatalf("approve: %d %s", w.Code, w.Body.String())
+	}
+	if !strings.Contains(w.Body.String(), "Fire TV paired") || !strings.Contains(w.Body.String(), "/style.css?v=approve-3") {
+		t.Fatalf("paired confirmation did not render themed page: %s", w.Body.String())
 	}
 	// The approval cannot be repeated.
 	if w = served(a, good); w.Code != 410 {
@@ -195,8 +206,24 @@ func TestPairApproveRevokeFrame(t *testing.T) {
 	}
 	show = httptest.NewRequest("GET", "/kiosk", nil)
 	show.AddCookie(frameCookie)
-	if w = served(a, show); !strings.Contains(w.Body.String(), "Connect this photo frame") {
+	if w = served(a, show); !strings.Contains(w.Body.String(), "Connect this display") {
 		t.Fatalf("revoked frame was not sent to pairing page (%d)", w.Code)
+	}
+}
+
+func TestDetectDisplayKind(t *testing.T) {
+	for _, tc := range []struct{ name, ua, want string }{
+		{"Fire TV Silk", "Mozilla/5.0 (Linux; Android 9; AFTMM Build/PS7652) Silk/116.4", "Fire TV"},
+		{"Fire TV web platform", "Mozilla/5.0 (Linux; Android 9; AFTT Build/PS7652) AmazonWebAppPlatform/3.0", "Fire TV"},
+		{"Fire tablet Silk", "Mozilla/5.0 (Linux; Android 9; KFTHWI Build/PS7652) Silk/116.4", "display"},
+		{"Silk without model", "Mozilla/5.0 (X11; Linux x86_64) Silk/116.4", "display"},
+		{"other browser", "Mozilla/5.0 Chrome/120.0 Safari/537.36", "display"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := detectDisplayKind(tc.ua); got != tc.want {
+				t.Fatalf("detectDisplayKind() = %q, want %q", got, tc.want)
+			}
+		})
 	}
 }
 func cookieNamed(t *testing.T, w *httptest.ResponseRecorder, name string) *http.Cookie {
@@ -223,6 +250,7 @@ func TestPendingExpiryAndConfig(t *testing.T) {
 	}
 	for _, tc := range []struct{ name, key, val string }{
 		{"insecure origin", "FAMILY_PUBLIC_URL", "http://family.wayl.one"},
+		{"insecure allowed origin", "FAMILY_ALLOWED_ORIGINS", "http://fam.wayl.one"},
 		{"missing cidr", "FAMILY_TRUSTED_PROXY_CIDRS", ""},
 		{"world cidr", "FAMILY_TRUSTED_PROXY_CIDRS", "0.0.0.0/0"},
 	} {

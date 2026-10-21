@@ -328,22 +328,23 @@ type Page struct {
 }
 
 type app struct {
-	calendar    *calendarFeed
-	weather     *weatherFeed
-	store       *taskStore
-	tmpl        *template.Template
-	csrf        string
-	tz          *time.Location
-	now         func() time.Time
-	auth        authConfig
-	travelRules []travelRule
-	devices     *deviceStore
-	pairings    *pairingPool
-	devMode     bool
-	devVersion  string
-	pairTpl     *template.Template
-	approveTpl  *template.Template
-	devicesTpl  *template.Template
+	calendar       *calendarFeed
+	weather        *weatherFeed
+	store          *taskStore
+	tmpl           *template.Template
+	csrf           string
+	tz             *time.Location
+	now            func() time.Time
+	auth           authConfig
+	travelRules    []travelRule
+	devices        *deviceStore
+	pairings       *pairingPool
+	devMode        bool
+	devVersion     string
+	pairTpl        *template.Template
+	approveTpl     *template.Template
+	approveDoneTpl *template.Template
+	devicesTpl     *template.Template
 }
 
 func newApp(path string) (*app, error) {
@@ -773,8 +774,8 @@ func (a *app) publicHome(w http.ResponseWriter, r *http.Request) {
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Family HQ">
 <meta name="twitter:description" content="A calm, shared home for the family calendar, weather, and everyday tasks."><meta name="twitter:image" content="%s">
-%s<script src="/home.js" defer></script><style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#26352c;color:#f6f3e9;font:16px/1.5 system-ui,sans-serif}.card{width:min(720px,calc(100%% - 40px));padding:clamp(32px,8vw,76px);border:1px solid #536356;border-radius:28px;background:linear-gradient(145deg,#34473a,#293a30);box-shadow:0 28px 90px #1118}p{color:#c4d0bf;margin:0 0 12px}.eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:.75rem;color:#b8c58f}h1{font-size:clamp(3rem,10vw,6rem);line-height:.98;letter-spacing:-.06em;margin:0 0 24px}h1 span{color:#d4a86a}.copy{max-width:38rem;font-size:1.2rem;margin-bottom:20px}.session-status{min-height:1.5em;color:#d4a86a;font-size:.95rem}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}.pill{display:inline-block;border:1px solid #829179;border-radius:999px;padding:10px 16px;color:#f6f3e9;text-decoration:none}.pill:hover{background:#536356}.pill.secondary{background:transparent}.pill[hidden]{display:none}</style></head>
-<body><main class="card"><p class="eyebrow">A little more in sync</p><h1>Family HQ<span>.</span></h1><p class="copy">Your family’s calendar, the weather, and everyday tasks together in one calm place.</p><p class="session-status" id="auth-status" aria-live="polite">Checking sign-in…</p><nav class="actions" aria-label="Family HQ options"><a class="pill" id="dashboard-link" href="/dashboard">Sign in to Family HQ</a><a class="pill secondary" href="/kiosk">Use this TV with your phone</a><a class="pill secondary" id="devices-link" href="/devices" hidden>Manage connected TVs</a></nav></main></body></html>`, template.HTMLEscapeString(imageURL), template.HTMLEscapeString(imageURL), reloadScript)
+%s<script src="/home.js?v=display-2" defer></script><style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#26352c;color:#f6f3e9;font:16px/1.5 system-ui,sans-serif}.card{width:min(720px,calc(100%% - 40px));padding:clamp(32px,8vw,76px);border:1px solid #536356;border-radius:28px;background:linear-gradient(145deg,#34473a,#293a30);box-shadow:0 28px 90px #1118}p{color:#c4d0bf;margin:0 0 12px}.eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:.75rem;color:#b8c58f}h1{font-size:clamp(3rem,10vw,6rem);line-height:.98;letter-spacing:-.06em;margin:0 0 24px}h1 span{color:#d4a86a}.copy{max-width:38rem;font-size:1.2rem;margin-bottom:20px}.session-status{min-height:1.5em;color:#d4a86a;font-size:.95rem}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}.pill{display:inline-block;border:1px solid #829179;border-radius:999px;padding:10px 16px;color:#f6f3e9;text-decoration:none}.pill:hover{background:#536356}.pill.secondary{background:transparent}.pill[hidden]{display:none}</style></head>
+<body><main class="card"><p class="eyebrow">A little more in sync</p><h1>Family HQ<span>.</span></h1><p class="copy">Your family’s calendar, the weather, and everyday tasks together in one calm place.</p><p class="session-status" id="auth-status" aria-live="polite">Checking sign-in…</p><nav class="actions" aria-label="Family HQ options"><a class="pill" id="dashboard-link" href="/dashboard">Sign in to Family HQ</a><a class="pill secondary" href="/kiosk">Pair a display with your phone</a><a class="pill secondary" id="devices-link" href="/devices" hidden>Manage paired displays</a></nav></main></body></html>`, template.HTMLEscapeString(imageURL), template.HTMLEscapeString(imageURL), reloadScript)
 }
 
 func (a *app) openGraphImage(w http.ResponseWriter, r *http.Request) {

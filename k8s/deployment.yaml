@@ -45,6 +45,8 @@ spec:
               value: proxy
             - name: FAMILY_PUBLIC_URL
               value: https://family.wayl.one
+            - name: FAMILY_ALLOWED_ORIGINS
+              value: https://fam.wayl.one,https://family.waylonwalker.com,https://fam.waylonwalker.com
             - name: FAMILY_TRUSTED_PROXY_CIDRS
               value: "10.42.0.15/32" # Current Traefik pod IP; NetworkPolicy also restricts ingress to Traefik pods.
             - name: PLAY_OUTSIDE_OPEN_WEATHER_API_KEY

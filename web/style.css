@@ -53,5 +53,16 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
 .pair-page .qr-wrap{display:grid;place-items:center;background:#fff;padding:8px;border-radius:12px;width:max-content;max-width:100%;margin:12px auto}
 .pair-page .qr-wrap svg{display:block;width:220px;height:220px;max-width:70vw;max-height:32vh}
 .pair-page .pair-url{overflow-wrap:anywhere;font-size:12px}
+.pair-page .pair-url a,.approve-page a{color:var(--accent);font-weight:750;text-decoration-thickness:1px;text-underline-offset:3px}
+.pair-page .pair-url a:hover,.approve-page a:hover{color:var(--ink)}
+.pair-page .pair-url a:focus-visible,.approve-page a:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:3px}
 .pair-page h1{font-family:var(--heading);font-size:30px;letter-spacing:-.8px;margin:0 0 10px}
 .pair-page .pair-small{font-size:15px;opacity:.72}
+.approve-page{display:grid;place-items:center;min-height:100vh;padding:18px}
+.approve-page .approve-card{position:relative;z-index:1;width:100%;max-width:520px;padding:26px;background:var(--surface);color:var(--ink);border-color:var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.approve-page h1{font-family:var(--heading);font-size:28px;letter-spacing:-.7px;margin:0 0 12px}
+.approve-page form{display:grid;gap:10px;margin-top:22px}
+.approve-page label{font-size:13px;font-weight:750}
+.approve-page input{width:100%;min-height:48px;padding:11px 13px;border:1px solid var(--line);border-radius:11px;background:var(--soft);color:var(--ink)}
+.approve-page button,.approve-page .approve-return{display:flex;align-items:center;justify-content:center;min-height:48px;margin-top:7px;padding:12px 18px;border:0;border-radius:11px;background:var(--accent);color:var(--surface);font:700 15px var(--body);text-decoration:none}
+.approve-page .approve-note{margin:18px 0 0;color:var(--muted);font-size:12px;line-height:1.45}
