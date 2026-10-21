@@ -70,6 +70,9 @@ func TestWeatherForecastCachedAndNoKeyInHTML(t *testing.T) {
 	if view.Badge != "LIVE WEATHER" || len(view.Slots) != 5 {
 		t.Fatalf("unexpected forecast: %+v", view)
 	}
+	if view.Current.Temp != "53°" || view.Current.Condition != "cloudy" || view.Current.Feels != "49°" {
+		t.Fatalf("incorrect current conditions %+v", view.Current)
+	}
 	if view.Air != "Air quality 4/5" || !strings.Contains(view.Message, "Air quality") {
 		t.Fatalf("air data: %+v", view)
 	}

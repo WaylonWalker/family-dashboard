@@ -6,8 +6,8 @@
   <meta http-equiv="refresh" content="900">
   <meta name="theme-color" content="#fdf6e3">
   <title>Family HQ</title>
-  <link rel="stylesheet" href="/style.css?v=6">
-  <script src="/app.js?v=6" defer></script>
+  <link rel="stylesheet" href="/style.css?v=7">
+  <script src="/app.js?v=7" defer></script>
   <noscript><style>
     .feature-pane[hidden]{display:flex!important}
     .feature-tabs,.feature-actions,.feature-bottom{display:none!important}
@@ -76,12 +76,13 @@
           <section class="feature-pane is-active" id="pane-weather" role="tabpanel" aria-labelledby="tab-weather">
             <div class="wx-heading"><div><div class="wx-kicker">{{.Weather.Location}}</div><strong>What to wear</strong></div><span class="wx-status">{{.Weather.Badge}}</span></div>
             {{if .Weather.Slots}}
+            {{with .Weather.Current}}<article class="weather-now" aria-label="Current weather: {{.Temp}}, {{.Condition}}"><div class="weather-now-label">RIGHT NOW</div><div class="weather-now-main"><svg class="icon weather-now-icon" aria-hidden="true"><use href="#i-{{.Icon}}" xlink:href="#i-{{.Icon}}"/></svg><strong class="weather-now-temp">{{.Temp}}</strong><div class="weather-now-copy"><strong>{{.Condition}}</strong><span>Feels {{.Feels}} · {{.Wind}} wind</span><small>{{.Wear}}</small></div></div></article>{{end}}
             <div class="weather-timeline" aria-label="Three-hour weather forecast and outfit suggestions">
-              {{range .Weather.Slots}}<div class="weather-slot">
-                <div class="weather-slot-time"><strong>{{.Hour}}</strong><small>{{.Day}}</small></div>
-                <div class="weather-slot-temp"><svg class="icon wx-icon"><use href="#i-{{.Icon}}" xlink:href="#i-{{.Icon}}"/></svg><strong>{{.Temp}}</strong></div>
-                <div class="weather-slot-wear"><strong>{{.Wear}}</strong><span>{{.Condition}} · feels {{.Feels}} · rain {{.Rain}} · wind {{.Wind}}</span></div>
-              </div>{{end}}
+              {{range $i, $slot := .Weather.Slots}}{{if gt $i 0}}<div class="weather-slot">
+                <div class="weather-slot-time"><strong>{{$slot.Hour}}</strong><small>{{$slot.Day}}</small></div>
+                <div class="weather-slot-temp"><svg class="icon wx-icon"><use href="#i-{{$slot.Icon}}" xlink:href="#i-{{$slot.Icon}}"/></svg><strong>{{$slot.Temp}}</strong></div>
+                <div class="weather-slot-wear"><strong>{{$slot.Wear}}</strong><span>{{$slot.Condition}} · feels {{$slot.Feels}} · rain {{$slot.Rain}} · wind {{$slot.Wind}}</span></div>
+              </div>{{end}}{{end}}
             </div>
             {{else}}<div class="empty-weather"><svg class="icon"><use href="#i-sun" xlink:href="#i-sun"/></svg><p>Connect the Play Outside key to get a live clothing timeline.</p></div>{{end}}
             <p class="subtle-message" role="status">{{.Weather.Note}}{{if .Weather.Air}} · {{.Weather.Air}}{{end}}{{if .Weather.Message}} — {{.Weather.Message}}{{end}}</p>

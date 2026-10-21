@@ -25,6 +25,7 @@ type weatherSlot struct {
 }
 type weatherView struct {
 	Badge, Note, Message, Location, Air string
+	Current                             weatherSlot
 	Slots                               []weatherSlot
 }
 type weatherFeed struct {
@@ -157,7 +158,8 @@ func (wf *weatherFeed) fetch(now time.Time) (weatherView, error) {
 			}
 		}
 	}
-	view.Slots = append(view.Slots, makeWeatherSlot(current, "Today", "Now", false))
+	view.Current = makeWeatherSlot(current, "Today", "Now", false)
+	view.Slots = append(view.Slots, view.Current)
 	for _, p := range forecast.List {
 		at := time.Unix(p.DT, 0).In(wf.tz)
 		if !at.After(now) || at.Hour() < 6 || at.Hour() > 21 {
