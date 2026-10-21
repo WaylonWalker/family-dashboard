@@ -136,12 +136,12 @@ homelab-argo (different repo)
 └── argo-apps/apps/family-dashboard.yaml # copied from docs/homelab-argo/
 ```
 
-**Bootstrap:** create the public `WaylonWalker/family-dashboard` repository
-and push this project to its `main` branch. Copy the one file in
-`docs/homelab-argo/argo-apps/apps/` into `homelab-argo` and merge the
-GitOps registration. It does not auto-sync. The initial deployment image is
-`sha-REPLACE_BEFORE_SYNC`: don't manually sync until `just deploy` has
-published and pinned a real image, or perform the same steps by hand.
+**Bootstrap:** the canonical repository is
+`https://git.waylonwalker.com/waylon/family-dashboard`; GitHub is a push mirror
+used by GitHub Actions to publish GHCR images. Copy the one file in
+`docs/homelab-argo/argo-apps/apps/` into `homelab-argo` and merge the GitOps
+registration. It does not auto-sync. Pin a published image tag and digest
+before syncing.
 
 **Production release:** from a clean, up-to-date `main` checkout with registry
 credentials, a reachable `argocd` CLI session, and Kubernetes access:
@@ -159,8 +159,8 @@ side effect; `just publish` builds/pushes an image **without** deployment.
 Other useful commands: `just render`, `just sync`, `just status`, `just logs`,
 `just port-forward`.
 
-**Note:** Argo must be allowed to fetch this repo; registry image pull needs
-public GHCR package visibility or an existing image pull secret. v0.3 is
+**Note:** Argo must be allowed to fetch the Forgejo repo; registry image pull
+needs public GHCR package visibility or an existing image pull secret. v0.3 is
 single-replica by design because `tasks.json` is a single-writer JSON store
 on a 1Gi Longhorn PVC.
 

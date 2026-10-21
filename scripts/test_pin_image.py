@@ -14,6 +14,15 @@ spec:
         new = pin(self.original, "ghcr.io/waylonwalker/family-dashboard:sha-deadbeef")
         self.assertIn("family-dashboard:sha-deadbeef", new)
 
+    def test_accepts_digest_pinned_image(self):
+        digest = "a" * 64
+        new = pin(self.original, f"ghcr.io/waylonwalker/family-dashboard:sha-deadbeef@sha256:{digest}")
+        self.assertIn(f"sha-deadbeef@sha256:{digest}", new)
+
+    def test_rejects_invalid_digest(self):
+        with self.assertRaises(ValueError):
+            pin(self.original, "ghcr.io/waylonwalker/family-dashboard:sha-deadbeef@sha256:bad")
+
     def test_rejects_mutually_ambiguous_images(self):
         with self.assertRaises(ValueError):
             pin(self.original + "      image: other:tag\n", "ghcr.io/waylonwalker/family-dashboard:sha-deadbeef")

@@ -7,8 +7,10 @@ from pathlib import Path
 
 def pin(text: str, image: str) -> str:
     # Restrict automated edits to the application's own container image.
-    if not re.fullmatch(r"[a-zA-Z0-9._/-]+:[a-zA-Z0-9._-]+", image):
-        raise ValueError("image must have an explicit repository and tag")
+    if not re.fullmatch(
+        r"[a-zA-Z0-9._/-]+:[a-zA-Z0-9._-]+(?:@sha256:[a-f0-9]{64})?", image
+    ):
+        raise ValueError("image must have an explicit repository and tag, with an optional sha256 digest")
     if not (image.startswith("ghcr.io/") or image.startswith("registry.wayl.one/")):
         raise ValueError("unexpected registry")
     pattern = r"(?m)^([ \t]*image: )[^\s#]+([ \t]*(?:#.*)?)$"
@@ -20,7 +22,7 @@ def pin(text: str, image: str) -> str:
 
 def main() -> None:
     if len(sys.argv) != 2:
-        raise SystemExit("Usage: pin_image.py IMAGE:TAG")
+        raise SystemExit("Usage: pin_image.py IMAGE:TAG[@sha256:DIGEST]")
     path = Path("k8s/deployment.yaml")
     original = path.read_text()
     updated = pin(original, sys.argv[1])
