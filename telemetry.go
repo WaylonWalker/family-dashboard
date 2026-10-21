@@ -42,7 +42,10 @@ func setupTelemetry(ctx context.Context) (*telemetry, error) {
 	}
 
 	registry := promclient.NewRegistry()
-	metricExporter, err := otelprom.New(otelprom.WithRegisterer(registry))
+	metricExporter, err := otelprom.New(
+		otelprom.WithRegisterer(registry),
+		otelprom.WithResourceAsConstantLabels(attribute.NewAllowKeysFilter("service.name")),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -73,8 +76,15 @@ func setupTelemetry(ctx context.Context) (*telemetry, error) {
 	}, nil
 }
 
-func instrumentHTTP(next http.Handler) http.Handler {
-	return otelhttp.NewHandler(next, "http.server",
+func instrumentHTTP(mux *http.ServeMux) http.Handler {
+	routeAware := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handler, route := mux.Handler(r)
+		if route != "" {
+			handler = otelhttp.WithRouteTag(route, handler)
+		}
+		handler.ServeHTTP(w, r)
+	})
+	return otelhttp.NewHandler(routeAware, "http.server",
 		otelhttp.WithFilter(func(r *http.Request) bool {
 			return r.URL.Path != "/healthz" && r.URL.Path != "/metrics"
 		}),
