@@ -3,8 +3,8 @@
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 set dotenv-load := true
 
-registry := env_var_or_default("REGISTRY", "registry.wayl.one")
-image_name := env_var_or_default("IMAGE_NAME", "family-dashboard")
+registry := "registry.wayl.one"
+image_name := "family-dashboard"
 engine := env_var_or_default("CONTAINER_ENGINE", "podman")
 commit := `git rev-parse HEAD 2>/dev/null || echo development`
 tag := env_var_or_default("TAG", "sha-" + commit)
