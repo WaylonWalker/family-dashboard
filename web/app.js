@@ -77,6 +77,7 @@
   }
   function updateEventTimes() {
     var labels = document.querySelectorAll('.event-relative');
+    var leaveLabels = document.querySelectorAll('.leave-countdown');
     var units = [
       [365.25 * 86400, 'y'], [30.44 * 86400, 'mo'], [7 * 86400, 'w'],
       [86400, 'd'], [3600, 'h'], [60, 'm'], [1, 's']
@@ -94,6 +95,29 @@
           break;
         }
       }
+    }
+    for (var j = 0; j < leaveLabels.length; j++) {
+      var remaining = Math.ceil((Date.parse(leaveLabels[j].getAttribute('data-leave-at')) - now) / 1000);
+      if (!isFinite(remaining)) continue;
+      var text = 'NOW';
+      if (remaining > 0) {
+        if (remaining < 60) text = remaining + 's';
+        else {
+          var mins = Math.floor(remaining / 60);
+          if (mins < 60) text = mins + 'm';
+          else {
+            var hours = Math.floor(mins / 60);
+            if (hours < 24) text = hours + 'h' + (mins % 60 ? ' ' + (mins % 60) + 'm' : '');
+            else {
+              var days = Math.floor(hours / 24);
+              text = days + 'd' + (hours % 24 ? ' ' + (hours % 24) + 'h' : '');
+            }
+          }
+        }
+      }
+      leaveLabels[j].textContent = text;
+      var caption = leaveLabels[j].parentNode.querySelector('span');
+      if (caption) caption.textContent = remaining <= 0 ? 'LEAVE NOW' : 'UNTIL LEAVE';
     }
   }
   updateClock();

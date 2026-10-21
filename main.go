@@ -132,20 +132,22 @@ func newID() string {
 }
 
 type Event struct {
-	Date        string
-	Weekday     string
-	Time        string
-	Start       string
-	End         string
-	Relative    string
-	AllDay      bool
-	SpanDays    int
-	Status      string
-	Countdown   string
-	LeaveLabel  string
-	TravelLabel string
-	Title       string
-	Category    string
+	Date           string
+	Weekday        string
+	Time           string
+	Start          string
+	End            string
+	Relative       string
+	AllDay         bool
+	SpanDays       int
+	Status         string
+	Countdown      string
+	LeaveLabel     string
+	LeaveAt        string
+	LeaveCountdown string
+	TravelLabel    string
+	Title          string
+	Category       string
 }
 
 type travelRule struct {
@@ -229,6 +231,8 @@ func addTravelEstimate(event *Event, rules []travelRule, now time.Time, loc *tim
 		return
 	}
 	leaveAt := start.Add(-time.Duration(minutes) * time.Minute)
+	event.LeaveAt = leaveAt.Format(time.RFC3339)
+	event.LeaveCountdown = formatLeaveCountdown(leaveAt.Sub(now))
 	if !leaveAt.After(now) {
 		event.LeaveLabel = "Leave now"
 	} else {
@@ -238,6 +242,32 @@ func addTravelEstimate(event *Event, rules []travelRule, now time.Time, loc *tim
 	if destination != "" {
 		event.TravelLabel += " to " + destination
 	}
+}
+
+func formatLeaveCountdown(remaining time.Duration) string {
+	if remaining <= 0 {
+		return "NOW"
+	}
+	seconds := int((remaining + time.Second - 1) / time.Second)
+	if seconds < 60 {
+		return fmt.Sprintf("%ds", seconds)
+	}
+	minutes := seconds / 60
+	if minutes < 60 {
+		return fmt.Sprintf("%dm", minutes)
+	}
+	hours := minutes / 60
+	if hours < 24 {
+		if minutes%60 == 0 {
+			return fmt.Sprintf("%dh", hours)
+		}
+		return fmt.Sprintf("%dh %dm", hours, minutes%60)
+	}
+	days := hours / 24
+	if hours%24 == 0 {
+		return fmt.Sprintf("%dd", days)
+	}
+	return fmt.Sprintf("%dd %dh", days, hours%24)
 }
 
 type Day struct {

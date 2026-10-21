@@ -107,8 +107,27 @@ func TestTravelRulesMatchTitlesAndApplyCutovers(t *testing.T) {
 	}
 	event := Event{Title: "Ayla Vv Studio", Start: start.Format(time.RFC3339)}
 	addTravelEstimate(&event, rules, time.Date(2026, 10, 21, 15, 0, 0, 0, loc), loc)
-	if event.LeaveLabel != "Leave by 4:10 PM" || event.TravelLabel != "20 min to Lakeview" {
-		t.Fatalf("travel card labels = %q, %q", event.LeaveLabel, event.TravelLabel)
+	if event.LeaveLabel != "Leave by 4:10 PM" || event.LeaveCountdown != "1h 10m" || event.TravelLabel != "20 min to Lakeview" {
+		t.Fatalf("travel card labels = %q, %q, %q", event.LeaveLabel, event.LeaveCountdown, event.TravelLabel)
+	}
+}
+
+func TestFormatLeaveCountdown(t *testing.T) {
+	for _, tc := range []struct {
+		remaining time.Duration
+		want      string
+	}{
+		{-time.Second, "NOW"},
+		{0, "NOW"},
+		{time.Second, "1s"},
+		{59 * time.Second, "59s"},
+		{time.Minute, "1m"},
+		{70 * time.Minute, "1h 10m"},
+		{25 * time.Hour, "1d 1h"},
+	} {
+		if got := formatLeaveCountdown(tc.remaining); got != tc.want {
+			t.Errorf("formatLeaveCountdown(%s) = %q, want %q", tc.remaining, got, tc.want)
+		}
 	}
 }
 
