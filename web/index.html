@@ -6,8 +6,10 @@
   <meta http-equiv="refresh" content="900">
   <meta name="theme-color" content="#fdf6e3">
   <title>Family HQ</title>
-  <link rel="stylesheet" href="/style.css?v=10">
-  <script src="/app.js?v=8" defer></script>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" type="image/x-icon">
+  <link rel="stylesheet" href="/style.css?v=11">
+  <script src="/app.js?v=9" defer></script>
+  {{if .DevMode}}<script src="/dev-reload.js" defer></script>{{end}}
   <noscript><style>
     .feature-pane[hidden]{display:flex!important}
     .feature-tabs,.feature-actions,.feature-bottom{display:none!important}
@@ -23,7 +25,7 @@
     <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
     <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h12M9 12h12M9 18h12M4 6h.01M4 12h.01M4 18h.01"/></symbol>
-    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.2 2.2m8.4 8.4 2.2 2.2m0-12.8-2.2 2.2M7.8 16.2l-2.2 2.2"/><circle cx="12" cy="12" r="4"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M10 2.8h4l.7 2.5 2 .8 2.4-1 2 3.5-1.8 1.9v2.4l1.8 1.9-2 3.5-2.4-1-2 .8-.7 2.5h-4l-.7-2.5-2-.8-2.4 1-2-3.5 1.8-1.9v-2.4L2.9 8.6l2-3.5 2.4 1 2-.8z"/><circle cx="12" cy="11.7" r="3.1"/></symbol>
     <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
     <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
     <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
@@ -44,8 +46,9 @@
       <div class="brand"><span class="brand-icon"><svg class="icon"><use href="#i-home" xlink:href="#i-home"/></svg></span>
         <div><h1>Family HQ<span class="brand-period">.</span></h1><p>Our little corner of the world</p></div>
       </div>
+      <div class="clock-block"><strong id="live-clock">{{.Clock}}</strong><span id="live-period">{{.Period}}</span></div>
       <div class="header-right">
-        <div class="clock-block"><strong id="live-clock">{{.Clock}}</strong><span id="live-date">{{.Today}}</span></div>
+        <span id="live-date" class="date-block">{{.Today}}</span>
         <button id="open-settings" class="icon-button settings-launch" type="button" aria-label="Open display settings" aria-controls="settings" aria-expanded="false" title="Theme & display settings"><svg class="icon"><use href="#i-settings" xlink:href="#i-settings"/></svg></button>
       </div>
     </header>
@@ -54,7 +57,7 @@
       <section class="calendar panel" aria-labelledby="calendar-title">
         <div class="section-top"><div><p class="eyebrow">ON THE HORIZON</p><h2 id="calendar-title">The week ahead</h2></div><span class="connection {{if eq .CalendarBadge "GOOGLE CALENDAR"}}connected{{end}}"><svg class="icon"><use href="#i-calendar" xlink:href="#i-calendar"/></svg> {{.CalendarBadge}}</span></div>
         <div class="week-strip" aria-label="Next seven days">{{range .Days}}<div class="day {{if .Today}}selected{{end}}"><span>{{.Label}}</span><strong>{{.Number}}</strong></div>{{end}}</div>
-        {{with .NextUp}}<article class="next-up" aria-label="{{.Status}}: {{.Title}}"><div class="next-up-copy"><p class="next-up-kicker">{{.Status}}</p><h3>{{.Title}}</h3><span class="next-up-meta">{{.Date}} · {{if .AllDay}}All day{{if gt .SpanDays 1}} · {{.SpanDays}} days{{end}}{{else}}{{.Time}}{{end}}</span>{{if .LeaveLabel}}<span class="next-up-travel">{{.LeaveLabel}} · {{.TravelLabel}}</span>{{end}}{{if .WeatherTemp}}<div class="next-up-weather" aria-label="Weather at {{.WeatherAt}}: {{.WeatherTemp}}, {{.WeatherCondition}}; wear {{.WeatherWear}}"><svg class="icon" aria-hidden="true"><use href="#i-{{.WeatherIcon}}" xlink:href="#i-{{.WeatherIcon}}"/></svg><small>{{.WeatherAt}}</small><strong>{{.WeatherTemp}}</strong><span>{{.WeatherCondition}} · {{.WeatherWear}}</span></div>{{end}}</div><div class="next-up-count">{{if .LeaveAt}}<strong class="leave-countdown" data-leave-at="{{.LeaveAt}}">{{.LeaveCountdown}}</strong><span>{{if eq .LeaveCountdown "NOW"}}LEAVE NOW{{else}}UNTIL LEAVE{{end}}</span>{{else}}<strong{{if and (not .AllDay) (ne .Countdown "NOW")}} class="event-relative" data-start="{{.Start}}"{{end}}>{{.Countdown}}</strong><span>{{if .AllDay}}ALL DAY{{else if eq .Countdown "NOW"}}IN PROGRESS{{else}}UNTIL START{{end}}</span>{{end}}</div></article>{{end}}
+        {{with .NextUp}}<article class="next-up" aria-label="{{.Status}}: {{.Title}}"{{if .TravelMinutes}} data-travel-phase="{{if .LeaveForPickup}}pickup{{else}}outbound{{end}}" data-travel-start="{{.Start}}" data-travel-end="{{.End}}"{{end}}><div class="next-up-copy"><p class="next-up-kicker">{{.Status}}</p><h3>{{.Title}}</h3><span class="next-up-meta">{{.Date}} · {{if .AllDay}}All day{{if gt .SpanDays 1}} · {{.SpanDays}} days{{end}}{{else}}{{.Time}}{{end}}</span>{{if .LeaveLabel}}<span class="next-up-travel">{{.LeaveLabel}} · {{.TravelLabel}}</span>{{end}}{{if .WeatherTemp}}<div class="next-up-weather" aria-label="Weather at {{.WeatherAt}}: {{.WeatherTemp}}, {{.WeatherCondition}}; wear {{.WeatherWear}}"><svg class="icon" aria-hidden="true"><use href="#i-{{.WeatherIcon}}" xlink:href="#i-{{.WeatherIcon}}"/></svg><small>{{.WeatherAt}}</small><strong>{{.WeatherTemp}}</strong><span>{{.WeatherCondition}} · {{.WeatherWear}}</span></div>{{end}}</div><div class="next-up-count">{{if .LeaveAt}}<strong class="leave-countdown{{if .LeaveForPickup}} pickup-countdown{{end}}" data-leave-at="{{.LeaveAt}}">{{.LeaveCountdown}}</strong><span>{{if .LeaveForPickup}}{{if eq .LeaveCountdown "NOW"}}LEAVE FOR PICKUP NOW{{else}}UNTIL LEAVE FOR PICKUP{{end}}{{else if eq .LeaveCountdown "NOW"}}LEAVE NOW{{else}}UNTIL LEAVE{{end}}</span>{{else}}<strong{{if and (not .AllDay) (ne .Countdown "NOW")}} class="event-relative" data-start="{{.Start}}"{{end}}>{{.Countdown}}</strong><span>{{if .AllDay}}ALL DAY{{else if eq .Countdown "NOW"}}IN PROGRESS{{else}}UNTIL START{{end}}</span>{{end}}</div></article>{{end}}
         <div class="event-list" aria-label="Upcoming appointments">
           {{range .Events}}<article class="event {{if .AllDay}}event-all-day{{end}}"><div class="event-date"><strong>{{.Date}}</strong><span>{{.Weekday}}</span></div><span class="event-mark {{.Category}}" aria-hidden="true"></span><div class="event-main"><h3>{{.Title}}</h3>{{if .AllDay}}<div class="event-details"><span class="event-kind">All day</span>{{if gt .SpanDays 1}}<span class="event-span">{{.SpanDays}} days</span>{{end}}</div>{{else}}<span>{{.Time}}</span> <time class="event-relative" datetime="{{.Start}}" data-start="{{.Start}}">{{.Relative}}</time>{{end}}</div></article>{{else}}<p class="empty">The calendar is clear. Enjoy the breathing room.</p>{{end}}
         </div>

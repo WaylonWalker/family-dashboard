@@ -22,6 +22,9 @@ just build           # dist/family-dashboard
 just check           # go vet, tests and build
 ```
 
+`just serve` watches Go files and `web/`. It restarts the server after edits
+and reloads the open dashboard tab when the server comes back.
+
 Use a different HTTP port with `LISTEN_ADDR=127.0.0.1:8181 just serve`.
 Adjust the container runtime with `CONTAINER_ENGINE=docker just container-build`.
 
@@ -328,6 +331,7 @@ embedded SVG symbols. Test on your specific photo frame before deploying.
 Family HQ uses **two separate authentication paths**:
 
 - **People:** sign in on the normal URL `https://family.wayl.one/` or its aliases (`https://fam.wayl.one/`, `https://family.waylonwalker.com/`, `https://fam.waylonwalker.com/`) using Traefik → `hlab-auth` ForwardAuth. Family HQ consumes **only** its trusted `X-Hlab-*` headers after Traefik strips spoofed inbound values. `family-hq:read` sees the dashboard and can complete tasks; `family-hq:manage` can add/delete tasks, pair devices, and revoke devices. Assign both scopes to admins if your `hlab-auth` route rule requires `family-hq:read` for entry. `hlab-auth` uses its supported ForwardAuth API, not an OIDC flow.
+- **Landing page:** `/` stays public and checks `/session` through ForwardAuth. Signed-in people get dashboard and, for administrators, device-management links. Signed-out people get a sign-in link and a TV pairing option. The session response reveals only whether the visitor has read and manage access.
 - **Photo frames:** open `https://family.wayl.one/kiosk` (or an alias), which displays a locally generated QR code. On your phone, scan it, sign in through `hlab-auth` if needed, and explicitly approve and name the frame. The original frame receives its **own** HttpOnly/Secure/SameSite=Strict cookie after polling. The cookie is valid only for `/kiosk`, with only dashboard read and task-toggle permissions. No phone session is copied to the photo frame.
 
 QR pairing is limited to **five minutes**, a maximum of 32 concurrent attempts, and one-time use. Device secrets are random 256-bit strings; only a SHA-256 hash is stored on disk. A frame credential expires after **90 days** or immediately when revoked at `/devices`. The pending QR approval code is held only in server memory and disappears on restart.
@@ -343,7 +347,7 @@ On **the same computer**, open `http://127.0.0.1:8080/kiosk`. The pairing screen
 ### Deploy behind hlab-auth
 
 1. Register Family HQ and its protected routes for all four hostnames in `hlab-auth`. Grant household members `family-hq:read` and administrators **both** `family-hq:read` and `family-hq:manage`. The proxy should enforce your app route access; the backend checks scopes again for privileged actions. This registration is an operator action: the GitOps manifests cannot automatically provision hlab-auth's app/role database.
-2. Review the `k8s/ingress.yaml` **Traefik IngressRoute**, `k8s/middleware.yaml` ForwardAuth chain and `k8s/networkpolicy.yaml`. The HTTPS public routes (`/`, `/og`, `/kiosk`, `/style.css`, `/app.js`, `/pair-qr.js`) do **not** use human ForwardAuth. The calendar and tasks are served at `/dashboard` behind ForwardAuth; kiosk data still requires device credentials. All other routes, including approval and device management, are protected by ForwardAuth.
+2. Review the `k8s/ingress.yaml` **Traefik IngressRoute**, `k8s/middleware.yaml` ForwardAuth chain and `k8s/networkpolicy.yaml`. The public routes (`/`, `/og`, `/favicon.ico`, `/home.js`, `/kiosk`, `/style.css`, `/app.js`, `/pair-qr.js`) do **not** use human ForwardAuth. The session check, calendar and tasks are served behind ForwardAuth; kiosk data still requires device credentials. All other routes, including approval and device management, are protected by ForwardAuth.
 3. **Check the actual Traefik pod selectors and source IPs in your running cluster.** The current Traefik pod is `10.42.0.15` on `falcon2`; the configured source range is `10.42.0.0/24`, and NetworkPolicy limits app ingress to Traefik pods in `kube-system`. Recheck the source after Traefik moves or restarts. The NetworkPolicy uses `kube-system` and `app.kubernetes.io/name=traefik`; adjust if your controller uses different namespace/labels.
 4. Verify `letsencrypt-dns` is the intended cert-manager ClusterIssuer and that all four configured hostnames are reachable via Traefik. Both human and frame routes must use HTTPS. IngressRoute TLS requires the Certificate resource included in the manifest.
 5. Deploy immutable image using your existing `just deploy` flow. Confirm `FAMILY_AUTH_MODE=proxy`, `FAMILY_PUBLIC_URL=https://family.wayl.one`, `FAMILY_TRUSTED_PROXY_CIDRS=...`, and `DEVICES_FILE=/data/devices.json`. The paired device record lives next to tasks on the same persistent Longhorn claim, not in Git.

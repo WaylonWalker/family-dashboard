@@ -107,8 +107,32 @@ func TestTravelRulesMatchTitlesAndApplyCutovers(t *testing.T) {
 	}
 	event := Event{Title: "Ayla Vv Studio", Start: start.Format(time.RFC3339)}
 	addTravelEstimate(&event, rules, time.Date(2026, 10, 21, 15, 0, 0, 0, loc), loc)
-	if event.LeaveLabel != "Leave by 4:10 PM" || event.LeaveCountdown != "1h 10m" || event.TravelLabel != "20 min to Lakeview" {
+	if event.LeaveLabel != "Leave by 4:10 PM" || event.LeaveCountdown != "1h 10m" || event.TravelLabel != "20 min each way to Lakeview" {
 		t.Fatalf("travel card labels = %q, %q, %q", event.LeaveLabel, event.LeaveCountdown, event.TravelLabel)
+	}
+
+	pickup := Event{
+		Title: "Ayla Vv Studio",
+		Start: time.Date(2026, time.October, 21, 16, 30, 0, 0, loc).Format(time.RFC3339),
+		End:   time.Date(2026, time.October, 21, 17, 30, 0, 0, loc).Format(time.RFC3339),
+	}
+	now := time.Date(2026, time.October, 21, 17, 0, 0, 0, loc)
+	addTravelEstimate(&pickup, rules, now, loc)
+	if !pickup.LeaveForPickup || pickup.LeaveLabel != "Leave for pickup by 5:10 PM" || pickup.LeaveCountdown != "10m" {
+		t.Fatalf("pickup estimate = %+v", pickup)
+	}
+
+	future := Event{
+		Title: "Future appointment",
+		Start: now.Add(time.Hour).Format(time.RFC3339),
+		End:   now.Add(2 * time.Hour).Format(time.RFC3339),
+	}
+	active, remaining := nextEvent([]Event{future, pickup}, now)
+	if active == nil || active.Title != pickup.Title || active.Status != "IN PROGRESS" || active.Countdown != "NOW" {
+		t.Fatalf("next event = %+v, want active pickup", active)
+	}
+	if len(remaining) != 1 || remaining[0].Title != future.Title {
+		t.Fatalf("remaining events = %+v, want future appointment", remaining)
 	}
 }
 
@@ -180,7 +204,7 @@ func TestPhotoFrameAssetsAndIconNames(t *testing.T) {
 	}
 	landing := httptest.NewRecorder()
 	h.ServeHTTP(landing, httptest.NewRequest(http.MethodGet, "/", nil))
-	if landing.Code != http.StatusOK || !strings.Contains(landing.Body.String(), "Open Family HQ") || strings.Contains(landing.Body.String(), "Family tasks") {
+	if landing.Code != http.StatusOK || !strings.Contains(landing.Body.String(), "Sign in to Family HQ") || !strings.Contains(landing.Body.String(), "Use this TV with your phone") || strings.Contains(landing.Body.String(), "Family tasks") {
 		t.Errorf("public landing page leaked dashboard data or failed: %d", landing.Code)
 	}
 	og := httptest.NewRecorder()

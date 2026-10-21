@@ -69,6 +69,29 @@ func TestProxyTrustAndScopes(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestHomeOffersOptionsBasedOnSession(t *testing.T) {
+	a := proxyApp(t)
+	public := served(a, httptest.NewRequest("GET", "/", nil))
+	for _, want := range []string{`src="/home.js"`, `href="/dashboard"`, `href="/kiosk"`, `id="devices-link"`} {
+		if !strings.Contains(public.Body.String(), want) {
+			t.Errorf("home page is missing %q", want)
+		}
+	}
+
+	if got := served(a, httptest.NewRequest("GET", "/session", nil)); got.Code != http.StatusForbidden {
+		t.Fatalf("anonymous session status = %d, want 403", got.Code)
+	}
+	read := served(a, humanReq("GET", "/session", "", "family-hq:read"))
+	if read.Code != http.StatusOK || !strings.Contains(read.Body.String(), `"authenticated":true`) || !strings.Contains(read.Body.String(), `"canManage":false`) {
+		t.Fatalf("read session status = %d, body = %s", read.Code, read.Body.String())
+	}
+	manage := served(a, humanReq("GET", "/session", "", "family-hq:manage"))
+	if manage.Code != http.StatusOK || !strings.Contains(manage.Body.String(), `"canManage":true`) {
+		t.Fatalf("manage session status = %d, body = %s", manage.Code, manage.Body.String())
+	}
+}
+
 func TestPairApproveRevokeFrame(t *testing.T) {
 	a := proxyApp(t)
 	w := served(a, httptest.NewRequest("GET", "/kiosk", nil))

@@ -69,9 +69,11 @@
   applyTheme();
   function updateClock() {
     try {
-      var time = new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',hour:'numeric',minute:'2-digit'}).format(new Date());
-      var date = new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',weekday:'long',month:'long',day:'numeric'}).format(new Date());
-      document.getElementById('live-clock').textContent=time;
+      var formattedTime = new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',hour:'numeric',minute:'2-digit'}).format(new Date());
+      var timeParts = formattedTime.match(/^(\d{1,2}:\d{2})\s*(AM|PM)$/i);
+      var date = new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',weekday:'short',month:'short',day:'numeric'}).format(new Date());
+      document.getElementById('live-clock').textContent=timeParts ? timeParts[1] : formattedTime;
+      if (timeParts) document.getElementById('live-period').textContent=timeParts[2];
       document.getElementById('live-date').textContent=date;
     } catch(e) { /* Keep server-rendered local clock on unsupported devices. */ }
   }
@@ -83,6 +85,16 @@
       [86400, 'd'], [3600, 'h'], [60, 'm'], [1, 's']
     ];
     var now = Date.now();
+    var outing = document.querySelector('.next-up[data-travel-phase]');
+    if (outing) {
+      var startAt = Date.parse(outing.getAttribute('data-travel-start'));
+      var endAt = Date.parse(outing.getAttribute('data-travel-end'));
+      var phase = outing.getAttribute('data-travel-phase');
+      if ((phase === 'outbound' && now >= startAt) || (phase === 'pickup' && now >= endAt)) {
+        window.location.reload();
+        return;
+      }
+    }
     for (var i = 0; i < labels.length; i++) {
       var seconds = (Date.parse(labels[i].getAttribute('data-start')) - now) / 1000;
       if (!isFinite(seconds)) continue;
@@ -117,7 +129,12 @@
       }
       leaveLabels[j].textContent = text;
       var caption = leaveLabels[j].parentNode.querySelector('span');
-      if (caption) caption.textContent = remaining <= 0 ? 'LEAVE NOW' : 'UNTIL LEAVE';
+      if (caption) {
+        var pickup = leaveLabels[j].classList.contains('pickup-countdown');
+        caption.textContent = pickup
+          ? (remaining <= 0 ? 'LEAVE FOR PICKUP NOW' : 'UNTIL LEAVE FOR PICKUP')
+          : (remaining <= 0 ? 'LEAVE NOW' : 'UNTIL LEAVE');
+      }
     }
   }
   updateClock();

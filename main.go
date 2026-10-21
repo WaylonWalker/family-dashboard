@@ -13,6 +13,7 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -20,6 +21,8 @@ import (
 	"time"
 	_ "time/tzdata"
 	"unicode"
+
+	"github.com/gorilla/websocket"
 )
 
 //go:embed web/*
@@ -145,6 +148,7 @@ type Event struct {
 	LeaveLabel       string
 	LeaveAt          string
 	LeaveCountdown   string
+	LeaveForPickup   bool
 	TravelLabel      string
 	TravelMinutes    int
 	WeatherAt        string
@@ -195,10 +199,16 @@ func parseTravelRules(raw string) ([]travelRule, error) {
 
 func estimateTravel(title string, start time.Time, rules []travelRule) (int, string, bool) {
 	title = " " + normalizeEventTitle(title) + " "
+	bestAliasLength := 0
+	bestMinutes, bestLocation := 0, ""
 	for _, rule := range rules {
 		for _, alias := range rule.Aliases {
-			phrase := " " + normalizeEventTitle(alias) + " "
+			normalizedAlias := normalizeEventTitle(alias)
+			phrase := " " + normalizedAlias + " "
 			if !strings.Contains(title, phrase) {
+				continue
+			}
+			if len(normalizedAlias) <= bestAliasLength {
 				continue
 			}
 			minutes := rule.Minutes
@@ -211,10 +221,11 @@ func estimateTravel(title string, start time.Time, rules []travelRule) (int, str
 					minutes = rule.AfterMinutes
 				}
 			}
-			return minutes, rule.Location, true
+			bestAliasLength = len(normalizedAlias)
+			bestMinutes, bestLocation = minutes, rule.Location
 		}
 	}
-	return 0, "", false
+	return bestMinutes, bestLocation, bestAliasLength > 0
 }
 
 func normalizeEventTitle(s string) string {
@@ -236,16 +247,29 @@ func addTravelEstimate(event *Event, rules []travelRule, now time.Time, loc *tim
 	if !ok {
 		return
 	}
-	leaveAt := start.Add(-time.Duration(minutes) * time.Minute)
+	travel := time.Duration(minutes) * time.Minute
+	leaveAt := start.Add(-travel)
+	if !now.Before(start) {
+		if end, err := time.Parse(time.RFC3339, event.End); err == nil && end.After(start) {
+			leaveAt = end.Add(-travel)
+			event.LeaveForPickup = true
+		}
+	}
 	event.TravelMinutes = minutes
 	event.LeaveAt = leaveAt.Format(time.RFC3339)
 	event.LeaveCountdown = formatLeaveCountdown(leaveAt.Sub(now))
 	if !leaveAt.After(now) {
-		event.LeaveLabel = "Leave now"
+		if event.LeaveForPickup {
+			event.LeaveLabel = "Leave for pickup now"
+		} else {
+			event.LeaveLabel = "Leave now"
+		}
+	} else if event.LeaveForPickup {
+		event.LeaveLabel = "Leave for pickup by " + leaveAt.In(loc).Format("3:04 PM")
 	} else {
 		event.LeaveLabel = "Leave by " + leaveAt.In(loc).Format("3:04 PM")
 	}
-	event.TravelLabel = fmt.Sprintf("%d min", minutes)
+	event.TravelLabel = fmt.Sprintf("%d min each way", minutes)
 	if destination != "" {
 		event.TravelLabel += " to " + destination
 	}
@@ -291,6 +315,7 @@ type Page struct {
 	Weather         weatherView
 	Today           string
 	Clock           string
+	Period          string
 	Days            []Day
 	Events          []Event
 	NextUp          *Event
@@ -298,6 +323,7 @@ type Page struct {
 	Count           int
 	CSRF            string
 	KioskMode       bool
+	DevMode         bool
 	TaskAction      string
 }
 
@@ -313,6 +339,8 @@ type app struct {
 	travelRules []travelRule
 	devices     *deviceStore
 	pairings    *pairingPool
+	devMode     bool
+	devVersion  string
 	pairTpl     *template.Template
 	approveTpl  *template.Template
 	devicesTpl  *template.Template
@@ -355,7 +383,19 @@ func newApp(path string) (*app, error) {
 	if err != nil {
 		return nil, errors.New("invalid FAMILY_TRAVEL_RULES_JSON configuration")
 	}
-	a := &app{store: store, tmpl: tpl, csrf: newID(), tz: tz, now: time.Now, calendar: feed, weather: weather, travelRules: travelRules}
+	travelRules = append(travelRules,
+		travelRule{
+			Aliases:  []string{"Ayla Vv"},
+			Location: "Lakeview",
+			Minutes:  20,
+		},
+		travelRule{
+			Aliases:  []string{"7th grade conferences", "Wyatt conference"},
+			Location: "Dunlap School",
+			Minutes:  15,
+		},
+	)
+	a := &app{store: store, tmpl: tpl, csrf: newID(), tz: tz, now: time.Now, calendar: feed, weather: weather, travelRules: travelRules, devMode: os.Getenv("FAMILY_DASHBOARD_DEV_MODE") == "1", devVersion: newID()}
 	if err := a.initializeAuth(path); err != nil {
 		return nil, err
 	}
@@ -421,8 +461,10 @@ func (a *app) page(now time.Time) Page {
 			message = "No upcoming events this week."
 		}
 	}
+	for i := range events {
+		addTravelEstimate(&events[i], a.travelRules, n, a.tz)
+	}
 	nextUp, events := nextEvent(events, n)
-	addTravelEstimate(nextUp, a.travelRules, n, a.tz)
 	tasks := a.store.list()
 	count := 0
 	for _, t := range tasks {
@@ -436,7 +478,7 @@ func (a *app) page(now time.Time) Page {
 	if len(wv.Slots) > 0 {
 		weatherKind = wv.Slots[0].Icon
 	}
-	return Page{WeatherKind: weatherKind, Hour24: n.Hour(), Today: n.Format("Monday, January 2"), Clock: n.Format("3:04 PM"), Days: days, Events: events, NextUp: nextUp, Tasks: tasks, Count: count, CSRF: a.csrf, CalendarBadge: badge, CalendarNote: note, CalendarMessage: message, Weather: wv}
+	return Page{WeatherKind: weatherKind, Hour24: n.Hour(), Today: n.Format("Mon, Jan 2"), Clock: n.Format("3:04"), Period: n.Format("PM"), Days: days, Events: events, NextUp: nextUp, Tasks: tasks, Count: count, CSRF: a.csrf, CalendarBadge: badge, CalendarNote: note, CalendarMessage: message, Weather: wv}
 }
 
 // relativeTime gives calendar items a compact label that fits beside their time.
@@ -486,6 +528,19 @@ func allDayDays(start, end time.Time, loc *time.Location) int {
 
 func nextEvent(events []Event, now time.Time) (*Event, []Event) {
 	for i, event := range events {
+		if event.TravelMinutes == 0 {
+			continue
+		}
+		start, startErr := time.Parse(time.RFC3339, event.Start)
+		end, endErr := time.Parse(time.RFC3339, event.End)
+		if startErr != nil || endErr != nil || start.After(now) || !end.After(now) {
+			continue
+		}
+		event.Status = "IN PROGRESS"
+		event.Countdown = "NOW"
+		return &event, append(events[:i], events[i+1:]...)
+	}
+	for i, event := range events {
 		start, startErr := time.Parse(time.RFC3339, event.Start)
 		end, endErr := time.Parse(time.RFC3339, event.End)
 		if startErr != nil || endErr != nil || !start.After(now) || !end.After(now) {
@@ -507,6 +562,7 @@ func (a *app) renderPage(w http.ResponseWriter, kiosk bool) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	pg := a.page(a.now())
 	pg.KioskMode = kiosk
+	pg.DevMode = a.devMode
 	if kiosk {
 		pg.TaskAction = "/kiosk/tasks"
 	} else {
@@ -530,6 +586,93 @@ func (a *app) routes() http.Handler {
 		a.renderPage(w, false)
 	}))
 	mux.HandleFunc("GET /og", a.openGraphImage)
+	mux.HandleFunc("GET /session", a.requireHuman("family-hq:read", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "private, no-store")
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		_ = json.NewEncoder(w).Encode(map[string]bool{
+			"authenticated": true,
+			"canManage":     hasScope(r.Header.Get("X-Hlab-Scopes"), "family-hq:manage"),
+		})
+	}))
+	mux.HandleFunc("GET /home.js", func(w http.ResponseWriter, r *http.Request) {
+		b, err := webFS.ReadFile("web/home.js")
+		if err != nil {
+			http.Error(w, "unavailable", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+		w.Header().Set("Cache-Control", "public, max-age=60")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		_, _ = w.Write(b)
+	})
+	mux.HandleFunc("GET /__dev/ping", func(w http.ResponseWriter, r *http.Request) {
+		if !a.devMode {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Cache-Control", "no-store")
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		_, _ = io.WriteString(w, a.devVersion)
+	})
+	mux.HandleFunc("GET /__dev/ws", func(w http.ResponseWriter, r *http.Request) {
+		if !a.devMode {
+			http.NotFound(w, r)
+			return
+		}
+		upgrader := websocket.Upgrader{
+			CheckOrigin: func(r *http.Request) bool {
+				origin := r.Header.Get("Origin")
+				if origin == "" {
+					return true
+				}
+				parsed, err := url.Parse(origin)
+				return err == nil && (parsed.Scheme == "http" || parsed.Scheme == "https") && strings.EqualFold(parsed.Host, r.Host)
+			},
+		}
+		conn, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			return
+		}
+		defer conn.Close()
+		// A new server process has a new version. The client reconnects after
+		// a restart and compares this value with the one it already saw.
+		if err := conn.WriteMessage(websocket.TextMessage, []byte(a.devVersion)); err != nil {
+			return
+		}
+		// net/http's WriteTimeout applies to the original request. The WebSocket
+		// is a long-lived connection, so clear that request deadline after upgrade.
+		_ = conn.UnderlyingConn().SetDeadline(time.Time{})
+		for {
+			if _, _, err := conn.ReadMessage(); err != nil {
+				return
+			}
+		}
+	})
+	mux.HandleFunc("GET /dev-reload.js", func(w http.ResponseWriter, r *http.Request) {
+		if !a.devMode {
+			http.NotFound(w, r)
+			return
+		}
+		b, err := webFS.ReadFile("web/dev-reload.js")
+		if err != nil {
+			http.Error(w, "unavailable", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+		w.Header().Set("Cache-Control", "no-store")
+		w.Write(b)
+	})
+	mux.HandleFunc("GET /favicon.ico", func(w http.ResponseWriter, r *http.Request) {
+		b, err := webFS.ReadFile("web/favicon.ico")
+		if err != nil {
+			http.Error(w, "unavailable", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "image/x-icon")
+		w.Header().Set("Cache-Control", "public, max-age=86400")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		_, _ = w.Write(b)
+	})
 	mux.HandleFunc("GET /app.js", func(w http.ResponseWriter, r *http.Request) {
 		b, err := webFS.ReadFile("web/app.js")
 		if err != nil {
@@ -576,9 +719,14 @@ func (a *app) publicHome(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
 	imageURL := baseURL + "/og"
+	reloadScript := ""
+	if a.devMode {
+		reloadScript = `<script src="/dev-reload.js" defer></script>`
+	}
 	_, _ = fmt.Fprintf(w, `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#26352c"><title>Family HQ — Our little corner of the world</title>
+<link rel="icon" href="/favicon.ico" sizes="32x32" type="image/x-icon">
 <meta name="description" content="A calm, shared home for the family calendar, weather, and everyday tasks.">
 <meta property="og:type" content="website"><meta property="og:title" content="Family HQ">
 <meta property="og:description" content="A calm, shared home for the family calendar, weather, and everyday tasks.">
@@ -586,8 +734,8 @@ func (a *app) publicHome(w http.ResponseWriter, r *http.Request) {
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Family HQ">
 <meta name="twitter:description" content="A calm, shared home for the family calendar, weather, and everyday tasks."><meta name="twitter:image" content="%s">
-<style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#26352c;color:#f6f3e9;font:16px/1.5 system-ui,sans-serif}.card{width:min(720px,calc(100%% - 40px));padding:clamp(32px,8vw,76px);border:1px solid #536356;border-radius:28px;background:linear-gradient(145deg,#34473a,#293a30);box-shadow:0 28px 90px #1118}p{color:#c4d0bf;margin:0 0 12px}.eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:.75rem;color:#b8c58f}h1{font-size:clamp(3rem,10vw,6rem);line-height:.98;letter-spacing:-.06em;margin:0 0 24px}h1 span{color:#d4a86a}.copy{max-width:38rem;font-size:1.2rem;margin-bottom:34px}.pill{display:inline-block;border:1px solid #829179;border-radius:999px;padding:10px 16px;color:#f6f3e9;text-decoration:none}.pill:hover{background:#536356}</style></head>
-<body><main class="card"><p class="eyebrow">A little more in sync</p><h1>Family HQ<span>.</span></h1><p class="copy">Your family’s calendar, the weather, and everyday tasks together in one calm place.</p><a class="pill" href="/dashboard">Open Family HQ</a></main></body></html>`, template.HTMLEscapeString(imageURL), template.HTMLEscapeString(imageURL))
+%s<script src="/home.js" defer></script><style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#26352c;color:#f6f3e9;font:16px/1.5 system-ui,sans-serif}.card{width:min(720px,calc(100%% - 40px));padding:clamp(32px,8vw,76px);border:1px solid #536356;border-radius:28px;background:linear-gradient(145deg,#34473a,#293a30);box-shadow:0 28px 90px #1118}p{color:#c4d0bf;margin:0 0 12px}.eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:.75rem;color:#b8c58f}h1{font-size:clamp(3rem,10vw,6rem);line-height:.98;letter-spacing:-.06em;margin:0 0 24px}h1 span{color:#d4a86a}.copy{max-width:38rem;font-size:1.2rem;margin-bottom:20px}.session-status{min-height:1.5em;color:#d4a86a;font-size:.95rem}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}.pill{display:inline-block;border:1px solid #829179;border-radius:999px;padding:10px 16px;color:#f6f3e9;text-decoration:none}.pill:hover{background:#536356}.pill.secondary{background:transparent}.pill[hidden]{display:none}</style></head>
+<body><main class="card"><p class="eyebrow">A little more in sync</p><h1>Family HQ<span>.</span></h1><p class="copy">Your family’s calendar, the weather, and everyday tasks together in one calm place.</p><p class="session-status" id="auth-status" aria-live="polite">Checking sign-in…</p><nav class="actions" aria-label="Family HQ options"><a class="pill" id="dashboard-link" href="/dashboard">Sign in to Family HQ</a><a class="pill secondary" href="/kiosk">Use this TV with your phone</a><a class="pill secondary" id="devices-link" href="/devices" hidden>Manage connected TVs</a></nav></main></body></html>`, template.HTMLEscapeString(imageURL), template.HTMLEscapeString(imageURL), reloadScript)
 }
 
 func (a *app) openGraphImage(w http.ResponseWriter, r *http.Request) {

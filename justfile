@@ -17,8 +17,7 @@ default:
 
 # Run locally. Invalid iCal settings warn + fall back to DEMO; production fails closed.
 serve:
-    mkdir -p data
-    FAMILY_DASHBOARD_DEV_MODE=1 FAMILY_AUTH_MODE=off LISTEN_ADDR="${LISTEN_ADDR:-127.0.0.1:8080}" TASKS_FILE="${TASKS_FILE:-./data/tasks.json}" go run .
+    python3 scripts/dev_watch.py
 
 # Exercise the QR code/device pairing flow locally without a real hlab-auth login.
 # Test bypass is permitted only on loopback and NEVER allowed in production.
