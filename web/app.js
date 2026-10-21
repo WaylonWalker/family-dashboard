@@ -75,7 +75,30 @@
       document.getElementById('live-date').textContent=date;
     } catch(e) { /* Keep server-rendered local clock on unsupported devices. */ }
   }
+  function updateEventTimes() {
+    var labels = document.querySelectorAll('.event-relative');
+    var units = [
+      [365.25 * 86400, 'y'], [30.44 * 86400, 'mo'], [7 * 86400, 'w'],
+      [86400, 'd'], [3600, 'h'], [60, 'm'], [1, 's']
+    ];
+    var now = Date.now();
+    for (var i = 0; i < labels.length; i++) {
+      var seconds = (Date.parse(labels[i].getAttribute('data-start')) - now) / 1000;
+      if (!isFinite(seconds)) continue;
+      if (Math.abs(seconds) < 1) { labels[i].textContent = 'now'; continue; }
+      var amount = Math.abs(seconds);
+      for (var u = 0; u < units.length; u++) {
+        if (amount >= units[u][0] || u === units.length - 1) {
+          var count = Math.max(1, Math.round(amount / units[u][0]));
+          labels[i].textContent = seconds > 0 ? 'in ' + count + units[u][1] : count + units[u][1] + ' ago';
+          break;
+        }
+      }
+    }
+  }
   updateClock();
+  updateEventTimes();
+  window.setInterval(updateEventTimes, 1000);
   window.setInterval(function () { if (theme.value === 'auto') applyTheme(); updateClock(); }, 60000);
 
   function resetRotationProgress() {

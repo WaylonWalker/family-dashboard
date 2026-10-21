@@ -11,6 +11,7 @@ import (
 	"html/template"
 	"io"
 	"log"
+	"math"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -133,6 +134,8 @@ type Event struct {
 	Date     string
 	Weekday  string
 	Time     string
+	Start    string
+	Relative string
 	Title    string
 	Category string
 }
@@ -242,7 +245,9 @@ func (a *app) page(now time.Time) Page {
 		} else if x.Offset == 1 {
 			label = "Tomorrow"
 		}
-		events = append(events, Event{Date: label, Weekday: d.Format("Mon"), Time: x.Clock, Title: x.Title, Category: x.Category})
+		clock, _ := time.ParseInLocation("3:04 PM", x.Clock, a.tz)
+		start := time.Date(d.Year(), d.Month(), d.Day(), clock.Hour(), clock.Minute(), 0, 0, a.tz)
+		events = append(events, Event{Date: label, Weekday: d.Format("Mon"), Time: x.Clock, Start: start.Format(time.RFC3339), Relative: relativeTime(start, n), Title: x.Title, Category: x.Category})
 	}
 	badge, note, message := "DEMO CALENDAR", "Sample events · connect Google Calendar in .env", "No Google account connected. These are illustrative events only."
 	if a.calendar != nil {
@@ -265,7 +270,7 @@ func (a *app) page(now time.Time) Page {
 			} else if item.end.Sub(item.start) > time.Hour {
 				clock = clock + " – " + item.end.In(a.tz).Format("3:04 PM")
 			}
-			events = append(events, Event{Date: label, Weekday: d.Format("Mon"), Time: clock, Title: item.title, Category: "family"})
+			events = append(events, Event{Date: label, Weekday: d.Format("Mon"), Time: clock, Start: item.start.Format(time.RFC3339), Relative: relativeTime(item.start, n), Title: item.title, Category: "family"})
 		}
 		if len(events) == 0 && message == "" {
 			message = "No upcoming events this week."
@@ -284,6 +289,39 @@ func (a *app) page(now time.Time) Page {
 		weatherKind = wv.Slots[0].Icon
 	}
 	return Page{WeatherKind: weatherKind, Hour24: n.Hour(), Today: n.Format("Monday, January 2"), Clock: n.Format("3:04 PM"), Days: days, Events: events, Tasks: tasks, Count: count, CSRF: a.csrf, CalendarBadge: badge, CalendarNote: note, CalendarMessage: message, Weather: wv}
+}
+
+// relativeTime gives calendar items a compact label that fits beside their time.
+func relativeTime(start, now time.Time) string {
+	delta := start.Sub(now).Seconds()
+	if math.Abs(delta) < 1 {
+		return "now"
+	}
+	future := delta > 0
+	seconds := math.Abs(delta)
+	unit, size := "s", 1.0
+	switch {
+	case seconds >= 365.25*24*60*60:
+		unit, size = "y", 365.25*24*60*60
+	case seconds >= 30.44*24*60*60:
+		unit, size = "mo", 30.44*24*60*60
+	case seconds >= 7*24*60*60:
+		unit, size = "w", 7*24*60*60
+	case seconds >= 24*60*60:
+		unit, size = "d", 24*60*60
+	case seconds >= 60*60:
+		unit, size = "h", 60*60
+	case seconds >= 60:
+		unit, size = "m", 60
+	}
+	count := int(math.Round(seconds / size))
+	if count < 1 {
+		count = 1
+	}
+	if future {
+		return fmt.Sprintf("in %d%s", count, unit)
+	}
+	return fmt.Sprintf("%d%s ago", count, unit)
 }
 
 func (a *app) renderPage(w http.ResponseWriter, kiosk bool) {
