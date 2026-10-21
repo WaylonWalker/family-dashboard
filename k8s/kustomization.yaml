@@ -10,3 +10,4 @@ resources:
   - networkpolicy.yaml
   - family-dashboard-weather.sealed.yaml
   - family-dashboard-calendar.sealed.yaml
+  - cluster-regcred.sealed.yaml
