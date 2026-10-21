@@ -303,13 +303,17 @@ func (a *app) renderPage(w http.ResponseWriter, kiosk bool) {
 
 func (a *app) routes() http.Handler {
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /", a.requireHuman("family-hq:read", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
 			http.NotFound(w, r)
 			return
 		}
+		a.publicHome(w, r)
+	})
+	mux.HandleFunc("GET /dashboard", a.requireHuman("family-hq:read", func(w http.ResponseWriter, r *http.Request) {
 		a.renderPage(w, false)
 	}))
+	mux.HandleFunc("GET /og", a.openGraphImage)
 	mux.HandleFunc("GET /app.js", func(w http.ResponseWriter, r *http.Request) {
 		b, err := webFS.ReadFile("web/app.js")
 		if err != nil {
@@ -338,6 +342,48 @@ func (a *app) routes() http.Handler {
 	mux.HandleFunc("POST /tasks", a.requireHuman("family-hq:read", a.mutate))
 	a.authRoutes(mux)
 	return mux
+}
+
+// publicHome serves a data-free landing page. The private dashboard lives at
+// /dashboard so the public root can bypass ForwardAuth at the ingress.
+func (a *app) publicHome(w http.ResponseWriter, r *http.Request) {
+	baseURL := a.auth.publicURL
+	if baseURL == "" {
+		scheme := "https"
+		if r.TLS == nil {
+			scheme = "http"
+		}
+		baseURL = scheme + "://" + r.Host
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Cache-Control", "public, max-age=300")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
+	imageURL := baseURL + "/og"
+	_, _ = fmt.Fprintf(w, `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#26352c"><title>Family HQ — Our little corner of the world</title>
+<meta name="description" content="A calm, shared home for the family calendar, weather, and everyday tasks.">
+<meta property="og:type" content="website"><meta property="og:title" content="Family HQ">
+<meta property="og:description" content="A calm, shared home for the family calendar, weather, and everyday tasks.">
+<meta property="og:image" content="%s"><meta property="og:image:type" content="image/png"><meta property="og:image:alt" content="Family HQ — Our little corner of the world">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Family HQ">
+<meta name="twitter:description" content="A calm, shared home for the family calendar, weather, and everyday tasks."><meta name="twitter:image" content="%s">
+<style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#26352c;color:#f6f3e9;font:16px/1.5 system-ui,sans-serif}.card{width:min(720px,calc(100%% - 40px));padding:clamp(32px,8vw,76px);border:1px solid #536356;border-radius:28px;background:linear-gradient(145deg,#34473a,#293a30);box-shadow:0 28px 90px #1118}p{color:#c4d0bf;margin:0 0 12px}.eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:.75rem;color:#b8c58f}h1{font-size:clamp(3rem,10vw,6rem);line-height:.98;letter-spacing:-.06em;margin:0 0 24px}h1 span{color:#d4a86a}.copy{max-width:38rem;font-size:1.2rem;margin-bottom:34px}.pill{display:inline-block;border:1px solid #829179;border-radius:999px;padding:10px 16px;color:#f6f3e9;text-decoration:none}.pill:hover{background:#536356}</style></head>
+<body><main class="card"><p class="eyebrow">A little more in sync</p><h1>Family HQ<span>.</span></h1><p class="copy">Your family’s calendar, the weather, and everyday tasks together in one calm place.</p><a class="pill" href="/dashboard">Open Family HQ</a></main></body></html>`, template.HTMLEscapeString(imageURL), template.HTMLEscapeString(imageURL))
+}
+
+func (a *app) openGraphImage(w http.ResponseWriter, r *http.Request) {
+	b, err := webFS.ReadFile("web/og.png")
+	if err != nil {
+		http.Error(w, "unavailable", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "image/png")
+	w.Header().Set("Cache-Control", "public, max-age=86400")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	_, _ = w.Write(b)
 }
 
 func (a *app) mutate(w http.ResponseWriter, r *http.Request) {
@@ -382,7 +428,7 @@ func (a *app) mutate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 400)
 		return
 	}
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
 
 func main() {

@@ -23,7 +23,7 @@ func TestDashboardAndTaskPersistence(t *testing.T) {
 	a.now = func() time.Time { return time.Date(2026, 10, 20, 15, 30, 0, 0, time.UTC) }
 	h := a.routes()
 	r := httptest.NewRecorder()
-	h.ServeHTTP(r, httptest.NewRequest(http.MethodGet, "/", nil))
+	h.ServeHTTP(r, httptest.NewRequest(http.MethodGet, "/dashboard", nil))
 	if r.Code != 200 || !strings.Contains(r.Body.String(), "DEMO CALENDAR") || !strings.Contains(r.Body.String(), "Family tasks") {
 		t.Fatalf("bad dashboard: status %d", r.Code)
 	}
@@ -98,13 +98,23 @@ func TestPhotoFrameAssetsAndIconNames(t *testing.T) {
 	for _, tc := range []struct{ path, contentType, contains string }{
 		{"/app.js", "application/javascript", "120000"},
 		{"/style.css", "text/css", "kanagawa-wave"},
-		{"/", "text/html", "feature-window"},
+		{"/dashboard", "text/html", "feature-window"},
 	} {
 		r := httptest.NewRecorder()
 		h.ServeHTTP(r, httptest.NewRequest(http.MethodGet, tc.path, nil))
 		if r.Code != http.StatusOK || !strings.HasPrefix(r.Header().Get("Content-Type"), tc.contentType) || !strings.Contains(r.Body.String(), tc.contains) {
 			t.Errorf("asset %s: code=%d type=%s present=%t", tc.path, r.Code, r.Header().Get("Content-Type"), strings.Contains(r.Body.String(), tc.contains))
 		}
+	}
+	landing := httptest.NewRecorder()
+	h.ServeHTTP(landing, httptest.NewRequest(http.MethodGet, "/", nil))
+	if landing.Code != http.StatusOK || !strings.Contains(landing.Body.String(), "Open Family HQ") || strings.Contains(landing.Body.String(), "Family tasks") {
+		t.Errorf("public landing page leaked dashboard data or failed: %d", landing.Code)
+	}
+	og := httptest.NewRecorder()
+	h.ServeHTTP(og, httptest.NewRequest(http.MethodGet, "/og", nil))
+	if og.Code != http.StatusOK || !strings.HasPrefix(og.Header().Get("Content-Type"), "image/png") || !strings.HasPrefix(og.Body.String(), "\x89PNG\r\n\x1a\n") {
+		t.Errorf("Open Graph image failed: code=%d type=%s", og.Code, og.Header().Get("Content-Type"))
 	}
 	for kind, want := range map[string]string{
 		"Clear": "sun", "Clouds": "cloud", "Rain": "rain", "Drizzle": "rain", "Thunderstorm": "storm", "Snow": "snow", "Mist": "haze",

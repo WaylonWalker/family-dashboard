@@ -97,7 +97,7 @@ func TestWeatherForecastCachedAndNoKeyInHTML(t *testing.T) {
 	a.weather = wf
 	a.now = func() time.Time { return now }
 	rr := httptest.NewRecorder()
-	a.routes().ServeHTTP(rr, httptest.NewRequest("GET", "/", nil))
+	a.routes().ServeHTTP(rr, httptest.NewRequest("GET", "/dashboard", nil))
 	if rr.Code != 200 || !strings.Contains(rr.Body.String(), "What to wear") || !strings.Contains(rr.Body.String(), "80%") {
 		t.Fatalf("page weather missing: %d %s", rr.Code, rr.Body.String())
 	}

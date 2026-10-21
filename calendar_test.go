@@ -178,7 +178,7 @@ func TestCalendarDemoVsRealMode(t *testing.T) {
 	b.calendar.client = &http.Client{Transport: roundTripFunc(func(*http.Request) (*http.Response, error) {
 		return &http.Response{StatusCode: 200, Body: io.NopCloser(strings.NewReader("BEGIN:VCALENDAR\nEND:VCALENDAR"))}, nil
 	})}
-	req := httptest.NewRequest("GET", "/", nil)
+	req := httptest.NewRequest("GET", "/dashboard", nil)
 	w := httptest.NewRecorder()
 	b.routes().ServeHTTP(w, req)
 	if w.Code != 200 || strings.Contains(w.Body.String(), "DEMO CALENDAR") || !strings.Contains(w.Body.String(), "GOOGLE CALENDAR") || strings.Contains(w.Body.String(), "private-token") {

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Family HQ — Our little corner of the world">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#34473a"/><stop offset="1" stop-color="#202e26"/></linearGradient><pattern id="grid" width="38" height="38" patternUnits="userSpaceOnUse"><path d="M38 0H0V38" fill="none" stroke="#dbe5cf" stroke-opacity=".06"/></pattern></defs>
+<rect width="1200" height="630" fill="#26352c"/><rect x="42" y="42" width="1116" height="546" rx="34" fill="url(#bg)" stroke="#829179" stroke-opacity=".48"/><rect x="42" y="42" width="1116" height="546" rx="34" fill="url(#grid)"/>
+<g transform="translate(106 135)" fill="none" stroke="#d4a86a" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><path d="m4 64 52-43 52 43v70a8 8 0 0 1-8 8H12a8 8 0 0 1-8-8z"/><path d="M43 142V91h27v51"/></g>
+<text x="106" y="365" fill="#f6f3e9" font-family="DejaVu Sans,sans-serif" font-size="90" font-weight="700" letter-spacing="-5">Family HQ<tspan fill="#d4a86a">.</tspan></text>
+<text x="110" y="430" fill="#c4d0bf" font-family="DejaVu Sans,sans-serif" font-size="30">Our little corner of the world</text>
+<path d="M110 493h92" stroke="#d4a86a" stroke-width="5" stroke-linecap="round"/><text x="110" y="540" fill="#aab8a3" font-family="DejaVu Sans,sans-serif" font-size="20" letter-spacing="3">A LITTLE MORE IN SYNC</text>
+</svg>

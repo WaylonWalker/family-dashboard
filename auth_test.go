@@ -45,15 +45,16 @@ func TestProxyTrustAndScopes(t *testing.T) {
 		req  *http.Request
 		want int
 	}{
-		{"no identity", httptest.NewRequest("GET", "/", nil), 403},
+		{"public home needs no identity", httptest.NewRequest("GET", "/", nil), 200},
+		{"dashboard no identity", httptest.NewRequest("GET", "/dashboard", nil), 403},
 		{"spoofed identity", func() *http.Request {
-			r := humanReq("GET", "/", "", "family-hq:manage")
+			r := humanReq("GET", "/dashboard", "", "family-hq:manage")
 			r.RemoteAddr = "192.0.2.45:555"
 			return r
 		}(), 403},
-		{"insufficient scope", humanReq("GET", "/", "", "other:read"), 403},
-		{"authorized read", humanReq("GET", "/", "", "family-hq:read"), 200},
-		{"manage includes read", humanReq("GET", "/", "", "family-hq:manage"), 200},
+		{"insufficient scope", humanReq("GET", "/dashboard", "", "other:read"), 403},
+		{"authorized read", humanReq("GET", "/dashboard", "", "family-hq:read"), 200},
+		{"manage includes read", humanReq("GET", "/dashboard", "", "family-hq:manage"), 200},
 		{"devices need manage", humanReq("GET", "/devices", "", "family-hq:read"), 403},
 		{"devices manage", humanReq("GET", "/devices", "", "family-hq:manage"), 200},
 	} {
