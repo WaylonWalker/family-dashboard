@@ -49,9 +49,9 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
 
 /* Pairing runs under a strict CSP, so its layout belongs in this stylesheet. */
 .pair-page{display:grid;place-items:center;min-height:100vh;padding:16px;overflow:auto}
-.pair-page .pair-card{width:90vw;max-width:700px;max-height:calc(100vh - 32px);overflow:auto;text-align:center;background:var(--surface,#fff);color:var(--ink,#172c28);border:1px solid #cbd5d0;border-radius:20px;padding:18px;box-shadow:0 12px 40px #0001}
+.pair-page .pair-card{position:relative;z-index:1;width:90vw;max-width:620px;max-height:calc(100vh - 32px);overflow:auto;text-align:center;background:var(--surface);color:var(--ink);border-color:var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
 .pair-page .qr-wrap{display:grid;place-items:center;background:#fff;padding:8px;border-radius:12px;width:max-content;max-width:100%;margin:12px auto}
 .pair-page .qr-wrap svg{display:block;width:220px;height:220px;max-width:70vw;max-height:32vh}
 .pair-page .pair-url{overflow-wrap:anywhere;font-size:12px}
-.pair-page h1{font-size:30px;margin:0 0 10px}
+.pair-page h1{font-family:var(--heading);font-size:30px;letter-spacing:-.8px;margin:0 0 10px}
 .pair-page .pair-small{font-size:15px;opacity:.72}
