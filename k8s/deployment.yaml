@@ -44,7 +44,7 @@ spec:
             - name: FAMILY_PUBLIC_URL
               value: https://family.wayl.one
             - name: FAMILY_TRUSTED_PROXY_CIDRS
-              value: "10.42.0.0/24" # Traefik pod CIDR on falcon2; NetworkPolicy also restricts ingress to Traefik pods.
+              value: "10.42.0.15/32" # Current Traefik pod IP; NetworkPolicy also restricts ingress to Traefik pods.
             - name: PLAY_OUTSIDE_OPEN_WEATHER_API_KEY
               valueFrom:
                 secretKeyRef:
