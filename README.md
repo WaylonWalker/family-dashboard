@@ -108,8 +108,6 @@ Use sealed or externally managed secrets for normal GitOps deployments, and
 set up authentication before allowing clients beyond your workstation. The
 frame will only receive rendered event titles/times, not Google credentials.
 
-## Container and release
-
 ## Server observability
 
 The deployed server exports HTTP request traces over OTLP/HTTP to the cluster's
@@ -124,6 +122,8 @@ the NetworkPolicy allows only the in-cluster Prometheus pods and Traefik to
 reach the app. In Grafana, search Tempo for service `family-dashboard` to view
 traces, and query Prometheus metrics with the `service_name="family-dashboard"`
 label. The OTLP endpoint is set in `k8s/deployment.yaml`.
+
+## Container and release
 
 ```sh
 just image           # default: registry.wayl.one/family-dashboard:sha-<git SHA>
