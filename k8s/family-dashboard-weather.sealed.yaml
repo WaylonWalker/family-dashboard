@@ -1,0 +1,13 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: family-dashboard-weather
+  namespace: family-dashboard
+spec:
+  encryptedData:
+    PLAY_OUTSIDE_OPEN_WEATHER_API_KEY: AgCxYdLBBJusFdto5bwSNmgabVNMeFUcSbKIlkhydjX1146rYJwrA0ZWVhMqixnlPqcpq3AqugHFaScjRdbvtZJOoe2WlXmZsCG+lbRfGCv7y66qwE5iAmNQbzp0JEWRlcU6cDQOSIZvVPiPTsMn6BUhCwdzc2skHKN4raYJohfQ8Xaqz9WMDel8pQUkwCeJ+LX9V8Ev3EDvgHwr5KzJIcFf49WxN6yoZVhyfBS3Y1uxDIYjRYPi36eQYmzpV57P3JDPDNiGm8sIcHtR7J3b2vCGRXNOImBHsZL7pZj9d1dVoHpW14Rk5MRc0h5HC8JRZ2hZRaYbkRY8hJg4W4eTMddVLn0wyyoKmD8FERUWY1mH4J0EBqiSN2Q3cIytF27E4ZQ9Amd/+bqMraM30U27sqyR/SKCOU3lFXKyefsqLfH2c7vskPjcvrnhlgLALKYyKuTAMARtGRyNas+L98nkwCPyF+hRyeswhCcSCSdThRpml7tvUn6ix/BSWIinSpfSUG5BasUMVh+ujhtsDRyvZQh9MPyMa9g2b5/IJ0miGMjPKvfXsy/cbUEGcsyQTWV5bldgQkwsgVRBXFMTP8OnHtrjN9SCEGfeSPUCEhmwUjIWyngkjfKb+k790dRM5euEqjwLNm/2vXzpYJqEh3Svj1W00vEa/z/JZi8EfGPUil/1OVW8kEjAVlQd2sy9EZZ8pTTlEpmHvHHABt4hkQ4qSHaEDaRaYkhHCYrarfKoOb2Akw==
+  template:
+    metadata:
+      name: family-dashboard-weather
+      namespace: family-dashboard

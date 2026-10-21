@@ -1,0 +1,14 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: family-dashboard-calendar
+  namespace: family-dashboard
+spec:
+  encryptedData:
+    GOOGLE_CALENDAR_ICAL_URL: AgCkhqJaRIO+iQnBbcAdPRNcOeGpXiT3LDezY8RpDAlQ10BCsW/KXqxm7EL7h92GeCHkPT7AJYMfqRwmszTbjY+9+HMrJQtxZC0JAEdWNUhpEeiC8N3ufZuHAB4acesNO1ePHqqSvAJD9WZBiBowcxYmD2FRPLuXlMSQAdnPHdvY7hsb/DlvsxfqUH8GRkJA91BU1Aoh/1ZnOqPz0HxjceoCkXEK+gABCsCpOUXadTTqMsYkNj8RDjn17eVVwKpIfuma3SMMeWM8aKr4T9nZk3UrC2mzDQD2lTXfh3FzXKwkA/yB1u4+SNgHdCsEgt5AvR3LF7EF/vQo8bUCUkIbn5edcoKlo8FvWUD89AonBaxCTGUW4KFNtov2MKOyfqQ3/ceuxEtyfUGGjXNQi/VV4rb92ZN5TudHnEVWbnkBKfyG7bQiGMdszUst/kghI4xhXsQcgaty8TZUeXG8p8hoGWxw2uCupCPxJpgJUUyZRGVrIaFjLeURL0b3vA35Yh8nfW+Db5i33dMNe3l+r8KvfGZr3BlAf2WGK7f8p8Q3naoB3uV+EEJP/Wdrb2+RXzYdXl1N4f34Z+9UolqmQkHsFYF9/F/+2CtnBxHBnPLcsX77UHhhZMs2yeiMNTBBerkO+0YnbDZ5fqg+P7zCCh6lUseeuRcQ4ASl/KEXpIcWb9F3+WNfz1aLCgtsvigiJBy0qiF6CkfLqqaQFUd+vknz0ROMfQMvy+84idgs6mtNuwR1A3vb/C34jSUOxfOBFYm827Se+JGGGGH3EEkD0NNGCiVbucGsnFB7i3ZjRStboB7RGAgH7FxvirW2lBlp1VqMJm1cDJe4beRkPz6YRzwZYY/zPzM3ni/O5WY=
+  template:
+    metadata:
+      name: family-dashboard-calendar
+      namespace: family-dashboard
+    type: Opaque
