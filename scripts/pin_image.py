@@ -11,7 +11,7 @@ def pin(text: str, image: str) -> str:
         r"[a-zA-Z0-9._/-]+:[a-zA-Z0-9._-]+(?:@sha256:[a-f0-9]{64})?", image
     ):
         raise ValueError("image must have an explicit repository and tag, with an optional sha256 digest")
-    if not (image.startswith("ghcr.io/") or image.startswith("registry.wayl.one/")):
+    if not image.startswith("registry.wayl.one/"):
         raise ValueError("unexpected registry")
     pattern = r"(?m)^([ \t]*image: )[^\s#]+([ \t]*(?:#.*)?)$"
     modified, n = re.subn(pattern, lambda m: m.group(1) + image + m.group(2), text)

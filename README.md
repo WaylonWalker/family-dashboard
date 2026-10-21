@@ -106,16 +106,17 @@ frame will only receive rendered event titles/times, not Google credentials.
 ## Container and release
 
 ```sh
-just image           # default: ghcr.io/waylonwalker/family-dashboard:sha-<git SHA>
+just image           # default: registry.wayl.one/family-dashboard:sha-<git SHA>
 just container-build
 just container-push
 just publish         # build + push
 ```
 
 The tag is deliberately immutable per Git source revision; don't use `:latest`
-for an Argo deployment. Configure `podman login ghcr.io` or `docker login ghcr.io`
-first. GitHub Actions publishes the same immutable `sha-<full SHA>` tag for
-merges to `main` (subject to GitHub Packages configuration and repo visibility).
+for an Argo deployment. Authenticate with `podman login registry.wayl.one`.
+`just publish` builds and pushes an immutable `sha-<full SHA>` tag to the
+homelab registry. GitHub Actions runs checks and builds the container without
+publishing to an external registry.
 
 ## GitOps: keep application code OUT of homelab-argo
 
@@ -138,7 +139,7 @@ homelab-argo (different repo)
 
 **Bootstrap:** the canonical repository is
 `https://git.waylonwalker.com/waylon/family-dashboard`; GitHub is a push mirror
-used by GitHub Actions to publish GHCR images. Copy the one file in
+used for CI. Copy the one file in
 `docs/homelab-argo/argo-apps/apps/` into `homelab-argo` and merge the GitOps
 registration. It does not auto-sync. Pin a published image tag and digest
 before syncing.
@@ -159,8 +160,8 @@ side effect; `just publish` builds/pushes an image **without** deployment.
 Other useful commands: `just render`, `just sync`, `just status`, `just logs`,
 `just port-forward`.
 
-**Note:** Argo must be allowed to fetch the Forgejo repo; registry image pull
-needs public GHCR package visibility or an existing image pull secret. v0.3 is
+**Note:** Argo must be allowed to fetch the Forgejo repo. The Deployment uses
+the homelab's `cluster-regcred` image pull secret for `registry.wayl.one`. v0.3 is
 single-replica by design because `tasks.json` is a single-writer JSON store
 on a 1Gi Longhorn PVC.
 

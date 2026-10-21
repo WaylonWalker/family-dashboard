@@ -18,6 +18,8 @@ spec:
         app.kubernetes.io/name: family-dashboard
     spec:
       automountServiceAccountToken: false
+      imagePullSecrets:
+        - name: cluster-regcred
       securityContext:
         runAsNonRoot: true
         runAsUser: 65532
@@ -27,7 +29,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: dashboard
-          image: ghcr.io/waylonwalker/family-dashboard:sha-c0aab99ca022441b69e436ce2dad320f4546d68f@sha256:11ec0b0f9e610a59eeddb41813f92b0379cbbffa4af8fe39e822b4ec455f29aa
+          image: registry.wayl.one/family-dashboard:sha-REPLACE_BEFORE_SYNC
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

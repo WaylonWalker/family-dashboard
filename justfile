@@ -3,8 +3,8 @@
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 set dotenv-load := true
 
-registry := env_var_or_default("REGISTRY", "ghcr.io")
-image_name := env_var_or_default("IMAGE_NAME", "waylonwalker/family-dashboard")
+registry := env_var_or_default("REGISTRY", "registry.wayl.one")
+image_name := env_var_or_default("IMAGE_NAME", "family-dashboard")
 engine := env_var_or_default("CONTAINER_ENGINE", "podman")
 commit := `git rev-parse HEAD 2>/dev/null || echo development`
 tag := env_var_or_default("TAG", "sha-" + commit)
@@ -85,7 +85,7 @@ container-build:
 
 # Push the image previously built by container-build.
 container-push:
-    {{engine}} push '{{image}}'
+    if [ '{{engine}}' = podman ]; then podman push --tls-verify=false '{{image}}'; else {{engine}} push '{{image}}'; fi
 
 # Build and push in order.
 publish: container-build container-push
