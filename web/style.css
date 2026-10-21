@@ -94,3 +94,14 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
   .weather-now-copy small{display:flex;align-items:baseline;gap:9px;margin-top:4px;padding-top:8px}
   .weather-now-wear-label{flex:none;color:var(--accent)!important;font-size:8px!important;font-weight:800;letter-spacing:1px;text-transform:uppercase}
 }
+
+@media (max-width:520px){
+  .next-up{flex-direction:column;align-items:stretch;gap:9px;min-height:0;padding:13px 14px}
+  .next-up-copy{width:100%}
+  .next-up-weather{flex-wrap:wrap;align-items:center;column-gap:6px;row-gap:4px}
+  .next-up-weather span{flex:1 1 100%;line-height:1.25}
+  .next-up-count{flex-direction:row;align-items:baseline;justify-content:flex-start;gap:8px;max-width:none;text-align:left}
+  .next-up-count strong,.next-up-count .event-relative{font-size:18px}
+  .next-up-count .leave-countdown{font-size:24px;letter-spacing:-.5px}
+  .next-up-count span{margin:0}
+}
