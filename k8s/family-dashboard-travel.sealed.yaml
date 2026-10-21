@@ -1,0 +1,13 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: family-dashboard-travel
+  namespace: family-dashboard
+spec:
+  encryptedData:
+    FAMILY_TRAVEL_RULES_JSON: AgBcTuyIpi0nxtMN6W4ysE0QnwCUHpsIc/cJuBdWFh2vPSFTzY8dClpZaCJRy2GDDF6IMtffp+FeZh7aB4QNQmZTsjwgFCwpJfiK/110UCyLsjPkGWXCwBTZ5Sg5M2W9pbPS8Vz6T8WW1k0vPzhlYvIbA4va6Njru/rCa1QoaFj+pVQBEAkt4zbkMXivrIjr0vq1CO3bW8K1RqcUHvFaF5p/YJiHRXj+2N6k+x24s4hWVNbhPR8sZGVRr4y0OD6q8lpvCWVA4AsVp/07PrHFZE4wS5SZs+Zgq62toAN7wWft28oouDf3xd/SdS66/LqPhdh6G0VS+CB6wPIMhqzOiRO7aP5Ehs/7+tEwZzmQ/Pvt6pkvW9W1nWaR+yYbVd7hHArOOt2UJ2LSq04MW2gBj9mq+FD5QOdx1VOe1e8p9fN05nDKlulAznRDcBHOET05+Z83si4EGuIuHBUjmlJoAU9weTT3xRxU7+9wk/dH0JHOeEkFsQCGlsJ/ADr/VLzpkKGwOFVVAshyifiU9Zz2SJ5qoeSKL+UMuAcoRgct1cAjiOwEPYh9LQxv6dSjI5H0xqvWA4v/+VG0+Ssfukt+5elYDQCO8OHU2KzyKUbCgeO3ID+02a9+Aw/IsCK9eG+0Wt/hZyrmB/MESksfARmcqfNuef9BGXqv6pAN996ysGmBhxvMnaaqB4dALzDT3Gk+xBwPxhOJPNsapMEhibqg1i2mVHb7Eo4NxzhwqxDZr2yqf++iBi4iU7oRYA+2tRjj5gQB+u+nYyc1eieRbZpuhWmQ92Wq+WMJgGjPwSLs/SFgHfR57tKr5/f02wo79WyB1qlKACWzme85UG1nYdz3rfI6CnWN+5i4kaRF4r3epNGDqWxSCyz7A9QChDicr2i4tPRVXDpJnkLSqYI3IcHvRv8zV0LZvEdcZMcHuJuUa/hW5W5LDQpR5iPWduQLY+hN3ZvT6ojWNgZaMWbA7Jur4zf3KI/7U7bDIuE9X8b+XhxgHXrEIrCzm1teqmtIDfwNDY4rvwRh69doxUwGHivuy1639QFYmQMXOzUQsviqWHPPlyueVdOiPA0iAw==
+  template:
+    metadata:
+      name: family-dashboard-travel
+      namespace: family-dashboard
+    type: Opaque

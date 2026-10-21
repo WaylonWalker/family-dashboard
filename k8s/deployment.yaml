@@ -65,6 +65,11 @@ spec:
                   name: family-dashboard-calendar
                   key: GOOGLE_CALENDAR_ICAL_URL
                   optional: true
+            - name: FAMILY_TRAVEL_RULES_JSON
+              valueFrom:
+                secretKeyRef:
+                  name: family-dashboard-travel
+                  key: FAMILY_TRAVEL_RULES_JSON
           resources:
             requests:
               cpu: 10m

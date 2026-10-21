@@ -86,6 +86,32 @@ func TestNextEventSkipsEventsAlreadyInProgress(t *testing.T) {
 	}
 }
 
+func TestTravelRulesMatchTitlesAndApplyCutovers(t *testing.T) {
+	rules, err := parseTravelRules(`[
+		{"aliases":["studio","acting 2"],"location":"Lakeview","minutes":20},
+		{"aliases":["appointment"],"cutover":"16:00","before_minutes":45,"after_minutes":15}
+	]`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	loc := chicago(t)
+	start := time.Date(2026, time.October, 21, 16, 30, 0, 0, loc)
+	if minutes, place, ok := estimateTravel("Ayla Vv Studio", start, rules); !ok || minutes != 20 || place != "Lakeview" {
+		t.Fatalf("studio estimate = %d, %q, %v", minutes, place, ok)
+	}
+	if minutes, _, ok := estimateTravel("Wyatt appointment", time.Date(2026, 10, 21, 15, 59, 0, 0, loc), rules); !ok || minutes != 45 {
+		t.Fatalf("before-cutover estimate = %d, %v", minutes, ok)
+	}
+	if minutes, _, ok := estimateTravel("Wyatt appointment", time.Date(2026, 10, 21, 16, 0, 0, 0, loc), rules); !ok || minutes != 15 {
+		t.Fatalf("after-cutover estimate = %d, %v", minutes, ok)
+	}
+	event := Event{Title: "Ayla Vv Studio", Start: start.Format(time.RFC3339)}
+	addTravelEstimate(&event, rules, time.Date(2026, 10, 21, 15, 0, 0, 0, loc), loc)
+	if event.LeaveLabel != "Leave by 4:10 PM" || event.TravelLabel != "20 min to Lakeview" {
+		t.Fatalf("travel card labels = %q, %q", event.LeaveLabel, event.TravelLabel)
+	}
+}
+
 func TestRejectBadTaskMutations(t *testing.T) {
 	a, err := newApp(filepath.Join(t.TempDir(), "tasks.json"))
 	if err != nil {

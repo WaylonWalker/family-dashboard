@@ -19,6 +19,7 @@ import (
 	"sync"
 	"time"
 	_ "time/tzdata"
+	"unicode"
 )
 
 //go:embed web/*
@@ -131,19 +132,114 @@ func newID() string {
 }
 
 type Event struct {
-	Date      string
-	Weekday   string
-	Time      string
-	Start     string
-	End       string
-	Relative  string
-	AllDay    bool
-	SpanDays  int
-	Status    string
-	Countdown string
-	Title     string
-	Category  string
+	Date        string
+	Weekday     string
+	Time        string
+	Start       string
+	End         string
+	Relative    string
+	AllDay      bool
+	SpanDays    int
+	Status      string
+	Countdown   string
+	LeaveLabel  string
+	TravelLabel string
+	Title       string
+	Category    string
 }
+
+type travelRule struct {
+	Aliases       []string `json:"aliases"`
+	Location      string   `json:"location,omitempty"`
+	Minutes       int      `json:"minutes,omitempty"`
+	Cutover       string   `json:"cutover,omitempty"`
+	BeforeMinutes int      `json:"before_minutes,omitempty"`
+	AfterMinutes  int      `json:"after_minutes,omitempty"`
+}
+
+func parseTravelRules(raw string) ([]travelRule, error) {
+	if strings.TrimSpace(raw) == "" {
+		return nil, nil
+	}
+	var rules []travelRule
+	if err := json.Unmarshal([]byte(raw), &rules); err != nil {
+		return nil, err
+	}
+	for _, rule := range rules {
+		if len(rule.Aliases) == 0 {
+			return nil, errors.New("travel rule has no aliases")
+		}
+		if rule.Cutover == "" {
+			if rule.Minutes < 1 || rule.BeforeMinutes != 0 || rule.AfterMinutes != 0 {
+				return nil, errors.New("invalid fixed travel duration")
+			}
+		} else if _, err := time.Parse("15:04", rule.Cutover); err != nil || rule.BeforeMinutes < 1 || rule.AfterMinutes < 1 || rule.Minutes != 0 {
+			return nil, errors.New("invalid cutover travel duration")
+		}
+		for _, alias := range rule.Aliases {
+			if normalizeEventTitle(alias) == "" {
+				return nil, errors.New("travel rule has an empty alias")
+			}
+		}
+	}
+	return rules, nil
+}
+
+func estimateTravel(title string, start time.Time, rules []travelRule) (int, string, bool) {
+	title = " " + normalizeEventTitle(title) + " "
+	for _, rule := range rules {
+		for _, alias := range rule.Aliases {
+			phrase := " " + normalizeEventTitle(alias) + " "
+			if !strings.Contains(title, phrase) {
+				continue
+			}
+			minutes := rule.Minutes
+			if rule.Cutover != "" {
+				cutover, _ := time.Parse("15:04", rule.Cutover)
+				clock := start.Hour()*60 + start.Minute()
+				if clock < cutover.Hour()*60+cutover.Minute() {
+					minutes = rule.BeforeMinutes
+				} else {
+					minutes = rule.AfterMinutes
+				}
+			}
+			return minutes, rule.Location, true
+		}
+	}
+	return 0, "", false
+}
+
+func normalizeEventTitle(s string) string {
+	words := strings.FieldsFunc(strings.ToLower(s), func(r rune) bool {
+		return !unicode.IsLetter(r) && !unicode.IsNumber(r)
+	})
+	return strings.Join(words, " ")
+}
+
+func addTravelEstimate(event *Event, rules []travelRule, now time.Time, loc *time.Location) {
+	if event == nil || event.AllDay {
+		return
+	}
+	start, err := time.Parse(time.RFC3339, event.Start)
+	if err != nil {
+		return
+	}
+	minutes, destination, ok := estimateTravel(event.Title, start, rules)
+	if !ok {
+		return
+	}
+	leaveAt := start.Add(-time.Duration(minutes) * time.Minute)
+	if !leaveAt.After(now) {
+		event.LeaveLabel = "Leave now"
+	} else {
+		event.LeaveLabel = "Leave by " + leaveAt.In(loc).Format("3:04 PM")
+	}
+	event.TravelLabel = fmt.Sprintf("%d min", minutes)
+	if destination != "" {
+		event.TravelLabel += " to " + destination
+	}
+}
+
 type Day struct {
 	Label  string
 	Number string
@@ -169,19 +265,20 @@ type Page struct {
 }
 
 type app struct {
-	calendar   *calendarFeed
-	weather    *weatherFeed
-	store      *taskStore
-	tmpl       *template.Template
-	csrf       string
-	tz         *time.Location
-	now        func() time.Time
-	auth       authConfig
-	devices    *deviceStore
-	pairings   *pairingPool
-	pairTpl    *template.Template
-	approveTpl *template.Template
-	devicesTpl *template.Template
+	calendar    *calendarFeed
+	weather     *weatherFeed
+	store       *taskStore
+	tmpl        *template.Template
+	csrf        string
+	tz          *time.Location
+	now         func() time.Time
+	auth        authConfig
+	travelRules []travelRule
+	devices     *deviceStore
+	pairings    *pairingPool
+	pairTpl     *template.Template
+	approveTpl  *template.Template
+	devicesTpl  *template.Template
 }
 
 func newApp(path string) (*app, error) {
@@ -217,7 +314,11 @@ func newApp(path string) (*app, error) {
 		}
 		log.Printf("Weather configuration warning: %v\nContinuing without weather in local development; fix .env and restart just serve.", err)
 	}
-	a := &app{store: store, tmpl: tpl, csrf: newID(), tz: tz, now: time.Now, calendar: feed, weather: weather}
+	travelRules, err := parseTravelRules(os.Getenv("FAMILY_TRAVEL_RULES_JSON"))
+	if err != nil {
+		return nil, errors.New("invalid FAMILY_TRAVEL_RULES_JSON configuration")
+	}
+	a := &app{store: store, tmpl: tpl, csrf: newID(), tz: tz, now: time.Now, calendar: feed, weather: weather, travelRules: travelRules}
 	if err := a.initializeAuth(path); err != nil {
 		return nil, err
 	}
@@ -284,6 +385,7 @@ func (a *app) page(now time.Time) Page {
 		}
 	}
 	nextUp, events := nextEvent(events, n)
+	addTravelEstimate(nextUp, a.travelRules, n, a.tz)
 	tasks := a.store.list()
 	count := 0
 	for _, t := range tasks {
