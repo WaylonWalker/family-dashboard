@@ -146,6 +146,7 @@ type Event struct {
 	LeaveAt          string
 	LeaveCountdown   string
 	TravelLabel      string
+	TravelMinutes    int
 	WeatherAt        string
 	WeatherIcon      string
 	WeatherTemp      string
@@ -236,6 +237,7 @@ func addTravelEstimate(event *Event, rules []travelRule, now time.Time, loc *tim
 		return
 	}
 	leaveAt := start.Add(-time.Duration(minutes) * time.Minute)
+	event.TravelMinutes = minutes
 	event.LeaveAt = leaveAt.Format(time.RFC3339)
 	event.LeaveCountdown = formatLeaveCountdown(leaveAt.Sub(now))
 	if !leaveAt.After(now) {
@@ -429,7 +431,7 @@ func (a *app) page(now time.Time) Page {
 		}
 	}
 	wv := a.weather.snapshot(n)
-	addEventWeather(nextUp, wv.Forecast, a.tz)
+	addEventWeather(nextUp, wv, n, a.tz)
 	weatherKind := "unknown"
 	if len(wv.Slots) > 0 {
 		weatherKind = wv.Slots[0].Icon

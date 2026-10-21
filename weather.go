@@ -23,6 +23,8 @@ const weatherAPIBase = "https://api.openweathermap.org"
 type weatherSlot struct {
 	At                                                        time.Time
 	Day, Hour, Icon, Condition, Temp, Feels, Rain, Wind, Wear string
+	TempValue, FeelsValue, WindValue, PopValue                float64
+	RainValue, SnowValue                                      float64
 }
 type weatherView struct {
 	Badge, Note, Message, Location, Air string
@@ -182,40 +184,108 @@ func (wf *weatherFeed) fetch(now time.Time) (weatherView, error) {
 	return view, nil
 }
 
-func addEventWeather(event *Event, forecast []weatherSlot, loc *time.Location) {
+func addEventWeather(event *Event, weather weatherView, now time.Time, loc *time.Location) {
 	if event == nil {
 		return
 	}
-	at, err := time.Parse(time.RFC3339, event.Start)
+	start, err := time.Parse(time.RFC3339, event.Start)
 	if err != nil {
 		return
 	}
 	if event.AllDay {
-		at = time.Date(at.In(loc).Year(), at.In(loc).Month(), at.In(loc).Day(), 12, 0, 0, 0, loc)
+		start = time.Date(start.In(loc).Year(), start.In(loc).Month(), start.In(loc).Day(), 0, 0, 0, 0, loc)
 	}
-	best := -1
-	var bestDistance time.Duration
-	for i := range forecast {
-		distance := forecast[i].At.Sub(at)
-		if distance < 0 {
-			distance = -distance
-		}
-		if best < 0 || distance < bestDistance {
-			best = i
-			bestDistance = distance
-		}
+	end, err := time.Parse(time.RFC3339, event.End)
+	if err != nil || end.Before(start) {
+		end = start
 	}
-	// OpenWeather forecasts in three-hour steps. Avoid presenting an estimate
-	// that is too far from the event time as if it were event-specific.
-	if best < 0 || bestDistance > 2*time.Hour {
+	travel := time.Duration(event.TravelMinutes) * time.Minute
+	from, until := start.Add(-travel), end.Add(travel)
+	if from.Before(now) {
+		from = now
+	}
+	if until.Before(from) {
 		return
 	}
-	slot := forecast[best]
-	event.WeatherAt = slot.At.In(loc).Format("Mon 3 PM")
-	event.WeatherIcon = slot.Icon
-	event.WeatherTemp = slot.Temp
-	event.WeatherCondition = slot.Condition
-	event.WeatherWear = slot.Wear
+	candidates := make([]weatherSlot, 0, len(weather.Forecast)+1)
+	if !weather.Current.At.IsZero() {
+		candidates = append(candidates, weather.Current)
+	}
+	candidates = append(candidates, weather.Forecast...)
+	startIndex, endIndex := -1, -1
+	var startDistance, endDistance time.Duration
+	for i := range candidates {
+		toStart := candidates[i].At.Sub(from)
+		if toStart < 0 {
+			toStart = -toStart
+		}
+		toEnd := candidates[i].At.Sub(until)
+		if toEnd < 0 {
+			toEnd = -toEnd
+		}
+		if startIndex < 0 || toStart < startDistance {
+			startIndex, startDistance = i, toStart
+		}
+		if endIndex < 0 || toEnd < endDistance {
+			endIndex, endDistance = i, toEnd
+		}
+	}
+	// Include the nearest forecast at both ends of the outing plus every
+	// forecast inside it. A three-hour forecast is useful up to two hours away;
+	// beyond that, omit the advice instead of implying full coverage.
+	if startIndex < 0 || endIndex < 0 || startDistance > 2*time.Hour || endDistance > 2*time.Hour {
+		return
+	}
+	selected := make(map[int]bool)
+	selected[startIndex], selected[endIndex] = true, true
+	for i := range candidates {
+		if !candidates[i].At.Before(from) && !candidates[i].At.After(until) {
+			selected[i] = true
+		}
+	}
+	var highTemp, lowestFeels, strongestWind, rainChance, rainAmount, snowAmount float64
+	first := true
+	for i, slot := range candidates {
+		if !selected[i] {
+			continue
+		}
+		if first {
+			highTemp, lowestFeels = slot.TempValue, slot.FeelsValue
+			first = false
+		} else {
+			highTemp = math.Max(highTemp, slot.TempValue)
+			lowestFeels = math.Min(lowestFeels, slot.FeelsValue)
+		}
+		strongestWind = math.Max(strongestWind, slot.WindValue)
+		rainChance = math.Max(rainChance, slot.PopValue)
+		rainAmount = math.Max(rainAmount, slot.RainValue)
+		snowAmount = math.Max(snowAmount, slot.SnowValue)
+	}
+	if first {
+		return
+	}
+	event.WeatherAt = "WHILE OUT"
+	event.WeatherTemp = fmt.Sprintf("%.0f° high · feels %.0f° low", highTemp, lowestFeels)
+	event.WeatherWear = clothing(lowestFeels, strongestWind, rainChance, rainAmount, snowAmount)
+	switch {
+	case snowAmount > 0:
+		event.WeatherIcon, event.WeatherCondition = "snow", "Snow possible"
+	case rainChance >= 0.35 || rainAmount > 0.5:
+		event.WeatherIcon, event.WeatherCondition = "rain", "Rain possible"
+	case strongestWind >= 20:
+		event.WeatherIcon, event.WeatherCondition = "wind", "Windy"
+	default:
+		for i, slot := range candidates {
+			if selected[i] {
+				event.WeatherIcon = slot.Icon
+				if event.WeatherIcon == "" {
+					event.WeatherIcon = weatherIcon(slot.Condition)
+				}
+				event.WeatherCondition = slot.Condition
+				break
+			}
+		}
+	}
 }
 
 func weatherIcon(s string) string {
@@ -291,7 +361,7 @@ func makeWeatherSlot(c owConditions, day, hour string, forecast bool) weatherSlo
 		snowAmount = math.Max(snowAmount, 1)
 	}
 	wind := math.Max(c.Wind.Speed, c.Wind.Gust)
-	return weatherSlot{Day: day, Hour: hour, Icon: weatherIcon(name), Condition: description, Temp: fmt.Sprintf("%.0f°", c.Main.Temp), Feels: fmt.Sprintf("%.0f°", c.Main.Feels), Rain: rain, Wind: fmt.Sprintf("%.0f mph", c.Wind.Speed), Wear: clothing(c.Main.Feels, wind, c.Pop, rainAmount, snowAmount)}
+	return weatherSlot{Day: day, Hour: hour, Icon: weatherIcon(name), Condition: description, Temp: fmt.Sprintf("%.0f°", c.Main.Temp), Feels: fmt.Sprintf("%.0f°", c.Main.Feels), Rain: rain, Wind: fmt.Sprintf("%.0f mph", c.Wind.Speed), Wear: clothing(c.Main.Feels, wind, c.Pop, rainAmount, snowAmount), TempValue: c.Main.Temp, FeelsValue: c.Main.Feels, WindValue: wind, PopValue: c.Pop, RainValue: rainAmount, SnowValue: snowAmount}
 }
 
 func demoWeather() weatherView {

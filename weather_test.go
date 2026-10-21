@@ -107,26 +107,30 @@ func TestWeatherForecastCachedAndNoKeyInHTML(t *testing.T) {
 	if strings.Contains(rr.Body.String(), key) {
 		t.Fatal("API key leaked into response")
 	}
-	if !strings.Contains(rr.Body.String(), `class="next-up-weather"`) || !strings.Contains(rr.Body.String(), "light rain") || !strings.Contains(rr.Body.String(), "Warm coat &amp; layers · rain shell · wind layer") {
+	if !strings.Contains(rr.Body.String(), `class="next-up-weather"`) || !strings.Contains(rr.Body.String(), "Rain possible") || !strings.Contains(rr.Body.String(), "49° high · feels 42° low") || !strings.Contains(rr.Body.String(), "Warm coat &amp; layers · rain shell · wind layer") {
 		t.Fatal("next-up event weather and clothing advice missing from rendered card")
 	}
 }
 
-func TestAddEventWeatherUsesNearestForecastAndAllDayNoon(t *testing.T) {
+func TestAddEventWeatherCoversOutingAndReturnTrip(t *testing.T) {
 	loc := chicago(t)
+	now := dateIn(t, "2026-10-22 09:00")
 	forecast := []weatherSlot{
-		{At: dateIn(t, "2026-10-22 10:00"), Temp: "48°", Wear: "Jacket & layers"},
-		{At: dateIn(t, "2026-10-22 13:00"), Temp: "55°", Wear: "Long sleeves", Condition: "cloudy", Icon: "cloud"},
-		{At: dateIn(t, "2026-10-22 16:00"), Temp: "51°", Wear: "Light jacket"},
+		{At: dateIn(t, "2026-10-22 10:00"), TempValue: 68, FeelsValue: 65, Condition: "clear sky"},
+		{At: dateIn(t, "2026-10-22 13:00"), TempValue: 70, FeelsValue: 67, Condition: "cloudy"},
+		{At: dateIn(t, "2026-10-22 16:00"), TempValue: 58, FeelsValue: 54, Condition: "cloudy"},
+		{At: dateIn(t, "2026-10-22 19:00"), TempValue: 54, FeelsValue: 48, PopValue: .8, RainValue: 1, WindValue: 24, Condition: "rain"},
+		{At: dateIn(t, "2026-10-22 22:00"), TempValue: 52, FeelsValue: 44, PopValue: .7, RainValue: 1, WindValue: 21, Condition: "rain"},
 	}
-	event := Event{Start: dateIn(t, "2026-10-22 16:30").Format(time.RFC3339)}
-	addEventWeather(&event, forecast, loc)
-	if event.WeatherAt != "Thu 4 PM" || event.WeatherTemp != "51°" || event.WeatherWear != "Light jacket" {
+	weather := weatherView{Current: weatherSlot{At: now, TempValue: 75, FeelsValue: 70}, Forecast: forecast}
+	event := Event{Start: dateIn(t, "2026-10-22 16:30").Format(time.RFC3339), End: dateIn(t, "2026-10-22 18:00").Format(time.RFC3339), TravelMinutes: 20}
+	addEventWeather(&event, weather, now, loc)
+	if event.WeatherAt != "WHILE OUT" || event.WeatherTemp != "58° high · feels 48° low" || event.WeatherCondition != "Rain possible" || event.WeatherWear != "Jacket & layers · rain shell · wind layer" {
 		t.Fatalf("timed event weather = %+v", event)
 	}
-	allDay := Event{Start: dateIn(t, "2026-10-22 00:00").Format(time.RFC3339), AllDay: true}
-	addEventWeather(&allDay, forecast, loc)
-	if allDay.WeatherAt != "Thu 1 PM" || allDay.WeatherTemp != "55°" {
+	allDay := Event{Start: dateIn(t, "2026-10-22 00:00").Format(time.RFC3339), End: dateIn(t, "2026-10-23 00:00").Format(time.RFC3339), AllDay: true}
+	addEventWeather(&allDay, weather, now, loc)
+	if allDay.WeatherTemp != "75° high · feels 44° low" || allDay.WeatherWear != "Jacket & layers · rain shell · wind layer" {
 		t.Fatalf("all-day event weather = %+v", allDay)
 	}
 }
