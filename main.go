@@ -136,6 +136,8 @@ type Event struct {
 	Time     string
 	Start    string
 	Relative string
+	AllDay   bool
+	SpanDays int
 	Title    string
 	Category string
 }
@@ -270,7 +272,7 @@ func (a *app) page(now time.Time) Page {
 			} else if item.end.Sub(item.start) > time.Hour {
 				clock = clock + " – " + item.end.In(a.tz).Format("3:04 PM")
 			}
-			events = append(events, Event{Date: label, Weekday: d.Format("Mon"), Time: clock, Start: item.start.Format(time.RFC3339), Relative: relativeTime(item.start, n), Title: item.title, Category: "family"})
+			events = append(events, Event{Date: label, Weekday: d.Format("Mon"), Time: clock, Start: item.start.Format(time.RFC3339), Relative: relativeTime(item.start, n), AllDay: item.allDay, SpanDays: allDayDays(item.start, item.end, a.tz), Title: item.title, Category: "family"})
 		}
 		if len(events) == 0 && message == "" {
 			message = "No upcoming events this week."
@@ -322,6 +324,18 @@ func relativeTime(start, now time.Time) string {
 		return fmt.Sprintf("in %d%s", count, unit)
 	}
 	return fmt.Sprintf("%d%s ago", count, unit)
+}
+
+// allDayDays counts calendar dates covered by an all-day event. iCalendar's
+// DTEND is exclusive, so a July 1 through July 3 event covers two days.
+func allDayDays(start, end time.Time, loc *time.Location) int {
+	startDay := midnight(start, loc)
+	endDay := midnight(end, loc)
+	days := 0
+	for day := startDay; day.Before(endDay) && days < 366; day = day.AddDate(0, 0, 1) {
+		days++
+	}
+	return days
 }
 
 func (a *app) renderPage(w http.ResponseWriter, kiosk bool) {

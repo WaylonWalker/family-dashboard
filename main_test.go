@@ -59,6 +59,18 @@ func TestDashboardAndTaskPersistence(t *testing.T) {
 	}
 }
 
+func TestAllDayDaysCountsCalendarDatesAcrossDST(t *testing.T) {
+	loc := chicago(t)
+	start := time.Date(2026, time.March, 7, 0, 0, 0, 0, loc)
+	end := time.Date(2026, time.March, 9, 0, 0, 0, 0, loc)
+	if got := allDayDays(start, end, loc); got != 2 {
+		t.Fatalf("allDayDays(%v, %v) = %d, want 2", start, end, got)
+	}
+	if got := allDayDays(start, start.AddDate(0, 0, 1), loc); got != 1 {
+		t.Fatalf("single-day all-day event spans %d days, want 1", got)
+	}
+}
+
 func TestRejectBadTaskMutations(t *testing.T) {
 	a, err := newApp(filepath.Join(t.TempDir(), "tasks.json"))
 	if err != nil {
