@@ -22,6 +22,11 @@
   var wakeLockToggle = document.getElementById('wake-lock-toggle');
   var wakeLockStatus = document.getElementById('wake-lock-status');
   var isKiosk = body.getAttribute('data-kiosk') === 'true';
+  var wideDisplay = isKiosk || (window.matchMedia ? window.matchMedia('(min-width:1200px) and (orientation:landscape)').matches : window.innerWidth >= 1200);
+  var cameraCycleTimer = null;
+  var cameraList = [];
+  var cameraIndex = 0;
+  var sensorRefreshGeneration = 0;
   var wakeLockSentinel = null;
   var wakeLockRequestId = 0;
   var wakeLockPending = false;
@@ -310,23 +315,57 @@
       card.appendChild(label); card.appendChild(value); card.appendChild(detail); list.appendChild(card);
     });
   }
+  function stopCameraRotation() {
+    if (cameraCycleTimer !== null) window.clearInterval(cameraCycleTimer);
+    cameraCycleTimer = null;
+  }
+  function showCamera(index) {
+    var grid = document.getElementById('camera-grid');
+    if (!cameraList.length) return;
+    cameraIndex = (index + cameraList.length) % cameraList.length;
+    var camera = cameraList[cameraIndex];
+    var label = camera.replace(/[-_]/g, ' ');
+    var figure = document.createElement('figure'); figure.className = 'camera-tile';
+    var image = document.createElement('img');
+    image.src = (isKiosk ? '/kiosk/api/essentials' : '/api/essentials') + '/cameras/' + encodeURIComponent(camera) + '/snapshot?refresh=' + Date.now();
+    image.alt = label + ' camera snapshot';
+    var caption = document.createElement('figcaption'); caption.textContent = label;
+    var position = document.createElement('span'); position.className = 'camera-position'; position.textContent = (cameraIndex + 1) + ' / ' + cameraList.length;
+    figure.appendChild(image); figure.appendChild(caption); figure.appendChild(position);
+    grid.textContent = '';
+    grid.appendChild(figure);
+  }
   function refreshSensorOverview() {
+    var refreshGeneration = ++sensorRefreshGeneration;
     var essentialsBase = isKiosk ? '/kiosk/api/essentials' : '/api/essentials';
     requestJSON(essentialsBase + '/sensors', function (error, data) {
+      if (refreshGeneration !== sensorRefreshGeneration || active !== 2) return;
       var updated = document.getElementById('sensors-updated');
-      if (error) { updated.textContent = 'Sensor service unavailable'; return; }
+      if (error) {
+        updated.textContent = 'Sensor service unavailable';
+        var list = document.getElementById('sensor-reading-list');
+        list.textContent = '';
+        var unavailable = document.createElement('p'); unavailable.className = 'sensor-view-message'; unavailable.textContent = 'Sensor readings are unavailable.'; list.appendChild(unavailable);
+        return;
+      }
       renderSensorReadings(data.readings || []);
       updated.textContent = 'Updated ' + new Date(data.updated_at).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
     });
     requestJSON(essentialsBase + '/cameras', function (error, data) {
+      if (refreshGeneration !== sensorRefreshGeneration || active !== 2) return;
       var grid = document.getElementById('camera-grid');
-      var count = document.getElementById('camera-count');
-      if (error) { count.textContent = 'Unavailable'; grid.textContent = 'Frigate camera list is unavailable.'; return; }
+      stopCameraRotation();
+      if (error) { cameraList = []; grid.textContent = 'Camera views are unavailable.'; return; }
       var cameras = data.cameras || [];
-      count.textContent = cameras.length + (cameras.length === 1 ? ' camera' : ' cameras');
+      cameraList = cameras;
       grid.textContent = '';
       if (!cameras.length) {
         var none = document.createElement('p'); none.className = 'sensor-view-message'; none.textContent = 'No cameras are configured in Frigate.'; grid.appendChild(none); return;
+      }
+      if (wideDisplay) {
+        showCamera(cameraIndex);
+        if (cameras.length > 1) cameraCycleTimer = window.setInterval(function () { showCamera(cameraIndex + 1); }, 3000);
+        return;
       }
       cameras.forEach(function (camera) {
         var figure = document.createElement('figure'); figure.className = 'camera-tile';
@@ -349,6 +388,8 @@
   }
   function show(index, manual) {
     active = (index + panes.length) % panes.length;
+    body.classList.toggle('sensors-focus',wideDisplay && active===2);
+    if (active !== 2) { sensorRefreshGeneration++; stopCameraRotation(); }
     for (var i=0;i<panes.length;i++) {
       var visible=i===active;
       panes[i].hidden=!visible;

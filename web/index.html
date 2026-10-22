@@ -12,8 +12,8 @@
   <link rel="icon" href="/favicon.ico" sizes="32x32" type="image/x-icon">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/icons/family-hq-192.png">
-  <link rel="stylesheet" href="/style.css?v=19">
-  <script src="/app.js?v=15" defer></script>
+  <link rel="stylesheet" href="/style.css?v=20">
+  <script src="/app.js?v=16" defer></script>
   {{if .DevMode}}<script src="/dev-reload.js" defer></script>{{end}}
   <noscript><style>
     .feature-pane[hidden]{display:flex!important}
@@ -108,10 +108,9 @@
             {{if not .KioskMode}}<form class="add-task" method="post" action="{{$.TaskAction}}"><input type="hidden" name="csrf" value="{{.CSRF}}"><input type="hidden" name="action" value="add"><label class="visually-hidden" for="new-task">New family task</label><input id="new-task" type="text" name="title" maxlength="120" placeholder="Add a family task…" required><button type="submit">Add</button></form>{{end}}
           </section>
           <section class="feature-pane sensors-overview" id="pane-sensors" role="tabpanel" aria-labelledby="tab-sensors" hidden>
-            <div class="sensors-overview-head"><div><p class="eyebrow">HOME STATUS</p><strong>Live readings</strong></div><span id="sensors-updated">Connecting…</span></div>
+            <span id="sensors-updated" class="visually-hidden" aria-live="polite">Connecting…</span>
             <div class="sensor-reading-list" id="sensor-reading-list" aria-live="polite"><p class="sensor-view-message">Loading sensor readings…</p></div>
-            <div class="camera-section-head"><strong>Camera views</strong><span id="camera-count">Loading…</span></div>
-            <div class="camera-grid" id="camera-grid" aria-label="Latest Frigate snapshots from every camera"><p class="sensor-view-message">Loading cameras…</p></div>
+            <div class="camera-grid" id="camera-grid" aria-label="Rotating camera snapshots"><p class="sensor-view-message">Loading cameras…</p></div>
           </section>
         </div>
         <div class="feature-bottom"><span id="rotation-hint">Auto-switches every 30s · swipe to explore</span><div class="pager" aria-label="Panel position"><span class="pager-dot active"></span><span class="pager-dot"></span><span class="pager-dot"></span></div><span id="rotation-progress" class="switch-progress" role="progressbar" aria-label="Time until next panel" aria-valuemin="0" aria-valuemax="30" aria-valuenow="0" aria-valuetext="Auto-switch paused" hidden></span></div>
