@@ -47,6 +47,49 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
 @keyframes panel-arrive{from{opacity:.75;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
 @media(prefers-reduced-motion:no-preference){.feature-pane.is-active{animation:panel-arrive .24s ease-out both}}
 
+.school-routine{margin:0 0 10px;padding:11px 12px;border:1px solid var(--line);border-radius:14px;background:var(--soft)}
+.school-routine-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.school-routine-head strong{font-size:13px}.school-routine-head span{font-size:10px;color:var(--muted)}
+.school-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.school-card{min-width:0;padding:10px 11px;border-radius:11px;background:var(--surface);border:1px solid var(--line)}
+.school-card-name{font-size:12px;font-weight:800;color:var(--accent)}
+.school-timer{margin-top:3px;font-size:clamp(24px,3vw,34px);font-weight:850;letter-spacing:-1px;font-variant-numeric:tabular-nums;line-height:1.1}
+.school-caption,.school-late,.school-wear,.school-rain-note{font-size:10px;color:var(--muted);line-height:1.35}
+.school-late{margin-top:4px}.school-late strong{color:var(--ink);font-variant-numeric:tabular-nums}.school-wear{margin-top:7px;color:var(--ink);font-weight:650}
+.school-rain-note{margin-top:5px;color:#a33a32;font-weight:750}
+.school-pickup-alert{margin-top:8px;padding:8px 9px;border-radius:8px;background:#a9322b;color:#fff;font-size:11px;font-weight:800;line-height:1.3}
+.school-pickup-alert strong{font-size:16px;font-variant-numeric:tabular-nums;white-space:nowrap}
+@media(max-width:520px){.school-routine{padding:9px}.school-card-grid{gap:6px}.school-card{padding:9px}.school-timer{font-size:26px}.school-card-name{font-size:11px}}
+
+/* TV browsers often crop the outer few percent for overscan. Keep the full
+   dashboard inside that safe area and let long lists scroll within their cards. */
+@media (orientation:landscape) and (min-width:900px){
+  .shell{width:100%;max-width:1720px;height:100vh;height:100dvh;min-height:0;padding:3.5vh 4vw 3vh;gap:2vh}
+  .header{min-height:0;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:2vw}
+  .dashboard{grid-template-columns:minmax(0,1.18fr) minmax(0,1fr);gap:1.4vw;max-height:none;flex:1;min-height:0}
+  .calendar,.feature{min-height:0;min-width:0}
+  .event-list,.weather-timeline,.task-list{min-height:0;overscroll-behavior:contain}
+}
+@media (orientation:landscape) and (min-width:900px) and (max-height:800px){
+  .shell{padding:2vh 4vw;gap:1.4vh}
+  .brand-icon{width:40px;height:40px}
+  .brand h1{font-size:23px}
+  .clock-block strong{font-size:clamp(38px,5.2vh,52px)}
+  .calendar,.feature{padding:2vh 1.5vw 1.2vh}
+  .panel h2{font-size:clamp(19px,2.6vh,23px)}
+  .week-strip{margin:1.7vh 0 1vh;gap:5px}
+  .day{min-height:6.5vh}
+  .day strong{font-size:clamp(17px,2.5vh,21px)}
+  .next-up{min-height:0;padding:1.4vh 1.2vw}
+  .next-up h3{font-size:clamp(18px,2.5vh,23px)}
+  .event{min-height:0;padding:1vh 3px}
+  .feature-tabs{margin:1.4vh 0 1vh;padding-bottom:.8vh}
+  .feature-tab{min-height:36px}
+  .weather-now{padding:1vh 1vw;margin-bottom:.5vh}
+  .weather-now-temp{font-size:32px}
+  .weather-slot{min-height:0;padding:1vh 3px;grid-template-columns:60px 70px minmax(0,1fr);gap:8px}
+}
+
 /* Pairing runs under a strict CSP, so its layout belongs in this stylesheet. */
 .pair-page{display:grid;place-items:center;min-height:100vh;padding:16px;overflow:auto}
 .pair-page .pair-card{position:relative;z-index:1;width:90vw;max-width:620px;max-height:calc(100vh - 32px);overflow:auto;text-align:center;background:var(--surface);color:var(--ink);border-color:var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}

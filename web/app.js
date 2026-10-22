@@ -80,11 +80,25 @@
   function updateEventTimes() {
     var labels = document.querySelectorAll('.event-relative');
     var leaveLabels = document.querySelectorAll('.leave-countdown');
+    var schoolTimers = document.querySelectorAll('[data-countdown-at]');
+    var schoolAlerts = document.querySelectorAll('[data-alert-start]');
     var units = [
       [365.25 * 86400, 'y'], [30.44 * 86400, 'mo'], [7 * 86400, 'w'],
       [86400, 'd'], [3600, 'h'], [60, 'm'], [1, 's']
     ];
     var now = Date.now();
+    for (var a = 0; a < schoolAlerts.length; a++) {
+      var starts = Date.parse(schoolAlerts[a].getAttribute('data-alert-start'));
+      var ends = Date.parse(schoolAlerts[a].getAttribute('data-alert-end'));
+      if (isFinite(starts) && isFinite(ends)) schoolAlerts[a].hidden = now < starts || now >= ends;
+    }
+    for (var s = 0; s < schoolTimers.length; s++) {
+      var secondsLeft = Math.ceil((Date.parse(schoolTimers[s].getAttribute('data-countdown-at')) - now) / 1000);
+      if (!isFinite(secondsLeft)) continue;
+      if (secondsLeft <= 0) schoolTimers[s].textContent = 'NOW';
+      else if (secondsLeft < 3600) schoolTimers[s].textContent = Math.ceil(secondsLeft / 60) + 'm';
+      else schoolTimers[s].textContent = Math.floor(secondsLeft / 3600) + 'h' + (Math.floor((secondsLeft % 3600) / 60) ? ' ' + Math.floor((secondsLeft % 3600) / 60) + 'm' : '');
+    }
     var outing = document.querySelector('.next-up[data-travel-phase]');
     if (outing) {
       var startAt = Date.parse(outing.getAttribute('data-travel-start'));

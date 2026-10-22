@@ -20,11 +20,11 @@ func TestDashboardAndTaskPersistence(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	a.now = func() time.Time { return time.Date(2026, 10, 20, 15, 30, 0, 0, time.UTC) }
+	a.now = func() time.Time { return time.Date(2026, 10, 26, 15, 30, 0, 0, time.UTC) }
 	h := a.routes()
 	r := httptest.NewRecorder()
 	h.ServeHTTP(r, httptest.NewRequest(http.MethodGet, "/dashboard", nil))
-	if r.Code != 200 || !strings.Contains(r.Body.String(), "DEMO CALENDAR") || !strings.Contains(r.Body.String(), "Family tasks") {
+	if r.Code != 200 || !strings.Contains(r.Body.String(), "SCHOOL CALENDAR") || !strings.Contains(r.Body.String(), "School morning") || !strings.Contains(r.Body.String(), "Family tasks") {
 		t.Fatalf("bad dashboard: status %d", r.Code)
 	}
 	values := url.Values{"action": {"add"}, "title": {"Buy milk"}, "csrf": {a.csrf}}
@@ -56,6 +56,52 @@ func TestDashboardAndTaskPersistence(t *testing.T) {
 	}
 	if len(a.store.list()) != 3 {
 		t.Fatal("delete did not persist")
+	}
+}
+
+func TestSchoolDayCardsUseSchoolTimesAndRainPickup(t *testing.T) {
+	loc := chicago(t)
+	day := dateIn(t, "2026-10-20 00:00")
+	items := []calendarItem{
+		{title: "Ayla — Arrive at school", start: day.Add(7*time.Hour + 20*time.Minute), end: day.Add(7*time.Hour + 40*time.Minute)},
+		{title: "Wyatt — Bus ride to school", start: day.Add(7*time.Hour + 45*time.Minute), end: day.Add(8*time.Hour + 5*time.Minute)},
+		{title: "Ayla — Leave school", start: day.Add(14*time.Hour + 5*time.Minute), end: day.Add(14*time.Hour + 15*time.Minute)},
+		{title: "Wyatt — Bus ride home from school", start: day.Add(15*time.Hour + 5*time.Minute), end: day.Add(15*time.Hour + 25*time.Minute)},
+	}
+	forecast := []weatherSlot{
+		{At: day.Add(7 * time.Hour), Wear: "Jacket & layers", FeelsValue: 50},
+		{At: day.Add(14 * time.Hour), Condition: "light rain", PopValue: .1, FeelsValue: 30},
+	}
+	weather := weatherView{Forecast: forecast}
+	cards := schoolDayCards(items, weather, day.Add(10*time.Hour), loc)
+	if len(cards) != 2 {
+		t.Fatalf("cards = %+v, want Ayla and Wyatt", cards)
+	}
+	ayla, wyatt := cards[0], cards[1]
+	if got := ayla.LeaveAt; got != items[0].start.Format(time.RFC3339) {
+		t.Fatalf("Ayla leave = %s, want school event time %s", got, items[0].start.Format(time.RFC3339))
+	}
+	if got, want := wyatt.LeaveAt, items[1].start.Add(-15*time.Minute).Format(time.RFC3339); got != want {
+		t.Fatalf("Wyatt leave = %s, want 15 minutes before bus at %s", got, want)
+	}
+	if got, want := wyatt.LateAt, items[1].start.Format(time.RFC3339); got != want {
+		t.Fatalf("Wyatt late time = %s, want bus time %s", got, want)
+	}
+	if got, want := ayla.HomeAt, items[2].end.Format(time.RFC3339); got != want {
+		t.Fatalf("Ayla home time = %s, want event end %s", got, want)
+	}
+	if !strings.Contains(ayla.RainNote, "plan to pick her up") || !strings.Contains(ayla.Wear, "colder afternoon") {
+		t.Fatalf("Ayla weather advice = %+v, want rain pickup and colder afternoon coat", ayla)
+	}
+	if !ayla.PickupAlert {
+		t.Fatal("rain pickup alert should be available when rain is forecast")
+	}
+	if got, want := ayla.PickupAlertAt, day.Add(11*time.Hour+40*time.Minute).Format(time.RFC3339); got != want {
+		t.Fatalf("pickup alert begins at %s, want %s", got, want)
+	}
+	cards = schoolDayCards(items, weather, day.Add(11*time.Hour+40*time.Minute), loc)
+	if len(cards) != 2 || !cards[0].PickupAlert {
+		t.Fatalf("pickup alert should be active two hours before pickup: %+v", cards)
 	}
 }
 

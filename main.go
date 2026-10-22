@@ -163,6 +163,13 @@ type Event struct {
 	Category         string
 }
 
+type SchoolCard struct {
+	Name, LeaveAt, LateAt, HomeAt, LeaveClock, HomeClock     string
+	LeaveCountdown, LateCountdown, HomeCountdown             string
+	Wear, RainNote, PickupAlertAt, PickupAt, PickupCountdown string
+	PickupAlert                                              bool
+}
+
 type travelRule struct {
 	Aliases       []string `json:"aliases"`
 	Location      string   `json:"location,omitempty"`
@@ -322,6 +329,8 @@ type Page struct {
 	Days            []Day
 	Events          []Event
 	NextUp          *Event
+	SchoolCards     []SchoolCard
+	SchoolAfternoon bool
 	Tasks           []Task
 	Count           int
 	CSRF            string
@@ -332,6 +341,7 @@ type Page struct {
 
 type app struct {
 	calendar       *calendarFeed
+	schoolCalendar []byte
 	weather        *weatherFeed
 	store          *taskStore
 	tmpl           *template.Template
@@ -370,12 +380,16 @@ func newApp(path string) (*app, error) {
 		if os.Getenv("FAMILY_DASHBOARD_DEV_MODE") != "1" {
 			return nil, err
 		}
-		// A bad local .env shouldn't stop the UI developer. The page still
-		// prominently labels all sample events as DEMO CALENDAR.
-		log.Printf("Calendar configuration warning:\n%v\n\nContinuing in DEMO CALENDAR mode because 'just serve' is for development. Fix .env and restart to use real events.", err)
+		// A bad local .env shouldn't stop the UI developer. The bundled school
+		// calendar remains available while the Google feed is disconnected.
+		log.Printf("Calendar configuration warning:\n%v\n\nContinuing with the bundled school calendar because 'just serve' is for development. Fix .env and restart to use the Google feed.", err)
 		feed = nil
 	} else if secretURL == "" && os.Getenv("FAMILY_DASHBOARD_DEV_MODE") == "1" {
-		log.Printf("Calendar: using DEMO CALENDAR events (no GOOGLE_CALENDAR_ICAL_URL configured). Add the private iCal address to .env to show real events.")
+		log.Printf("Calendar: showing bundled school events; add GOOGLE_CALENDAR_ICAL_URL to .env to include family events.")
+	}
+	schoolCalendar, err := webFS.ReadFile("web/calendars/dunlap-school-2026-27.ics")
+	if err != nil {
+		return nil, fmt.Errorf("read embedded school calendar: %w", err)
 	}
 	weather, err := newWeatherFeed(tz)
 	if err != nil {
@@ -400,7 +414,7 @@ func newApp(path string) (*app, error) {
 			Minutes:  15,
 		},
 	)
-	a := &app{store: store, tmpl: tpl, csrf: newID(), tz: tz, now: time.Now, calendar: feed, weather: weather, travelRules: travelRules, devMode: os.Getenv("FAMILY_DASHBOARD_DEV_MODE") == "1", devVersion: newID()}
+	a := &app{store: store, tmpl: tpl, csrf: newID(), tz: tz, now: time.Now, calendar: feed, schoolCalendar: schoolCalendar, weather: weather, travelRules: travelRules, devMode: os.Getenv("FAMILY_DASHBOARD_DEV_MODE") == "1", devVersion: newID()}
 	if err := a.initializeAuth(path); err != nil {
 		return nil, err
 	}
@@ -443,7 +457,14 @@ func (a *app) pageContext(ctx context.Context, now time.Time) Page {
 		end := start.Add(time.Hour)
 		events = append(events, Event{Date: label, Weekday: d.Format("Mon"), Time: x.Clock, Start: start.Format(time.RFC3339), End: end.Format(time.RFC3339), Relative: relativeTime(start, n), Title: x.Title, Category: x.Category})
 	}
-	badge, note, message := "DEMO CALENDAR", "Sample events · connect Google Calendar in .env", "No Google account connected. These are illustrative events only."
+	badge, note, message := "SCHOOL CALENDAR", "Dunlap CUSD 2026–27 · local iCal", ""
+	items, schoolErr := parseICalendar(a.schoolCalendar, n, a.tz)
+	if schoolErr != nil {
+		message = "School calendar unavailable: " + schoolErr.Error()
+	}
+	if a.calendar == nil {
+		events = nil
+	}
 	if a.calendar != nil {
 		items, status, problem := a.calendar.snapshotContext(ctx, n)
 		badge = "GOOGLE CALENDAR"
@@ -470,6 +491,25 @@ func (a *app) pageContext(ctx context.Context, now time.Time) Page {
 			message = "No upcoming events this week."
 		}
 	}
+	if a.calendar != nil {
+		badge = "SCHOOL + GOOGLE CALENDAR"
+	}
+	for _, item := range items {
+		d := item.start.In(a.tz)
+		label := d.Format("Jan 2")
+		if midnight(d, a.tz).Equal(midnight(n, a.tz)) {
+			label = "Today"
+		} else if midnight(d, a.tz).Equal(midnight(n, a.tz).AddDate(0, 0, 1)) {
+			label = "Tomorrow"
+		}
+		clock := d.Format("3:04 PM")
+		if item.allDay {
+			clock = "All day"
+		} else if item.end.Sub(item.start) > time.Hour {
+			clock += " – " + item.end.In(a.tz).Format("3:04 PM")
+		}
+		events = append(events, Event{Date: label, Weekday: d.Format("Mon"), Time: clock, Start: item.start.Format(time.RFC3339), End: item.end.Format(time.RFC3339), Relative: relativeTime(item.start, n), AllDay: item.allDay, SpanDays: allDayDays(item.start, item.end, a.tz), Title: item.title, Category: "school"})
+	}
 	for i := range events {
 		addTravelEstimate(&events[i], a.travelRules, n, a.tz)
 	}
@@ -482,12 +522,87 @@ func (a *app) pageContext(ctx context.Context, now time.Time) Page {
 		}
 	}
 	wv := a.weather.snapshotContext(ctx, n)
+	schoolCards := schoolDayCards(items, wv, n, a.tz)
 	addEventWeather(nextUp, wv, n, a.tz)
 	weatherKind := "unknown"
 	if len(wv.Slots) > 0 {
 		weatherKind = wv.Slots[0].Icon
 	}
-	return Page{WeatherKind: weatherKind, Hour24: n.Hour(), Today: n.Format("Mon, Jan 2"), Clock: n.Format("3:04"), Period: n.Format("PM"), Days: days, Events: events, NextUp: nextUp, Tasks: tasks, Count: count, CSRF: a.csrf, CalendarBadge: badge, CalendarNote: note, CalendarMessage: message, Weather: wv}
+	return Page{WeatherKind: weatherKind, Hour24: n.Hour(), Today: n.Format("Mon, Jan 2"), Clock: n.Format("3:04"), Period: n.Format("PM"), Days: days, Events: events, NextUp: nextUp, SchoolCards: schoolCards, SchoolAfternoon: n.Hour() >= 11, Tasks: tasks, Count: count, CSRF: a.csrf, CalendarBadge: badge, CalendarNote: note, CalendarMessage: message, Weather: wv}
+}
+
+func schoolDayCards(items []calendarItem, weather weatherView, now time.Time, loc *time.Location) []SchoolCard {
+	var aylaArrive, aylaLeave, wyattBus, wyattHome *calendarItem
+	for i := range items {
+		x := &items[i]
+		if !midnight(x.start.In(loc), loc).Equal(midnight(now, loc)) {
+			continue
+		}
+		t := strings.ToLower(x.title)
+		switch {
+		case strings.Contains(t, "ayla") && strings.Contains(t, "arrive at school"):
+			aylaArrive = x
+		case strings.Contains(t, "ayla") && strings.Contains(t, "leave school"):
+			aylaLeave = x
+		case strings.Contains(t, "wyatt") && strings.Contains(t, "bus ride to school"):
+			wyattBus = x
+		case strings.Contains(t, "wyatt") && strings.Contains(t, "bus ride home"):
+			wyattHome = x
+		}
+	}
+	if aylaArrive == nil || aylaLeave == nil || wyattBus == nil || wyattHome == nil {
+		return nil
+	}
+	chance := func(at time.Time) bool {
+		for _, slot := range weather.Forecast {
+			if d := slot.At.Sub(at); d >= -90*time.Minute && d <= 90*time.Minute && (slot.PopValue > 0 || slot.RainValue > 0 || strings.Contains(strings.ToLower(slot.Condition), "rain")) {
+				return true
+			}
+		}
+		return false
+	}
+	remaining := func(t time.Time) string { return formatLeaveCountdown(t.Sub(now)) }
+	leaveAyla := aylaArrive.start
+	leaveWyatt := wyattBus.start.Add(-15 * time.Minute)
+	pickup := aylaLeave.start.Add(-25 * time.Minute)
+	rain := chance(aylaLeave.start)
+	rainNote := ""
+	if rain {
+		rainNote = "Rain is possible during Ayla’s walk home; plan to pick her up."
+	}
+	wear := "Light layers"
+	if len(weather.Forecast) > 0 {
+		var nearest *weatherSlot
+		var best time.Duration
+		for i := range weather.Forecast {
+			d := weather.Forecast[i].At.Sub(leaveAyla)
+			if d < 0 {
+				d = -d
+			}
+			if nearest == nil || d < best {
+				nearest = &weather.Forecast[i]
+				best = d
+			}
+		}
+		if nearest != nil {
+			wear = nearest.Wear
+			if nearest.RainValue > 0 || nearest.PopValue >= .2 {
+				wear += " · rain jacket"
+			}
+			for _, s := range weather.Forecast {
+				if s.At.After(leaveAyla) && s.At.Before(aylaLeave.start) && s.FeelsValue+10 < nearest.FeelsValue {
+					wear += " · bring a coat for the colder afternoon"
+					break
+				}
+			}
+		}
+	}
+	alertAt := pickup.Add(-2 * time.Hour)
+	alert := rain
+	return []SchoolCard{
+		{Name: "Ayla", LeaveAt: leaveAyla.Format(time.RFC3339), LateAt: aylaArrive.end.Format(time.RFC3339), HomeAt: aylaLeave.end.Format(time.RFC3339), LeaveClock: leaveAyla.In(loc).Format("3:04 PM"), HomeClock: aylaLeave.end.In(loc).Format("3:04 PM"), LeaveCountdown: remaining(leaveAyla), LateCountdown: remaining(aylaArrive.end), HomeCountdown: remaining(aylaLeave.end), Wear: wear, RainNote: rainNote, PickupAlert: alert, PickupAlertAt: alertAt.Format(time.RFC3339), PickupAt: pickup.Format(time.RFC3339), PickupCountdown: remaining(pickup)},
+		{Name: "Wyatt", LeaveAt: leaveWyatt.Format(time.RFC3339), LateAt: wyattBus.start.Format(time.RFC3339), HomeAt: wyattHome.end.Format(time.RFC3339), LeaveClock: leaveWyatt.In(loc).Format("3:04 PM"), HomeClock: wyattHome.end.In(loc).Format("3:04 PM"), LeaveCountdown: remaining(leaveWyatt), LateCountdown: remaining(wyattBus.start), HomeCountdown: remaining(wyattHome.end), Wear: wear},
+	}
 }
 
 // relativeTime gives calendar items a compact label that fits beside their time.

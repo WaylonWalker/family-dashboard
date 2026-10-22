@@ -4,8 +4,8 @@ Small self-hosted family dashboard for a rooted touchscreen digital photo frame.
 Go standard-library app, server-rendered HTML/CSS, optimized for **1280×800**
 and responsive on phones. A lightweight alternative to a tablet-only Android app.
 
-**Features:** outdoor clothing and weather timeline, seven-day calendar (sample events by default, optional
-read-only Google Calendar via private iCal URL), editable tasks stored in one
+**Features:** outdoor clothing and weather timeline, seven-day calendar (bundled
+Dunlap school iCal plus optional read-only Google Calendar via private iCal URL), editable tasks stored in one
 JSON file, first-run demo tasks, no JavaScript required for task edits.
 Photo management uses the v0.3 phone-to-frame pairing flow. Human access uses hlab-auth ForwardAuth; Google Calendar remains read-only.
 
@@ -16,7 +16,7 @@ for container operations, kubectl + Argo CD CLI for deployment.
 
 ```sh
 just                 # See recipes
-just serve           # http://127.0.0.1:8080 ; tasks persist, optional Google events
+just serve           # http://127.0.0.1:8080 ; tasks persist, school + optional Google events
 just test
 just build           # dist/family-dashboard
 just check           # go vet, tests and build
@@ -53,10 +53,10 @@ to test a real **read-only** calendar. In Google Calendar on a computer:
 **Troubleshooting local calendar setup:** `just serve` loads `.env` through
 `just` (plain `go run .` does not load it automatically). If the URL is invalid,
 the terminal now explains *why*, where to find the real private iCal address,
-and how to fix `.env`. The local development server continues with prominently
-labeled **DEMO CALENDAR** events, rather than crashing. Fix `.env` and restart
-`just serve` to use real data. If the URL is missing entirely, the app starts in
-demo mode and logs a reminder. In a deployed/production process, invalid
+and how to fix `.env`. The local development server continues with the bundled
+school calendar, rather than crashing. Fix `.env` and restart `just serve` to
+include family events. If the URL is missing entirely, the app shows the school
+calendar and logs a reminder. In a deployed/production process, invalid
 calendar credentials still fail startup rather than silently displaying fake
 events. If Google returns HTTP 403 or 404, the page suggests checking or
 regenerating the secret link; a transient network error is retried.
@@ -65,10 +65,19 @@ Common mistakes: pasting a normal Google Calendar browser URL, a public iCal
 URL, a `webcal://` subscription, or an example URL containing `YOUR_SECRET`.
 Use Google's **Secret address in iCal format** and keep it out of Git.
 
+The Dunlap CUSD 2026–27 school calendar is bundled from
+`web/calendars/dunlap-school-2026-27.ics` and parsed with the same iCalendar
+reader. Replace that file with a newer school export when the district
+publishes one. On school days, the dashboard uses the ICS school events for
+Ayla and Wyatt's morning and afternoon cards. Wyatt's leave time is 15 minutes
+before the bus event; Ayla's leave deadline uses her listed arrival time. Rain
+probability during Ayla's walk home adds a morning pickup note and a pickup
+leave countdown beginning two hours before the planned pickup.
+
 The backend fetches the feed on the first page view, caches successful results
 for 15 minutes, retries failures after 1 minute, and retains the last
-known-good events on temporary failures. The page shows **GOOGLE CALENDAR**
-instead of **DEMO CALENDAR**. It never sends the secret iCal URL to the browser.
+known-good events on temporary failures. With a Google feed configured, the page
+shows **SCHOOL + GOOGLE CALENDAR**. It never sends the secret iCal URL to the browser.
 If the calendar is empty, the page says so rather than reverting to fake events.
 Google's iCal publishing can lag behind changes in the Google Calendar app.
 
@@ -76,8 +85,9 @@ Supported: timed and all-day events, local TZIDs, weekly/daily/monthly/yearly
 recurrences with common BYDAY/BYMONTH/BYMONTHDAY/COUNT/UNTIL rules, EXDATE,
 RDATE, moved or canceled instances. Complex recurrence clauses (for example,
 BYSETPOS) currently raise a visible connection/parse error rather than
-silently producing wrong dates. This first version supports **one calendar**.
-It is read-only; Google Calendar stays the source of truth.
+silently producing wrong dates. The school iCal and Google feed are shown
+together. The Google feed is read-only; Google Calendar stays the source of
+truth for family events.
 
 Security: `.env` is ignored by Git. Do not place the secret address in the
 front-end, a public repository, browser JavaScript, query parameters, or logs.

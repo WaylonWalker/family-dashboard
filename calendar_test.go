@@ -158,16 +158,18 @@ END:VCALENDAR`
 type roundTripFunc func(*http.Request) (*http.Response, error)
 
 func (fn roundTripFunc) RoundTrip(r *http.Request) (*http.Response, error) { return fn(r) }
-func TestCalendarDemoVsRealMode(t *testing.T) {
+func TestBundledSchoolCalendarAndGoogleMode(t *testing.T) {
 	t.Setenv("GOOGLE_CALENDAR_ICAL_URL", "")
+	t.Setenv("PLAY_OUTSIDE_OPEN_WEATHER_API_KEY", "")
+	t.Setenv("OPEN_WEATHER_API_KEY", "")
 	a, e := newApp(filepath.Join(t.TempDir(), "tasks.json"))
 	if e != nil {
 		t.Fatal(e)
 	}
 	a.now = func() time.Time { return dateIn(t, "2026-10-21 10:00") }
 	page := a.page(a.now())
-	if page.CalendarBadge != "DEMO CALENDAR" {
-		t.Fatalf("demo: %+v", page)
+	if page.CalendarBadge != "SCHOOL CALENDAR" {
+		t.Fatalf("school calendar: %+v", page)
 	}
 	t.Setenv("GOOGLE_CALENDAR_ICAL_URL", "https://calendar.google.com/calendar/ical/family/private-token/basic.ics")
 	b, e := newApp(filepath.Join(t.TempDir(), "tasks.json"))
@@ -181,7 +183,7 @@ func TestCalendarDemoVsRealMode(t *testing.T) {
 	req := httptest.NewRequest("GET", "/dashboard", nil)
 	w := httptest.NewRecorder()
 	b.routes().ServeHTTP(w, req)
-	if w.Code != 200 || strings.Contains(w.Body.String(), "DEMO CALENDAR") || !strings.Contains(w.Body.String(), "GOOGLE CALENDAR") || strings.Contains(w.Body.String(), "private-token") {
+	if w.Code != 200 || strings.Contains(w.Body.String(), "DEMO CALENDAR") || !strings.Contains(w.Body.String(), "SCHOOL &#43; GOOGLE CALENDAR") || strings.Contains(w.Body.String(), "private-token") {
 		t.Fatalf("bad live page %d %s", w.Code, w.Body.String())
 	}
 }
