@@ -348,6 +348,40 @@
   var doorAlert = document.getElementById('door-alert');
   if (doorAlert && window.EventSource) {
     var seenDoorEvents = {};
+    var doorAlertDuration = 30000;
+    var doorAlertDeadline = 0;
+    var doorAlertTimer = null;
+    var doorAlertProgressTimer = null;
+    var doorAlertHistoryEntry = false;
+    var doorAlertClose = document.getElementById('door-alert-close');
+    var doorAlertImage = document.getElementById('door-alert-snapshot');
+    var doorAlertClip = document.getElementById('door-alert-clip');
+    var doorAlertProgress = document.getElementById('door-alert-progress');
+    var doorAlertRemaining = document.getElementById('door-alert-remaining');
+
+    function dismissDoorAlert(fromHistory) {
+      if (doorAlert.hidden) return;
+      doorAlert.hidden = true;
+      doorAlertImage.removeAttribute('src');
+      window.clearTimeout(doorAlertTimer);
+      window.clearInterval(doorAlertProgressTimer);
+      doorAlertTimer = null;
+      doorAlertProgressTimer = null;
+      if (!fromHistory && doorAlertHistoryEntry) {
+        doorAlertHistoryEntry = false;
+        window.history.back();
+      }
+    }
+
+    function updateDoorAlertProgress() {
+      var remaining = Math.max(0, doorAlertDeadline - Date.now());
+      var seconds = Math.ceil(remaining / 1000);
+      doorAlertProgress.setAttribute('aria-valuenow', String(seconds));
+      doorAlertProgress.firstElementChild.style.width = (remaining / doorAlertDuration * 100) + '%';
+      doorAlertRemaining.textContent = 'Closing in ' + seconds + (seconds === 1 ? ' second' : ' seconds');
+      if (remaining <= 0) dismissDoorAlert(false);
+    }
+
     var doorStream = new EventSource(isKiosk ? '/kiosk/frigate/events/stream' : '/api/frigate/events/stream');
     doorStream.addEventListener('frigate', function (message) {
       try {
@@ -355,14 +389,37 @@
         if (seenDoorEvents[event.id]) return;
         seenDoorEvents[event.id] = true;
         document.getElementById('door-alert-camera').textContent = (event.camera || 'Camera').replace(/[-_]/g, ' ');
-        document.getElementById('door-alert-snapshot').src = event.snapshot || '';
-        document.getElementById('door-alert-clip').href = event.clip_url || '#';
-        doorAlert.hidden = false;
+        doorAlertImage.src = event.snapshot || '';
+        doorAlertClip.href = event.clip_url || '#';
+        if (doorAlert.hidden) {
+          doorAlert.hidden = false;
+          try {
+            window.history.pushState({ doorAlert: true }, '', window.location.href);
+            doorAlertHistoryEntry = true;
+          } catch (_) {}
+        }
+        window.clearTimeout(doorAlertTimer);
+        window.clearInterval(doorAlertProgressTimer);
+        doorAlertDeadline = Date.now() + doorAlertDuration;
+        updateDoorAlertProgress();
+        doorAlertProgressTimer = window.setInterval(updateDoorAlertProgress, 200);
+        doorAlertTimer = window.setTimeout(function () { dismissDoorAlert(false); }, doorAlertDuration);
+        doorAlertClose.focus({ preventScroll: true });
       } catch (_) {}
     });
-    document.getElementById('door-alert-close').addEventListener('click', function () {
-      doorAlert.hidden = true;
-      document.getElementById('door-alert-snapshot').removeAttribute('src');
+    doorAlertClose.addEventListener('click', function () { dismissDoorAlert(false); });
+    window.addEventListener('popstate', function () {
+      if (!doorAlert.hidden) {
+        doorAlertHistoryEntry = false;
+        dismissDoorAlert(true);
+      }
+    });
+    document.addEventListener('keydown', function (event) {
+      if (!doorAlert.hidden && ['Escape', 'Backspace', 'BrowserBack', 'GoBack', 'Back'].includes(event.key)) {
+        event.preventDefault();
+        event.stopPropagation();
+        dismissDoorAlert(false);
+      }
     });
   }
   refreshHint();

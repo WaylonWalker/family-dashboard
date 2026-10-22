@@ -108,10 +108,17 @@
   </div>
 
   <section class="door-alert" id="door-alert" role="dialog" aria-modal="true" aria-labelledby="door-alert-title" aria-live="assertive" hidden>
-    <div class="door-alert-card"><button class="door-alert-close" id="door-alert-close" type="button" aria-label="Dismiss door alert">×</button>
-      <p class="eyebrow">FRIGATE · PERSON DETECTED</p><h2 id="door-alert-title">Someone is at the door</h2>
-      <p id="door-alert-camera"></p><img id="door-alert-snapshot" alt="Frigate person detection snapshot">
-      <a id="door-alert-clip" href="#" target="_blank" rel="noopener">View video clip</a>
+    <div class="door-alert-card">
+      <header class="door-alert-head">
+        <div class="door-alert-title-group"><p class="eyebrow">FRIGATE · PERSON DETECTED</p><h2 id="door-alert-title">Someone is at the door</h2><p id="door-alert-camera"></p></div>
+        <button class="door-alert-close" id="door-alert-close" type="button" aria-label="Dismiss door alert"><span aria-hidden="true">×</span><span>Dismiss</span></button>
+      </header>
+      <img id="door-alert-snapshot" alt="Frigate person detection snapshot">
+      <footer class="door-alert-actions">
+        <a id="door-alert-clip" href="#" target="_blank" rel="noopener">View video clip</a>
+        <span class="door-alert-remaining" id="door-alert-remaining" aria-live="off">Closing in 30 seconds</span>
+      </footer>
+      <div class="door-alert-progress" id="door-alert-progress" role="progressbar" aria-label="Time until door alert closes" aria-valuemin="0" aria-valuemax="30" aria-valuenow="30"><span></span></div>
     </div>
   </section>
 
