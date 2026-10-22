@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="everforest-light" data-texture="paper" data-font="system" data-style="balanced">
+<html lang="en" data-theme="everforest-light" data-texture="paper" data-font="system" data-style="balanced" data-weather="{{.WeatherKind}}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -12,8 +12,9 @@
   <link rel="icon" href="/favicon.ico" sizes="32x32" type="image/x-icon">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/icons/family-hq-192.png">
-  <link rel="stylesheet" href="/style.css?v=27">
-  <script src="/app.js?v=20" defer></script>
+  <link rel="stylesheet" href="/style.css?v=28">
+  <script src="/theme.js?v=1"></script>
+  <script src="/app.js?v=21" defer></script>
   {{if .DevMode}}<script src="/dev-reload.js" defer></script>{{end}}
   <noscript><style>
     .feature-pane[hidden]{display:flex!important}

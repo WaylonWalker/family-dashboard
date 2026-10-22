@@ -28,6 +28,7 @@
   var cameraIndex = 0;
   var cameraRefreshGeneration = 0;
   var headerSensorRefreshGeneration = 0;
+  var activeSensorAlerts = {temperature:false, water:false};
   var cameraProgressTimer = null;
   var cameraCycleStartedAt = 0;
   var wakeLockSentinel = null;
@@ -316,6 +317,8 @@
       basementValue.textContent = 'Offline';
       setConnection(freezer, freezerSignal, null);
       setConnection(basement, basementSignal, null);
+      if (activeSensorAlerts.temperature) freezer.classList.add('is-alert');
+      if (activeSensorAlerts.water) basement.classList.add('is-alert');
       return;
     }
     var temperature = null;
@@ -329,6 +332,8 @@
     freezerValue.textContent = temperature && freezerOnline && typeof temperature.temperature_f === 'number' ? temperature.temperature_f.toFixed(1) + '°F' : 'Offline';
     basementValue.textContent = water && basementOnline ? (water.detected ? 'Wet' : 'Dry') : 'Offline';
     if (water && water.detected) basement.classList.add('is-alert');
+    if (activeSensorAlerts.temperature) freezer.classList.add('is-alert');
+    if (activeSensorAlerts.water) basement.classList.add('is-alert');
   }
   function refreshHeaderSensors() {
     var refreshGeneration = ++headerSensorRefreshGeneration;
@@ -343,6 +348,7 @@
     var node = document.getElementById(event.kind === 'water' ? 'header-basement' : 'header-freezer');
     var signal = node.querySelector('.sensor-signal');
     var value = node.querySelector('strong');
+    activeSensorAlerts[event.kind] = Boolean(event.active);
     node.classList.add('is-online');
     node.classList.remove('is-offline');
     signal.setAttribute('aria-label', 'Online');
@@ -485,7 +491,7 @@
   panel.addEventListener('click',function () { pause(); });
   window.setInterval(function () {
     var now = Date.now();
-    var blocked = !rotate.checked || now < holdUntil || document.hidden || !drawer.hidden;
+    var blocked = !rotate.checked || now < holdUntil || document.hidden || !drawer.hidden || document.getElementById('feature-panel').classList.contains('sensor-alert-takeover');
     if (!blocked && panel.contains(document.activeElement) && document.activeElement !== body) blocked = true;
     if (blocked) { resetRotationProgress(); return; }
     if (!rotationStartedAt) rotationStartedAt = now;
@@ -550,6 +556,7 @@
   var dismissedSensors = {};
   function clearSensorAlert() {
     if (!sensorPane) return;
+    document.getElementById('feature-panel').classList.remove('sensor-alert-takeover');
     window.clearInterval(sensorRefreshTimer);
     sensorRefreshTimer = null;
     sensorImageURL = '';
@@ -563,6 +570,8 @@
     var key = (event.kind || '') + ':' + (event.sensor || '');
     if (!event.active) { delete dismissedSensors[key]; clearSensorAlert(); return; }
     if (dismissedSensors[key]) return;
+    stopCameraRotation();
+    document.getElementById('feature-panel').classList.add('sensor-alert-takeover');
     document.querySelector('.feature-tabs').hidden = true;
     document.getElementById('feature-prev').hidden = true;
     document.getElementById('feature-next').hidden = true;
