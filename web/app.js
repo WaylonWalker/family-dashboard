@@ -544,6 +544,7 @@
     var face = document.createElement('div');
     face.className = 'camera-face ' + faceClass;
     if (!camera) return face;
+    face._cameraIndex = cameraList.indexOf(camera);
     if (!window.MediaSource || !window.WebSocket) {
       var fallback = document.createElement('img');
       fallback.src = (isKiosk ? '/kiosk/api/essentials' : '/api/essentials') + '/cameras/' + encodeURIComponent(camera) + '/snapshot?refresh=' + Date.now();
@@ -559,6 +560,7 @@
     video.setAttribute('muted', '');
     video.autoplay = true;
     video.playsInline = true;
+    video.poster = (isKiosk ? '/kiosk/api/essentials' : '/api/essentials') + '/cameras/' + encodeURIComponent(camera) + '/snapshot?refresh=' + Date.now();
     video.setAttribute('aria-label', camera.replace(/[-_]/g, ' ') + ' live camera video');
     var caption = document.createElement('figcaption');
     var nameLabel = document.createElement('span'); nameLabel.className = 'camera-name';
@@ -588,11 +590,31 @@
     grid.textContent = '';
     cameraTiles = [];
     for (var slot = 0; slot < Math.min(4, cameraList.length); slot++) {
-      var camera = cameraList[(cameraIndex + slot) % cameraList.length];
+      var frontIndex = (cameraIndex + slot) % cameraList.length;
+      var backStep = cameraList.length > 4 ? 4 : 1;
+      var camera = cameraList[frontIndex];
+      var nextCamera = cameraList[(frontIndex + backStep) % cameraList.length];
       var tile = document.createElement('figure'); tile.className = 'camera-tile camera-live-tile';
+      tile.setAttribute('role', 'button');
+      tile.setAttribute('tabindex', '0');
+      tile.setAttribute('aria-label', 'Flip to the next camera');
+      tile._flipping = false;
       var flipper = document.createElement('div'); flipper.className = 'camera-flipper';
       flipper.appendChild(makeCameraFace('camera-face-front', camera));
-      flipper.appendChild(makeCameraFace('camera-face-back', ''));
+      flipper.appendChild(makeCameraFace('camera-face-back', nextCamera));
+      (function (cameraTile) {
+        cameraTile.addEventListener('click', function (event) {
+          var target = event.target;
+          if (target && target.closest && target.closest('a,button,input,select,textarea')) return;
+          flipCameraTile(cameraTile);
+        });
+        cameraTile.addEventListener('keydown', function (event) {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            flipCameraTile(cameraTile);
+          }
+        });
+      })(tile);
       tile.appendChild(flipper); grid.appendChild(tile); cameraTiles.push(tile);
     }
   }
@@ -608,43 +630,54 @@
     }
   }
   function flipCameraGroup(generation) {
-    var grid = document.getElementById('camera-grid');
     if (generation !== cameraSessionGeneration || active !== 2 || cameraList.length <= 4 || !cameraTiles.length) return;
     var finished = 0;
     cameraTiles.forEach(function (tile) {
-      tile.classList.add('is-flipping');
-      var flipper = tile.querySelector('.camera-flipper');
-      var completed = false;
-      var onEnd = function (event) {
-        if (completed) return;
-        if (event && (event.target !== flipper || event.propertyName !== 'transform')) return;
-        if (generation !== cameraSessionGeneration || active !== 2) return;
-        completed = true;
-        flipper.removeEventListener('transitionend', onEnd);
-        var front = flipper.querySelector('.camera-face-front');
-        var back = flipper.querySelector('.camera-face-back');
-        if (front && back) {
-          stopCameraPlayer(front.querySelector('video'));
-          front.className = 'camera-face camera-face-back';
-          back.className = 'camera-face camera-face-front';
-          clearCameraFace(front);
+      flipCameraTile(tile, function () {
+        finished++;
+        if (generation === cameraSessionGeneration && active === 2 && finished === cameraTiles.length) {
+          cameraIndex = (cameraIndex + 4) % cameraList.length;
+          startCameraProgress();
+          cameraWarmTimer = window.setTimeout(function () { prepareNextCameraGroup(generation); }, 27000);
         }
-        tile.classList.add('is-resetting');
-        tile.classList.remove('is-flipping');
-        void flipper.offsetWidth;
-        window.requestAnimationFrame(function () {
-          tile.classList.remove('is-resetting');
-          finished++;
-          if (finished === cameraTiles.length) {
-            cameraIndex = (cameraIndex + 4) % cameraList.length;
-            startCameraProgress();
-            cameraWarmTimer = window.setTimeout(function () { prepareNextCameraGroup(generation); }, 27000);
-          }
-        });
-      };
-      flipper.addEventListener('transitionend', onEnd);
-      window.setTimeout(function () { onEnd(); }, 850);
+      });
     });
+  }
+  function flipCameraTile(tile, onDone) {
+    if (!tile || tile._flipping || active !== 2 || cameraList.length <= 1) return;
+    var flipper = tile.querySelector('.camera-flipper');
+    var front = flipper && flipper.querySelector('.camera-face-front');
+    var back = flipper && flipper.querySelector('.camera-face-back');
+    if (!flipper || !front || !back || back._cameraIndex < 0) return;
+    tile._flipping = true;
+    tile.classList.add('is-flipping');
+    var completed = false;
+    var onEnd = function (event) {
+      if (completed) return;
+      if (event && (event.target !== flipper || event.propertyName !== 'transform')) return;
+      completed = true;
+      flipper.removeEventListener('transitionend', onEnd);
+      if (front && back) {
+        stopCameraPlayer(front.querySelector('video'));
+        front.className = 'camera-face camera-face-back';
+        back.className = 'camera-face camera-face-front';
+        clearCameraFace(front);
+        var step = cameraList.length > 4 ? 4 : 1;
+        var nextIndex = (back._cameraIndex + step) % cameraList.length;
+        var prepared = makeCameraFace('camera-face-back', cameraList[nextIndex]);
+        front.parentNode.replaceChild(prepared, front);
+      }
+      tile.classList.add('is-resetting');
+      tile.classList.remove('is-flipping');
+      void flipper.offsetWidth;
+      window.requestAnimationFrame(function () {
+        tile.classList.remove('is-resetting');
+        tile._flipping = false;
+        if (onDone) onDone();
+      });
+    };
+    flipper.addEventListener('transitionend', onEnd);
+    window.setTimeout(function () { onEnd(); }, 850);
   }
   function refreshCameraOverview() {
     var refreshGeneration = ++cameraRefreshGeneration;
