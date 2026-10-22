@@ -1151,6 +1151,17 @@ func (a *app) routes() http.Handler {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Write(b)
 	})
+	mux.HandleFunc("GET /theme.js", func(w http.ResponseWriter, r *http.Request) {
+		b, err := webFS.ReadFile("web/theme.js")
+		if err != nil {
+			http.Error(w, "unavailable", 500)
+			return
+		}
+		w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+		w.Header().Set("Cache-Control", "public, max-age=3600")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Write(b)
+	})
 	mux.HandleFunc("GET /style.css", func(w http.ResponseWriter, r *http.Request) {
 		b, err := webFS.ReadFile("web/style.css")
 		if err != nil {
