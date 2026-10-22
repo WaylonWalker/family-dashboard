@@ -24,8 +24,11 @@
   var isKiosk = body.getAttribute('data-kiosk') === 'true';
   var wideDisplay = isKiosk || (window.matchMedia ? window.matchMedia('(min-width:1200px) and (orientation:landscape)').matches : window.innerWidth >= 1200);
   var cameraCycleTimer = null;
+  var cameraWarmTimer = null;
   var cameraList = [];
   var cameraIndex = 0;
+  var cameraTiles = [];
+  var cameraSessionGeneration = 0;
   var cameraRefreshGeneration = 0;
   var headerSensorRefreshGeneration = 0;
   var activeSensorAlerts = {temperature:false, water:false};
@@ -363,10 +366,133 @@
     refreshHeaderSensors();
   }
   function stopCameraRotation() {
+    cameraSessionGeneration++;
     if (cameraCycleTimer !== null) window.clearInterval(cameraCycleTimer);
     cameraCycleTimer = null;
+    if (cameraWarmTimer !== null) window.clearTimeout(cameraWarmTimer);
+    cameraWarmTimer = null;
     if (cameraProgressTimer !== null) window.clearInterval(cameraProgressTimer);
     cameraProgressTimer = null;
+  }
+  function stopCameraStreams() {
+    for (var i = 0; i < cameraTiles.length; i++) {
+      var faces = cameraTiles[i].querySelectorAll('.camera-face');
+      for (var j = 0; j < faces.length; j++) clearCameraFace(faces[j]);
+    }
+    cameraTiles = [];
+  }
+  function stopCameraPlayer(video) {
+    if (!video) return;
+    if (video._cameraSocket) {
+      video._cameraSocket.onclose = null;
+      video._cameraSocket.onerror = null;
+      video._cameraSocket.close();
+      video._cameraSocket = null;
+    }
+    if (video._cameraObjectURL) {
+      URL.revokeObjectURL(video._cameraObjectURL);
+      video._cameraObjectURL = '';
+    }
+    video.removeAttribute('src');
+    video.load();
+  }
+  function clearCameraFace(face) {
+    if (!face) return;
+    stopCameraPlayer(face.querySelector('video'));
+    face.textContent = '';
+  }
+  function showCameraSnapshotFallback(video, camera) {
+    if (!video || !video.parentNode || video._cameraFallback) return;
+    video._cameraFallback = true;
+    stopCameraPlayer(video);
+    var image = document.createElement('img');
+    image.src = (isKiosk ? '/kiosk/api/essentials' : '/api/essentials') + '/cameras/' + encodeURIComponent(camera) + '/snapshot?refresh=' + Date.now();
+    image.alt = camera.replace(/[-_]/g, ' ') + ' camera snapshot; live stream unavailable';
+    video.parentNode.replaceChild(image, video);
+    var caption = video.parentNode.querySelector('figcaption');
+    if (caption) caption.textContent = camera.replace(/[-_]/g, ' ') + ' · snapshot';
+  }
+  function connectCamera(video, camera) {
+    if (!window.MediaSource || !window.WebSocket) return;
+    var base = (isKiosk ? '/kiosk/api/essentials' : '/api/essentials') + '/cameras/' + encodeURIComponent(camera) + '/live';
+    var socketURL = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + base;
+    var socket = new WebSocket(socketURL);
+    video._cameraSocket = socket;
+    socket.binaryType = 'arraybuffer';
+    var mediaSource = null;
+    var sourceBuffer = null;
+    var chunks = [];
+    function appendNext() {
+      if (!sourceBuffer || sourceBuffer.updating || !chunks.length) return;
+      try { sourceBuffer.appendBuffer(chunks.shift()); }
+      catch (error) { chunks = []; }
+    }
+    socket.onopen = function () {
+      socket.send(JSON.stringify({type:'mse',value:'avc1.640029,avc1.64002A,avc1.640033,hvc1.1.6.L153.B0,mp4a.40.2,mp4a.40.5,flac,opus'}));
+    };
+    socket.onmessage = function (event) {
+      if (typeof event.data === 'string') {
+        var message;
+        try { message = JSON.parse(event.data); } catch (error) { return; }
+        if (message.type !== 'mse' || !message.value) { showCameraSnapshotFallback(video, camera); return; }
+        if (mediaSource) return;
+        mediaSource = new MediaSource();
+        video._cameraObjectURL = URL.createObjectURL(mediaSource);
+        video.src = video._cameraObjectURL;
+        mediaSource.addEventListener('sourceopen', function () {
+          if (socket.readyState !== WebSocket.OPEN) return;
+          try {
+            sourceBuffer = mediaSource.addSourceBuffer(message.value);
+            sourceBuffer.addEventListener('updateend', function () {
+              if (sourceBuffer.buffered.length && !sourceBuffer.updating) {
+                var end = sourceBuffer.buffered.end(sourceBuffer.buffered.length - 1);
+                var start = sourceBuffer.buffered.start(sourceBuffer.buffered.length - 1);
+                if (end - start > 45) {
+                  try { sourceBuffer.remove(start, end - 30); return; } catch (error) {}
+                }
+              }
+              appendNext();
+            });
+            var playResult = video.play();
+            if (playResult && playResult.catch) playResult.catch(function () {});
+            appendNext();
+          } catch (error) { socket.close(); }
+        }, {once:true});
+        return;
+      }
+      if (event.data instanceof ArrayBuffer) {
+        chunks.push(event.data);
+        appendNext();
+      }
+    };
+    socket.onerror = function () { showCameraSnapshotFallback(video, camera); };
+    socket.onclose = function () { if (video.isConnected && video._cameraSocket === socket) showCameraSnapshotFallback(video, camera); };
+  }
+  function makeCameraFace(faceClass, camera) {
+    var face = document.createElement('div');
+    face.className = 'camera-face ' + faceClass;
+    if (!camera) return face;
+    if (!window.MediaSource || !window.WebSocket) {
+      var fallback = document.createElement('img');
+      fallback.src = (isKiosk ? '/kiosk/api/essentials' : '/api/essentials') + '/cameras/' + encodeURIComponent(camera) + '/snapshot?refresh=' + Date.now();
+      fallback.alt = camera.replace(/[-_]/g, ' ') + ' camera snapshot';
+      face.appendChild(fallback);
+      var fallbackCaption = document.createElement('figcaption'); fallbackCaption.textContent = camera.replace(/[-_]/g, ' ') + ' · snapshot';
+      face.appendChild(fallbackCaption);
+      return face;
+    }
+    var video = document.createElement('video');
+    video.muted = true;
+    video.autoplay = true;
+    video.playsInline = true;
+    video.setAttribute('aria-label', camera.replace(/[-_]/g, ' ') + ' live camera video');
+    var caption = document.createElement('figcaption');
+    var nameLabel = document.createElement('span'); nameLabel.className = 'camera-name';
+    var nameText = document.createElement('span'); nameText.textContent = camera.replace(/[-_]/g, ' ');
+    nameLabel.appendChild(nameText); caption.appendChild(nameLabel);
+    face.appendChild(video); face.appendChild(caption);
+    connectCamera(video, camera);
+    return face;
   }
   function startCameraProgress() {
     cameraCycleStartedAt = Date.now();
@@ -384,22 +510,67 @@
     var grid = document.getElementById('camera-grid');
     if (!cameraList.length) return;
     cameraIndex = (index + cameraList.length) % cameraList.length;
+    stopCameraStreams();
     grid.textContent = '';
+    cameraTiles = [];
     for (var slot = 0; slot < Math.min(4, cameraList.length); slot++) {
       var camera = cameraList[(cameraIndex + slot) % cameraList.length];
-      var label = camera.replace(/[-_]/g, ' ');
-      var figure = document.createElement('figure'); figure.className = 'camera-tile';
-      var image = document.createElement('img');
-      image.src = (isKiosk ? '/kiosk/api/essentials' : '/api/essentials') + '/cameras/' + encodeURIComponent(camera) + '/snapshot?refresh=' + Date.now();
-      image.setAttribute('data-camera', camera);
-      image.alt = label + ' camera snapshot';
-      var caption = document.createElement('figcaption');
-      var nameLabel = document.createElement('span'); nameLabel.className = 'camera-name';
-      var nameText = document.createElement('span'); nameText.textContent = label;
-      nameLabel.appendChild(nameText);
-      caption.appendChild(nameLabel);
-      figure.appendChild(image); figure.appendChild(caption); grid.appendChild(figure);
+      var tile = document.createElement('figure'); tile.className = 'camera-tile camera-live-tile';
+      var flipper = document.createElement('div'); flipper.className = 'camera-flipper';
+      flipper.appendChild(makeCameraFace('camera-face-front', camera));
+      flipper.appendChild(makeCameraFace('camera-face-back', ''));
+      tile.appendChild(flipper); grid.appendChild(tile); cameraTiles.push(tile);
     }
+  }
+  function prepareNextCameraGroup(generation) {
+    if (generation !== cameraSessionGeneration || !wideDisplay || cameraList.length <= 4 || active !== 2) return;
+    for (var slot = 0; slot < cameraTiles.length; slot++) {
+      var camera = cameraList[(cameraIndex + 4 + slot) % cameraList.length];
+      var back = cameraTiles[slot].querySelector('.camera-face-back');
+      if (back && !back.querySelector('video')) {
+        var prepared = makeCameraFace('camera-face-back', camera);
+        back.parentNode.replaceChild(prepared, back);
+      }
+    }
+  }
+  function flipCameraGroup(generation) {
+    var grid = document.getElementById('camera-grid');
+    if (generation !== cameraSessionGeneration || active !== 2 || cameraList.length <= 4 || !cameraTiles.length) return;
+    var finished = 0;
+    cameraTiles.forEach(function (tile) {
+      tile.classList.add('is-flipping');
+      var flipper = tile.querySelector('.camera-flipper');
+      var completed = false;
+      var onEnd = function (event) {
+        if (completed) return;
+        if (event && (event.target !== flipper || event.propertyName !== 'transform')) return;
+        if (generation !== cameraSessionGeneration || active !== 2) return;
+        completed = true;
+        flipper.removeEventListener('transitionend', onEnd);
+        var front = flipper.querySelector('.camera-face-front');
+        var back = flipper.querySelector('.camera-face-back');
+        if (front && back) {
+          stopCameraPlayer(front.querySelector('video'));
+          front.className = 'camera-face camera-face-back';
+          back.className = 'camera-face camera-face-front';
+          clearCameraFace(front);
+        }
+        tile.classList.add('is-resetting');
+        tile.classList.remove('is-flipping');
+        void flipper.offsetWidth;
+        window.requestAnimationFrame(function () {
+          tile.classList.remove('is-resetting');
+          finished++;
+          if (finished === cameraTiles.length) {
+            cameraIndex = (cameraIndex + 4) % cameraList.length;
+            startCameraProgress();
+            cameraWarmTimer = window.setTimeout(function () { prepareNextCameraGroup(generation); }, 27000);
+          }
+        });
+      };
+      flipper.addEventListener('transitionend', onEnd);
+      window.setTimeout(function () { onEnd(); }, 850);
+    });
   }
   function refreshCameraOverview() {
     var refreshGeneration = ++cameraRefreshGeneration;
@@ -408,6 +579,7 @@
       if (refreshGeneration !== cameraRefreshGeneration || active !== 2) return;
       var grid = document.getElementById('camera-grid');
       stopCameraRotation();
+      stopCameraStreams();
       if (error) { cameraList = []; grid.textContent = 'Camera views are unavailable.'; return; }
       var cameras = data.cameras || [];
       cameraList = cameras;
@@ -417,23 +589,17 @@
         var none = document.createElement('p'); none.className = 'camera-view-message'; none.textContent = 'No cameras are configured.'; grid.appendChild(none); return;
       }
       if (wideDisplay) {
+        grid.setAttribute('data-live-cameras', 'true');
         showCameraGrid(cameraIndex);
         startCameraProgress();
-        cameraCycleTimer = window.setInterval(function () {
-          if (cameraList.length > 4) {
-            showCameraGrid(cameraIndex + 4);
-            startCameraProgress();
-          }
-          else {
-            var images = document.querySelectorAll('#camera-grid .camera-tile img');
-            for (var i = 0; i < images.length; i++) {
-              images[i].src = essentialsBase + '/cameras/' + encodeURIComponent(images[i].getAttribute('data-camera')) + '/snapshot?refresh=' + Date.now();
-            }
-            startCameraProgress();
-          }
-        }, 30000);
+        if (cameraList.length > 4) {
+          var generation = cameraSessionGeneration;
+          cameraWarmTimer = window.setTimeout(function () { prepareNextCameraGroup(generation); }, 27000);
+          cameraCycleTimer = window.setInterval(function () { flipCameraGroup(generation); }, 30000);
+        }
         return;
       }
+      grid.removeAttribute('data-live-cameras');
       cameras.forEach(function (camera) {
         var figure = document.createElement('figure'); figure.className = 'camera-tile';
         var image = document.createElement('img');
@@ -458,7 +624,7 @@
     active = (index + panes.length) % panes.length;
     document.getElementById('feature-panel').classList.toggle('cameras-focus',wideDisplay && active===2);
     document.querySelector('.dashboard').classList.toggle('cameras-selected',wideDisplay && active===2);
-    if (active !== 2) { cameraRefreshGeneration++; stopCameraRotation(); }
+    if (active !== 2) { cameraRefreshGeneration++; stopCameraRotation(); stopCameraStreams(); }
     for (var i=0;i<panes.length;i++) {
       var visible=i===active;
       panes[i].hidden=!visible;
@@ -491,7 +657,7 @@
   panel.addEventListener('click',function () { pause(); });
   window.setInterval(function () {
     var now = Date.now();
-    var blocked = !rotate.checked || now < holdUntil || document.hidden || !drawer.hidden || document.getElementById('feature-panel').classList.contains('sensor-alert-takeover');
+    var blocked = !rotate.checked || now < holdUntil || document.hidden || !drawer.hidden || document.getElementById('feature-panel').classList.contains('sensor-alert-active');
     if (!blocked && panel.contains(document.activeElement) && document.activeElement !== body) blocked = true;
     if (blocked) { resetRotationProgress(); return; }
     if (!rotationStartedAt) rotationStartedAt = now;
@@ -556,7 +722,7 @@
   var dismissedSensors = {};
   function clearSensorAlert() {
     if (!sensorPane) return;
-    document.getElementById('feature-panel').classList.remove('sensor-alert-takeover');
+    document.getElementById('feature-panel').classList.remove('sensor-alert-active');
     window.clearInterval(sensorRefreshTimer);
     sensorRefreshTimer = null;
     sensorImageURL = '';
@@ -570,8 +736,10 @@
     var key = (event.kind || '') + ':' + (event.sensor || '');
     if (!event.active) { delete dismissedSensors[key]; clearSensorAlert(); return; }
     if (dismissedSensors[key]) return;
+    cameraRefreshGeneration++;
     stopCameraRotation();
-    document.getElementById('feature-panel').classList.add('sensor-alert-takeover');
+    stopCameraStreams();
+    document.getElementById('feature-panel').classList.add('sensor-alert-active');
     document.querySelector('.feature-tabs').hidden = true;
     document.getElementById('feature-prev').hidden = true;
     document.getElementById('feature-next').hidden = true;

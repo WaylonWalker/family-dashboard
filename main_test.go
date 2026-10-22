@@ -8,6 +8,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 func TestDashboardAndTaskPersistence(t *testing.T) {
@@ -108,6 +110,81 @@ func TestEssentialsAPIsProxyCurrentSensorsAndAllFrigateCameras(t *testing.T) {
 	frameSnapshot := served(a, frameRequest)
 	if frameSnapshot.Code != http.StatusOK || frameSnapshot.Body.String() != "jpeg-snapshot" {
 		t.Fatalf("paired TV snapshot status %d body %s", frameSnapshot.Code, frameSnapshot.Body.String())
+	}
+}
+
+func TestEssentialsCameraLiveProxiesMSEStream(t *testing.T) {
+	t.Setenv("FAMILY_AUTH_MODE", "off")
+	t.Setenv("FAMILY_TEST_PAIRING", "")
+	streamName := make(chan string, 1)
+	frigateUpgrader := websocket.Upgrader{CheckOrigin: func(*http.Request) bool { return true }}
+	frigateServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/api/config":
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"cameras":{"freezer":{},"front-door":{}}}`))
+		case "/api/go2rtc/streams":
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"freezer":{"producers":[{}]},"front-door_main":{"producers":[{}]}}`))
+		case "/live/mse/api/ws":
+			streamName <- r.URL.Query().Get("src")
+			conn, err := frigateUpgrader.Upgrade(w, r, nil)
+			if err != nil {
+				return
+			}
+			defer conn.Close()
+			if _, _, err := conn.ReadMessage(); err != nil {
+				return
+			}
+			_ = conn.WriteJSON(map[string]string{"type": "mse", "value": `video/mp4; codecs="avc1.64001F"`})
+			_ = conn.WriteMessage(websocket.BinaryMessage, []byte("init-segment"))
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer frigateServer.Close()
+	t.Setenv("FRIGATE_BASE_URL", frigateServer.URL)
+	a, err := newApp(filepath.Join(t.TempDir(), "tasks.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	dashboardServer := httptest.NewServer(a.routes())
+	defer dashboardServer.Close()
+	wsURL := "ws" + strings.TrimPrefix(dashboardServer.URL, "http") + "/api/essentials/cameras/front-door/live"
+	client, handshake, err := websocket.DefaultDialer.Dial(wsURL, nil)
+	if err != nil {
+		if handshake != nil {
+			t.Fatalf("dial dashboard live stream: %v (status %s)", err, handshake.Status)
+		}
+		t.Fatalf("dial dashboard live stream: %v", err)
+	}
+	defer client.Close()
+	if err := client.WriteJSON(map[string]string{"type": "mse", "value": "avc1.64001F"}); err != nil {
+		t.Fatal(err)
+	}
+	var response map[string]string
+	if err := client.ReadJSON(&response); err != nil {
+		t.Fatalf("read MSE response: %v", err)
+	}
+	if response["type"] != "mse" || !strings.Contains(response["value"], "video/mp4") {
+		t.Fatalf("unexpected MSE response: %#v", response)
+	}
+	messageType, message, err := client.ReadMessage()
+	if err != nil || messageType != websocket.BinaryMessage || string(message) != "init-segment" {
+		t.Fatalf("read stream segment: type %d body %q err %v", messageType, message, err)
+	}
+	if got := <-streamName; got != "front-door_main" {
+		t.Fatalf("Frigate stream name = %q, want front-door_main", got)
+	}
+	attackerOrigin := http.Header{"Origin": []string{"https://attacker.invalid"}}
+	_, handshake, err = websocket.DefaultDialer.Dial(wsURL, attackerOrigin)
+	if err == nil || handshake == nil || handshake.StatusCode != http.StatusForbidden {
+		t.Fatalf("cross-origin websocket status = %v, error = %v; want 403", handshake, err)
+	}
+	unknownURL := "ws" + strings.TrimPrefix(dashboardServer.URL, "http") + "/api/essentials/cameras/not-a-camera/live"
+	_, handshake, err = websocket.DefaultDialer.Dial(unknownURL, nil)
+	if err == nil || handshake == nil || handshake.StatusCode != http.StatusNotFound {
+		t.Fatalf("unknown camera websocket status = %v, error = %v; want 404", handshake, err)
 	}
 }
 

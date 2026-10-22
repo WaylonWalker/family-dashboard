@@ -941,6 +941,128 @@ func (a *app) essentialsCameraSnapshot(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (a *app) essentialsCameraLive(w http.ResponseWriter, r *http.Request) {
+	if !websocketOriginAllowed(r) {
+		http.Error(w, "websocket origin is not allowed", http.StatusForbidden)
+		return
+	}
+	camera := r.PathValue("camera")
+	if camera == "" {
+		parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+		offset := 0
+		if len(parts) == 6 && parts[0] == "kiosk" {
+			offset = 1
+		}
+		if len(parts) == offset+5 && parts[offset] == "api" && parts[offset+1] == "essentials" && parts[offset+2] == "cameras" && parts[offset+4] == "live" {
+			camera, _ = url.PathUnescape(parts[offset+3])
+		}
+	}
+	if camera == "" || strings.ContainsAny(camera, "/\\") {
+		http.Error(w, "invalid camera", http.StatusBadRequest)
+		return
+	}
+	configResponse, err := a.frigateRequest(r, "/api/config")
+	if err != nil {
+		http.Error(w, "Frigate camera list is unavailable", http.StatusBadGateway)
+		return
+	}
+	defer configResponse.Body.Close()
+	if configResponse.StatusCode != http.StatusOK {
+		http.Error(w, "Frigate camera list is unavailable", http.StatusBadGateway)
+		return
+	}
+	var config frigateConfig
+	if err := json.NewDecoder(io.LimitReader(configResponse.Body, 2<<20)).Decode(&config); err != nil {
+		http.Error(w, "Frigate camera list is invalid", http.StatusBadGateway)
+		return
+	}
+	if _, ok := config.Cameras[camera]; !ok {
+		http.Error(w, "camera is not configured", http.StatusNotFound)
+		return
+	}
+	response, err := a.frigateRequest(r, "/api/go2rtc/streams")
+	if err != nil {
+		http.Error(w, "camera stream is unavailable", http.StatusBadGateway)
+		return
+	}
+	defer response.Body.Close()
+	if response.StatusCode != http.StatusOK {
+		http.Error(w, "camera stream is unavailable", http.StatusBadGateway)
+		return
+	}
+	var streams map[string]json.RawMessage
+	if err := json.NewDecoder(io.LimitReader(response.Body, 2<<20)).Decode(&streams); err != nil {
+		http.Error(w, "camera streams are invalid", http.StatusBadGateway)
+		return
+	}
+	stream := camera
+	if _, ok := streams[stream]; !ok {
+		stream += "_main"
+	}
+	if _, ok := streams[stream]; !ok {
+		http.Error(w, "camera live stream is not configured", http.StatusNotFound)
+		return
+	}
+
+	baseURL := strings.TrimRight(strings.TrimSpace(os.Getenv("FRIGATE_BASE_URL")), "/")
+	upstreamURL, err := url.Parse(baseURL)
+	if err != nil || (upstreamURL.Scheme != "http" && upstreamURL.Scheme != "https") {
+		http.Error(w, "Frigate is not configured", http.StatusServiceUnavailable)
+		return
+	}
+	if upstreamURL.Scheme == "https" {
+		upstreamURL.Scheme = "wss"
+	} else {
+		upstreamURL.Scheme = "ws"
+	}
+	upstreamURL.Path = strings.TrimRight(upstreamURL.Path, "/") + "/live/mse/api/ws"
+	upstreamURL.RawQuery = url.Values{"src": []string{stream}}.Encode()
+	upstreamHeader := http.Header{"Origin": []string{strings.TrimRight(strings.TrimSpace(os.Getenv("FRIGATE_BASE_URL")), "/")}}
+	upstream, _, err := (&websocket.Dialer{HandshakeTimeout: 8 * time.Second}).DialContext(r.Context(), upstreamURL.String(), upstreamHeader)
+	if err != nil {
+		http.Error(w, "camera stream is unavailable", http.StatusBadGateway)
+		return
+	}
+	defer upstream.Close()
+
+	downstream, err := (&websocket.Upgrader{
+		ReadBufferSize:  4096,
+		WriteBufferSize: 4096,
+		CheckOrigin:     websocketOriginAllowed,
+	}).Upgrade(w, r, nil)
+	if err != nil {
+		return
+	}
+	defer downstream.Close()
+	downstream.SetReadLimit(1 << 20)
+	upstream.SetReadLimit(16 << 20)
+	done := make(chan struct{}, 2)
+	pipe := func(dst, src *websocket.Conn) {
+		for {
+			messageType, message, err := src.ReadMessage()
+			if err != nil {
+				break
+			}
+			if err := dst.WriteMessage(messageType, message); err != nil {
+				break
+			}
+		}
+		done <- struct{}{}
+	}
+	go pipe(upstream, downstream)
+	go pipe(downstream, upstream)
+	<-done
+}
+
+func websocketOriginAllowed(r *http.Request) bool {
+	origin := r.Header.Get("Origin")
+	if origin == "" {
+		return true
+	}
+	parsed, err := url.Parse(origin)
+	return err == nil && (parsed.Scheme == "http" || parsed.Scheme == "https") && strings.EqualFold(parsed.Host, r.Host)
+}
+
 func (a *app) streamFrigateEvents(w http.ResponseWriter, r *http.Request) {
 	if !a.human(r, "family-hq:read") && !a.frame(r) {
 		http.Error(w, "Family HQ access is required", http.StatusForbidden)
@@ -1010,9 +1132,11 @@ func (a *app) routes() http.Handler {
 	mux.HandleFunc("GET /api/essentials/sensors", a.requireDashboardReader(a.essentialsSensors))
 	mux.HandleFunc("GET /api/essentials/cameras", a.requireDashboardReader(a.essentialsCameras))
 	mux.HandleFunc("GET /api/essentials/cameras/{camera}/snapshot", a.requireDashboardReader(a.essentialsCameraSnapshot))
+	mux.HandleFunc("GET /api/essentials/cameras/{camera}/live", a.requireDashboardReader(a.essentialsCameraLive))
 	mux.HandleFunc("GET /kiosk/api/essentials/sensors", a.requireDashboardReader(a.essentialsSensors))
 	mux.HandleFunc("GET /kiosk/api/essentials/cameras", a.requireDashboardReader(a.essentialsCameras))
 	mux.HandleFunc("GET /kiosk/api/essentials/cameras/{camera}/snapshot", a.requireDashboardReader(a.essentialsCameraSnapshot))
+	mux.HandleFunc("GET /kiosk/api/essentials/cameras/{camera}/live", a.requireDashboardReader(a.essentialsCameraLive))
 	mux.HandleFunc("GET /og", a.openGraphImage)
 	mux.HandleFunc("GET /manifest.webmanifest", func(w http.ResponseWriter, r *http.Request) {
 		b, err := webFS.ReadFile("web/manifest.webmanifest")
