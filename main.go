@@ -380,6 +380,10 @@ type frigateEvent struct {
 	Active       bool    `json:"active,omitempty"`
 }
 
+type frigateConfig struct {
+	Cameras map[string]json.RawMessage `json:"cameras"`
+}
+
 func newApp(path string) (*app, error) {
 	store, err := openStore(path)
 	if err != nil {
@@ -789,6 +793,109 @@ func (a *app) receiveFrigateEvent(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 }
 
+func (a *app) essentialsSensors(w http.ResponseWriter, r *http.Request) {
+	backendURL := strings.TrimRight(strings.TrimSpace(os.Getenv("SENSOR_BACKEND_URL")), "/")
+	if backendURL == "" || a.frigateToken == "" {
+		http.Error(w, "sensor service is not configured", http.StatusServiceUnavailable)
+		return
+	}
+	request, err := http.NewRequestWithContext(r.Context(), http.MethodGet, backendURL, nil)
+	if err != nil {
+		http.Error(w, "sensor service is unavailable", http.StatusBadGateway)
+		return
+	}
+	request.Header.Set("Authorization", "Bearer "+a.frigateToken)
+	response, err := (&http.Client{Timeout: 8 * time.Second}).Do(request)
+	if err != nil {
+		http.Error(w, "sensor service is unavailable", http.StatusBadGateway)
+		return
+	}
+	defer response.Body.Close()
+	if response.StatusCode != http.StatusOK {
+		http.Error(w, "sensor service is unavailable", http.StatusBadGateway)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Cache-Control", "private, no-store")
+	if _, err := io.Copy(w, io.LimitReader(response.Body, 1<<20)); err != nil {
+		log.Printf("copy sensor readings: %v", err)
+	}
+}
+
+func (a *app) frigateRequest(r *http.Request, endpoint string) (*http.Response, error) {
+	baseURL := strings.TrimRight(strings.TrimSpace(os.Getenv("FRIGATE_BASE_URL")), "/")
+	if baseURL == "" {
+		return nil, errors.New("Frigate is not configured")
+	}
+	request, err := http.NewRequestWithContext(r.Context(), http.MethodGet, baseURL+endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+	return (&http.Client{Timeout: 8 * time.Second}).Do(request)
+}
+
+func (a *app) essentialsCameras(w http.ResponseWriter, r *http.Request) {
+	response, err := a.frigateRequest(r, "/api/config")
+	if err != nil {
+		http.Error(w, "Frigate camera list is unavailable", http.StatusBadGateway)
+		return
+	}
+	defer response.Body.Close()
+	if response.StatusCode != http.StatusOK {
+		http.Error(w, "Frigate camera list is unavailable", http.StatusBadGateway)
+		return
+	}
+	var config frigateConfig
+	if err := json.NewDecoder(io.LimitReader(response.Body, 2<<20)).Decode(&config); err != nil {
+		http.Error(w, "Frigate camera list is invalid", http.StatusBadGateway)
+		return
+	}
+	cameras := make([]string, 0, len(config.Cameras))
+	for camera := range config.Cameras {
+		if camera != "" && !strings.ContainsAny(camera, "/\\") {
+			cameras = append(cameras, camera)
+		}
+	}
+	sort.Strings(cameras)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Cache-Control", "private, no-store")
+	_ = json.NewEncoder(w).Encode(map[string][]string{"cameras": cameras})
+}
+
+func (a *app) essentialsCameraSnapshot(w http.ResponseWriter, r *http.Request) {
+	camera := r.PathValue("camera")
+	if camera == "" {
+		parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+		offset := 0
+		if len(parts) == 6 && parts[0] == "kiosk" {
+			offset = 1
+		}
+		if len(parts) == offset+5 && parts[offset] == "api" && parts[offset+1] == "essentials" && parts[offset+2] == "cameras" && parts[offset+4] == "snapshot" {
+			camera, _ = url.PathUnescape(parts[offset+3])
+		}
+	}
+	if camera == "" || strings.ContainsAny(camera, "/\\") {
+		http.Error(w, "invalid camera", http.StatusBadRequest)
+		return
+	}
+	response, err := a.frigateRequest(r, "/api/"+url.PathEscape(camera)+"/latest.jpg")
+	if err != nil {
+		http.Error(w, "camera snapshot is unavailable", http.StatusBadGateway)
+		return
+	}
+	defer response.Body.Close()
+	if response.StatusCode != http.StatusOK {
+		http.Error(w, "camera snapshot is unavailable", http.StatusBadGateway)
+		return
+	}
+	w.Header().Set("Content-Type", "image/jpeg")
+	w.Header().Set("Cache-Control", "private, no-store, no-cache, must-revalidate, max-age=0")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	if _, err := io.Copy(w, io.LimitReader(response.Body, 8<<20)); err != nil {
+		log.Printf("copy Frigate snapshot camera=%s: %v", camera, err)
+	}
+}
+
 func (a *app) streamFrigateEvents(w http.ResponseWriter, r *http.Request) {
 	if !a.human(r, "family-hq:read") && !a.frame(r) {
 		http.Error(w, "Family HQ access is required", http.StatusForbidden)
@@ -855,6 +962,12 @@ func (a *app) routes() http.Handler {
 	}))
 	mux.HandleFunc("POST /api/frigate/events", a.receiveFrigateEvent)
 	mux.HandleFunc("GET /api/frigate/events/stream", a.requireHuman("family-hq:read", a.streamFrigateEvents))
+	mux.HandleFunc("GET /api/essentials/sensors", a.requireDashboardReader(a.essentialsSensors))
+	mux.HandleFunc("GET /api/essentials/cameras", a.requireDashboardReader(a.essentialsCameras))
+	mux.HandleFunc("GET /api/essentials/cameras/{camera}/snapshot", a.requireDashboardReader(a.essentialsCameraSnapshot))
+	mux.HandleFunc("GET /kiosk/api/essentials/sensors", a.requireDashboardReader(a.essentialsSensors))
+	mux.HandleFunc("GET /kiosk/api/essentials/cameras", a.requireDashboardReader(a.essentialsCameras))
+	mux.HandleFunc("GET /kiosk/api/essentials/cameras/{camera}/snapshot", a.requireDashboardReader(a.essentialsCameraSnapshot))
 	mux.HandleFunc("GET /og", a.openGraphImage)
 	mux.HandleFunc("GET /manifest.webmanifest", func(w http.ResponseWriter, r *http.Request) {
 		b, err := webFS.ReadFile("web/manifest.webmanifest")

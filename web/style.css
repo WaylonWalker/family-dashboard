@@ -43,6 +43,27 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
 @media (max-width:900px){.shell{padding:16px}.dashboard{grid-template-columns:1fr}.calendar,.feature{min-height:470px;overflow:visible}.dashboard{flex:none}.feature{min-height:480px}.event-list,.weather-timeline,.task-list{overflow:visible;overscroll-behavior:auto;flex:initial;min-height:auto}.feature-window{touch-action:auto}}
 @media (max-width:520px){.shell{padding:12px;gap:11px}.brand h1{font-size:23px}.brand p{font-size:10px}.brand-icon{width:40px;height:40px}.header{grid-template-columns:minmax(0,1fr) auto;row-gap:8px;column-gap:6px}.brand{gap:8px}.brand h1{font-size:20px}.brand p{display:none}.header-right{gap:7px}.date-block{max-width:none;padding-right:7px;font-size:8px;letter-spacing:.06em}.clock-block{grid-column:1/-1;grid-row:2;gap:5px}.clock-block strong{font-size:38px;letter-spacing:-1.5px}.clock-block span{font-size:12px}.calendar,.feature{padding:15px;border-radius:14px}.panel h2{font-size:21px}.week-strip{gap:4px}.day{min-height:60px}.day strong{font-size:19px}.day span{font-size:10px}.connection{font-size:9px;padding:5px}.weather-now{padding:10px 12px}.weather-now-main{display:grid;grid-template-columns:27px auto minmax(0,1fr);align-items:center;gap:7px 9px}.weather-now-icon{width:26px;height:26px;grid-column:1;grid-row:1}.weather-now-temp{grid-column:2;grid-row:1;font-size:35px}.weather-now-copy{display:contents}.weather-now-copy strong{grid-column:3;grid-row:1;font-size:12px;overflow-wrap:anywhere}.weather-now-copy span{grid-column:3;grid-row:2;font-size:10px;line-height:1.25}.weather-now-copy small{grid-column:1/-1;grid-row:3;margin-top:3px;padding-top:7px;border-top:1px solid var(--line);font-size:11px;line-height:1.3}.weather-slot{grid-template-columns:56px 71px minmax(0,1fr);gap:5px}.wx-icon{width:21px;height:21px}.weather-slot-temp strong{font-size:20px}.weather-slot-wear strong{font-size:11px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+.sensors-overview{gap:9px;overflow:hidden}
+.sensors-overview-head,.camera-section-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sensors-overview-head strong{font-size:18px;letter-spacing:-.3px}
+.sensors-overview-head .eyebrow{margin-bottom:2px}
+.sensors-overview-head>span,.camera-section-head>span{color:var(--muted);font-size:11px;white-space:nowrap}
+.sensor-reading-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.sensor-reading-card{display:flex;min-width:0;flex-direction:column;gap:2px;padding:8px 10px;border-left:3px solid var(--accent);border-radius:8px;background:var(--soft)}
+.sensor-reading-card.is-alert{border-left-color:#b43d32}
+.sensor-reading-label{overflow:hidden;color:var(--muted);font-size:10px;font-weight:750;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}
+.sensor-reading-value{overflow:hidden;font-size:17px;font-variant-numeric:tabular-nums;text-overflow:ellipsis;white-space:nowrap}
+.sensor-reading-card.is-alert .sensor-reading-value{color:#b43d32;font-size:13px}
+.sensor-reading-card small{overflow:hidden;color:var(--muted);font-size:10px;text-overflow:ellipsis;white-space:nowrap}
+.camera-section-head{padding-top:3px;border-top:1px solid var(--line)}
+.camera-section-head strong{font-size:12px;letter-spacing:.03em;text-transform:uppercase}
+.camera-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;max-height:240px;min-height:0;overflow:auto;overscroll-behavior:contain}
+.camera-tile{position:relative;min-width:0;min-height:70px;margin:0;overflow:hidden;border-radius:9px;background:#17201d}
+.camera-tile img{display:block;width:100%;height:clamp(72px,11vh,112px);object-fit:cover}
+.camera-tile figcaption{position:absolute;right:5px;bottom:5px;left:5px;overflow:hidden;padding:3px 6px;border-radius:5px;background:#101510bf;color:#fff;font-size:10px;font-weight:750;text-overflow:ellipsis;text-transform:capitalize;white-space:nowrap}
+.sensor-view-message{grid-column:1/-1;margin:3px 0;color:var(--muted);font-size:12px}
+@media(max-width:520px){.sensor-reading-list{grid-template-columns:repeat(2,minmax(0,1fr))}.camera-grid{gap:5px;max-height:none;overflow:visible}.camera-tile img{height:100px}}
 /* A short panel slide; disabled automatically when reduced motion is requested. */
 @keyframes panel-arrive{from{opacity:.75;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
 @media(prefers-reduced-motion:no-preference){.feature-pane.is-active{animation:panel-arrive .24s ease-out both}}

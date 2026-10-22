@@ -24,7 +24,7 @@ func TestDashboardAndTaskPersistence(t *testing.T) {
 	h := a.routes()
 	r := httptest.NewRecorder()
 	h.ServeHTTP(r, httptest.NewRequest(http.MethodGet, "/dashboard", nil))
-	if r.Code != 200 || !strings.Contains(r.Body.String(), "SCHOOL CALENDAR") || !strings.Contains(r.Body.String(), "School morning") || !strings.Contains(r.Body.String(), "Family tasks") {
+	if r.Code != 200 || !strings.Contains(r.Body.String(), "SCHOOL CALENDAR") || !strings.Contains(r.Body.String(), "School morning") || !strings.Contains(r.Body.String(), "Family tasks") || !strings.Contains(r.Body.String(), "Sensors") {
 		t.Fatalf("bad dashboard: status %d", r.Code)
 	}
 	values := url.Values{"action": {"add"}, "title": {"Buy milk"}, "csrf": {a.csrf}}
@@ -56,6 +56,58 @@ func TestDashboardAndTaskPersistence(t *testing.T) {
 	}
 	if len(a.store.list()) != 3 {
 		t.Fatal("delete did not persist")
+	}
+}
+
+func TestEssentialsAPIsProxyCurrentSensorsAndAllFrigateCameras(t *testing.T) {
+	sensorServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Authorization") != "Bearer sensor-test-token" {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"readings":[{"kind":"temperature","name":"freezer","temperature_f":12.5}],"updated_at":"2026-10-21T12:00:00Z"}`))
+	}))
+	defer sensorServer.Close()
+	frigateServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/api/config":
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"cameras":{"front-door":{},"freezer":{}}}`))
+		case "/api/freezer/latest.jpg":
+			w.Header().Set("Content-Type", "image/jpeg")
+			_, _ = w.Write([]byte("jpeg-snapshot"))
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer frigateServer.Close()
+	t.Setenv("SENSOR_BACKEND_URL", sensorServer.URL)
+	t.Setenv("FRIGATE_BASE_URL", frigateServer.URL)
+	a := proxyApp(t)
+	a.frigateToken = "sensor-test-token"
+
+	readings := served(a, humanReq(http.MethodGet, "/api/essentials/sensors", "", "family-hq:read"))
+	if readings.Code != http.StatusOK || !strings.Contains(readings.Body.String(), `"temperature_f":12.5`) {
+		t.Fatalf("sensor response status %d body %s", readings.Code, readings.Body.String())
+	}
+	cameras := served(a, humanReq(http.MethodGet, "/api/essentials/cameras", "", "family-hq:read"))
+	if cameras.Code != http.StatusOK || !strings.Contains(cameras.Body.String(), "front-door") || !strings.Contains(cameras.Body.String(), "freezer") {
+		t.Fatalf("camera response status %d body %s", cameras.Code, cameras.Body.String())
+	}
+	snapshot := served(a, humanReq(http.MethodGet, "/api/essentials/cameras/freezer/snapshot", "", "family-hq:read"))
+	if snapshot.Code != http.StatusOK || snapshot.Header().Get("Content-Type") != "image/jpeg" || snapshot.Body.String() != "jpeg-snapshot" {
+		t.Fatalf("snapshot response status %d type %q body %s", snapshot.Code, snapshot.Header().Get("Content-Type"), snapshot.Body.String())
+	}
+	_, frameToken, err := a.devices.create("test-tv", "test-user", a.now())
+	if err != nil {
+		t.Fatal(err)
+	}
+	frameRequest := httptest.NewRequest(http.MethodGet, "/kiosk/api/essentials/cameras/freezer/snapshot", nil)
+	frameRequest.AddCookie(&http.Cookie{Name: deviceCookieName, Value: frameToken})
+	frameSnapshot := served(a, frameRequest)
+	if frameSnapshot.Code != http.StatusOK || frameSnapshot.Body.String() != "jpeg-snapshot" {
+		t.Fatalf("paired TV snapshot status %d body %s", frameSnapshot.Code, frameSnapshot.Body.String())
 	}
 }
 

@@ -414,6 +414,16 @@ func (a *app) requireHuman(scope string, next http.HandlerFunc) http.HandlerFunc
 		next(w, r)
 	}
 }
+
+func (a *app) requireDashboardReader(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if !a.human(r, "family-hq:read") && !a.frame(r) {
+			http.Error(w, "Family HQ access is required", http.StatusForbidden)
+			return
+		}
+		next(w, r)
+	}
+}
 func (a *app) frame(r *http.Request) bool {
 	if !a.auth.enabled && os.Getenv("FAMILY_TEST_PAIRING") != "1" {
 		return true

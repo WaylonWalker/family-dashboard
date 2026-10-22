@@ -4,8 +4,9 @@
   var root = document.documentElement;
   var body = document.body;
   var panel = document.getElementById('feature-window');
-  var panes = [document.getElementById('pane-weather'), document.getElementById('pane-tasks')];
-  var tabs = [document.getElementById('tab-weather'), document.getElementById('tab-tasks')];
+  var panes = [document.getElementById('pane-weather'), document.getElementById('pane-tasks'), document.getElementById('pane-sensors')];
+  var tabs = [document.getElementById('tab-weather'), document.getElementById('tab-tasks'), document.getElementById('tab-sensors')];
+  var paneBaseClasses = ['feature-pane','feature-pane','feature-pane sensors-overview'];
   var pager = document.querySelectorAll('.pager-dot');
   var rotationProgress = document.getElementById('rotation-progress');
   var name = document.getElementById('feature-title');
@@ -259,6 +260,85 @@
     rotationProgress.setAttribute('aria-valuetext', 'Auto-switch paused');
   }
   function pause() { holdUntil = Date.now() + 120000; resetRotationProgress(); refreshHint(); }
+  function requestJSON(path, done) {
+    var request = new XMLHttpRequest();
+    request.open('GET', path, true);
+    request.setRequestHeader('Accept', 'application/json');
+    request.onload = function () {
+      if (request.status < 200 || request.status >= 300) { done(new Error('Request failed')); return; }
+      try { done(null, JSON.parse(request.responseText)); }
+      catch (_) { done(new Error('Invalid response')); }
+    };
+    request.onerror = function () { done(new Error('Network error')); };
+    request.send();
+  }
+  function sensorLabel(reading) {
+    if (reading.kind === 'temperature') return 'Freezer';
+    if (reading.kind === 'water') return 'Basement water';
+    return (reading.name || 'Sensor').replace(/[-_]/g, ' ');
+  }
+  function renderSensorReadings(readings) {
+    var list = document.getElementById('sensor-reading-list');
+    list.textContent = '';
+    if (!readings.length) {
+      var empty = document.createElement('p');
+      empty.className = 'sensor-view-message';
+      empty.textContent = 'No sensor readings have arrived yet.';
+      list.appendChild(empty);
+      return;
+    }
+    readings.forEach(function (reading) {
+      var card = document.createElement('article');
+      card.className = 'sensor-reading-card' + ((reading.kind === 'water' && reading.detected) || (reading.kind === 'device' && reading.battery_low) ? ' is-alert' : '');
+      var label = document.createElement('span');
+      label.className = 'sensor-reading-label';
+      label.textContent = sensorLabel(reading);
+      var value = document.createElement('strong');
+      value.className = 'sensor-reading-value';
+      var detail = document.createElement('small');
+      if (reading.kind === 'temperature') {
+        value.textContent = Number(reading.temperature_f).toFixed(1) + ' °F';
+        detail.textContent = [reading.humidity == null ? '' : 'Humidity ' + Math.round(reading.humidity) + '%', reading.battery == null ? '' : 'Battery ' + Math.round(reading.battery) + '%'].filter(Boolean).join(' · ') || 'Freezer temperature';
+      } else if (reading.kind === 'water') {
+        value.textContent = reading.detected ? 'WATER DETECTED' : 'Dry';
+        detail.textContent = [reading.battery == null ? '' : 'Battery ' + Math.round(reading.battery) + '%', reading.linkquality == null ? '' : 'Signal ' + reading.linkquality].filter(Boolean).join(' · ') || 'Basement leak sensor';
+      } else {
+        value.textContent = reading.battery == null ? 'Online' : Math.round(reading.battery) + '%';
+        detail.textContent = [reading.battery_low ? 'Low battery' : '', reading.linkquality == null ? '' : 'Signal ' + reading.linkquality].filter(Boolean).join(' · ') || 'Battery';
+      }
+      if (reading.updated_at) detail.textContent += ' · seen ' + new Date(reading.updated_at).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+      card.appendChild(label); card.appendChild(value); card.appendChild(detail); list.appendChild(card);
+    });
+  }
+  function refreshSensorOverview() {
+    var essentialsBase = isKiosk ? '/kiosk/api/essentials' : '/api/essentials';
+    requestJSON(essentialsBase + '/sensors', function (error, data) {
+      var updated = document.getElementById('sensors-updated');
+      if (error) { updated.textContent = 'Sensor service unavailable'; return; }
+      renderSensorReadings(data.readings || []);
+      updated.textContent = 'Updated ' + new Date(data.updated_at).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+    });
+    requestJSON(essentialsBase + '/cameras', function (error, data) {
+      var grid = document.getElementById('camera-grid');
+      var count = document.getElementById('camera-count');
+      if (error) { count.textContent = 'Unavailable'; grid.textContent = 'Frigate camera list is unavailable.'; return; }
+      var cameras = data.cameras || [];
+      count.textContent = cameras.length + (cameras.length === 1 ? ' camera' : ' cameras');
+      grid.textContent = '';
+      if (!cameras.length) {
+        var none = document.createElement('p'); none.className = 'sensor-view-message'; none.textContent = 'No cameras are configured in Frigate.'; grid.appendChild(none); return;
+      }
+      cameras.forEach(function (camera) {
+        var figure = document.createElement('figure'); figure.className = 'camera-tile';
+        var image = document.createElement('img');
+        image.src = essentialsBase + '/cameras/' + encodeURIComponent(camera) + '/snapshot?refresh=' + Date.now();
+        image.alt = camera.replace(/[-_]/g, ' ') + ' camera snapshot';
+        image.loading = 'lazy';
+        var caption = document.createElement('figcaption'); caption.textContent = camera.replace(/[-_]/g, ' ');
+        figure.appendChild(image); figure.appendChild(caption); grid.appendChild(figure);
+      });
+    });
+  }
   function refreshHint() {
     var remaining = Math.max(0, Math.ceil((holdUntil-Date.now())/1000));
     if (!rotate.checked) hint.textContent = 'Auto-switch off · swipe or tap to change';
@@ -272,13 +352,14 @@
     for (var i=0;i<panes.length;i++) {
       var visible=i===active;
       panes[i].hidden=!visible;
-      panes[i].className='feature-pane'+(visible?' is-active':'');
+      panes[i].className=paneBaseClasses[i]+(visible?' is-active':'');
       tabs[i].setAttribute('aria-selected',String(visible));
       tabs[i].setAttribute('tabindex',visible?'0':'-1');
       tabs[i].className='feature-tab'+(visible?' is-active':'');
       if (pager[i]) pager[i].className='pager-dot'+(visible?' active':'');
     }
-    name.textContent=active===0?'Outside today':'Family tasks';
+    name.textContent=['Outside today','Family tasks','Sensors'][active];
+    if (active === 2) refreshSensorOverview();
     if (manual) pause();
   }
   for (var i=0;i<tabs.length;i++) (function (n) {
