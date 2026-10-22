@@ -98,6 +98,9 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
 .camera-tile{position:relative;min-width:0;min-height:70px;margin:0;overflow:hidden;border-radius:9px;background:#17201d}
 .camera-tile img{display:block;width:100%;height:clamp(72px,11vh,112px);object-fit:cover}
 .camera-tile figcaption{position:absolute;right:5px;bottom:5px;left:5px;overflow:hidden;padding:3px 6px;border-radius:5px;background:#101510bf;color:#fff;font-size:10px;font-weight:750;text-overflow:ellipsis;text-transform:capitalize;white-space:nowrap}
+.camera-tile figcaption{background:transparent;padding:0;overflow:visible}
+.camera-name{display:inline-grid;max-width:100%;padding:2px;border-radius:7px;background:conic-gradient(var(--accent) calc(var(--camera-progress,0)*1turn),#ffffff70 0)}
+.camera-name>span{overflow:hidden;padding:3px 6px;border-radius:5px;background:#101510e8;text-overflow:ellipsis;white-space:nowrap}
 .camera-view-message{grid-column:1/-1;margin:3px 0;color:var(--muted);font-size:12px}
 @media(max-width:520px){.camera-grid{gap:5px;max-height:none;overflow:visible}.camera-tile img{height:100px}}
 /* A short panel slide; disabled automatically when reduced motion is requested. */

@@ -27,6 +27,9 @@
   var cameraList = [];
   var cameraIndex = 0;
   var cameraRefreshGeneration = 0;
+  var headerSensorRefreshGeneration = 0;
+  var cameraProgressTimer = null;
+  var cameraCycleStartedAt = 0;
   var wakeLockSentinel = null;
   var wakeLockRequestId = 0;
   var wakeLockPending = false;
@@ -328,14 +331,48 @@
     if (water && water.detected) basement.classList.add('is-alert');
   }
   function refreshHeaderSensors() {
+    var refreshGeneration = ++headerSensorRefreshGeneration;
     var essentialsBase = isKiosk ? '/kiosk/api/essentials' : '/api/essentials';
     requestJSON(essentialsBase + '/sensors', function (error, data) {
+      if (refreshGeneration !== headerSensorRefreshGeneration) return;
       updateHeaderSensors(error, data && data.readings);
     });
+  }
+  function updateHeaderSensorFromEvent(event) {
+    if (event.severity === 'test') return;
+    var node = document.getElementById(event.kind === 'water' ? 'header-basement' : 'header-freezer');
+    var signal = node.querySelector('.sensor-signal');
+    var value = node.querySelector('strong');
+    node.classList.add('is-online');
+    node.classList.remove('is-offline');
+    signal.setAttribute('aria-label', 'Online');
+    node.title = node.textContent.trim() + ' sensor online';
+    if (event.kind === 'water') {
+      value.textContent = event.active ? 'Wet' : 'Dry';
+      node.classList.toggle('is-alert', Boolean(event.active));
+    } else {
+      if (typeof event.temperature_f === 'number') value.textContent = event.temperature_f.toFixed(1) + '°F';
+      node.classList.toggle('is-alert', Boolean(event.active));
+    }
+    refreshHeaderSensors();
   }
   function stopCameraRotation() {
     if (cameraCycleTimer !== null) window.clearInterval(cameraCycleTimer);
     cameraCycleTimer = null;
+    if (cameraProgressTimer !== null) window.clearInterval(cameraProgressTimer);
+    cameraProgressTimer = null;
+  }
+  function startCameraProgress() {
+    cameraCycleStartedAt = Date.now();
+    if (cameraProgressTimer !== null) window.clearInterval(cameraProgressTimer);
+    cameraProgressTimer = window.setInterval(function () {
+      var elapsed = Math.min(30000, Date.now() - cameraCycleStartedAt);
+      var progress = elapsed / 30000;
+      var labels = document.querySelectorAll('#camera-grid .camera-name');
+      for (var i = 0; i < labels.length; i++) {
+        labels[i].style.setProperty('--camera-progress', String(progress));
+      }
+    }, 100);
   }
   function showCameraGrid(index) {
     var grid = document.getElementById('camera-grid');
@@ -350,7 +387,11 @@
       image.src = (isKiosk ? '/kiosk/api/essentials' : '/api/essentials') + '/cameras/' + encodeURIComponent(camera) + '/snapshot?refresh=' + Date.now();
       image.setAttribute('data-camera', camera);
       image.alt = label + ' camera snapshot';
-      var caption = document.createElement('figcaption'); caption.textContent = label;
+      var caption = document.createElement('figcaption');
+      var nameLabel = document.createElement('span'); nameLabel.className = 'camera-name';
+      var nameText = document.createElement('span'); nameText.textContent = label;
+      nameLabel.appendChild(nameText);
+      caption.appendChild(nameLabel);
       figure.appendChild(image); figure.appendChild(caption); grid.appendChild(figure);
     }
   }
@@ -371,13 +412,18 @@
       }
       if (wideDisplay) {
         showCameraGrid(cameraIndex);
+        startCameraProgress();
         cameraCycleTimer = window.setInterval(function () {
-          if (cameraList.length > 4) showCameraGrid(cameraIndex + 4);
+          if (cameraList.length > 4) {
+            showCameraGrid(cameraIndex + 4);
+            startCameraProgress();
+          }
           else {
             var images = document.querySelectorAll('#camera-grid .camera-tile img');
             for (var i = 0; i < images.length; i++) {
               images[i].src = essentialsBase + '/cameras/' + encodeURIComponent(images[i].getAttribute('data-camera')) + '/snapshot?refresh=' + Date.now();
             }
+            startCameraProgress();
           }
         }, 30000);
         return;
@@ -580,6 +626,7 @@
       try {
         var event = JSON.parse(message.data);
         if (event.kind === 'temperature' || event.kind === 'water') {
+          updateHeaderSensorFromEvent(event);
           sensorPane.setAttribute('data-sensor-key', event.kind + ':' + (event.sensor || ''));
           showSensorAlert(event);
           return;
