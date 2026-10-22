@@ -227,6 +227,18 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
 
 /* Travel cards stay informational until the leave time is close. */
 .next-up[data-leave-at]{background:var(--soft);color:var(--ink);border-left:4px solid var(--line)}
+.next-up[data-leave-at]:not(.is-approaching){min-height:0;padding:9px 13px;gap:9px}
+.next-up[data-leave-at]:not(.is-approaching) .next-up-kicker{margin-bottom:3px}
+.next-up[data-leave-at]:not(.is-approaching) h3{margin-bottom:4px;font-size:clamp(17px,1.7vw,21px)}
+.next-up[data-leave-at]:not(.is-approaching) .next-up-travel,.next-up[data-leave-at]:not(.is-approaching) .next-up-weather{margin-top:4px}
+.next-up[data-leave-at]:not(.is-approaching) .next-up-reopen{margin-top:5px}
+.next-up[data-leave-at]:not(.is-approaching) .next-up-reopen button{min-height:30px;padding:4px 8px;font-size:9px}
+.next-up[data-leave-at].is-distant{min-height:0;padding:7px 11px;gap:8px}
+.next-up[data-leave-at].is-distant .next-up-travel,.next-up[data-leave-at].is-distant .next-up-weather{display:none}
+.next-up[data-leave-at].is-distant .next-up-kicker{margin-bottom:2px;font-size:8px}
+.next-up[data-leave-at].is-distant h3{margin:0 0 2px;font-size:18px}
+.next-up[data-leave-at].is-distant .next-up-reopen{margin-top:3px}
+.next-up[data-leave-at].is-distant .next-up-reopen button{min-height:28px;padding:3px 7px;font-size:9px}
 .next-up[data-leave-at] .next-up-kicker{color:var(--accent)}
 .next-up[data-leave-at] .next-up-meta,.next-up[data-leave-at] .next-up-travel{color:var(--muted);opacity:1}
 .next-up[data-leave-at] .next-up-count{display:none}
@@ -272,6 +284,11 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
 
 @media (max-width:520px){
   .next-up{flex-direction:column;align-items:stretch;gap:9px;min-height:0;padding:13px 14px}
+  .next-up[data-leave-at]:not(.is-approaching){gap:6px;padding:8px 10px}
+  .next-up[data-leave-at]:not(.is-approaching) .next-up-reopen button{min-height:30px}
+  .next-up[data-leave-at].is-distant{gap:5px;padding:6px 8px}
+  .next-up[data-leave-at].is-distant h3{font-size:16px}
+  .next-up[data-leave-at].is-distant .next-up-reopen button{min-height:28px}
   .next-up-copy{width:100%}
   .next-up-weather{flex-wrap:wrap;align-items:center;column-gap:6px;row-gap:4px}
   .next-up-weather span{flex:1 1 100%;line-height:1.25}

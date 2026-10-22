@@ -225,6 +225,8 @@
       if (card && card.classList) {
         if (remaining <= 3600) card.classList.add('is-approaching');
         else card.classList.remove('is-approaching');
+        if (remaining > 86400) card.classList.add('is-distant');
+        else card.classList.remove('is-distant');
       }
       var text = 'NOW';
       if (remaining > 0) {
