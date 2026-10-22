@@ -769,6 +769,7 @@ func nextEvent(events []Event, now time.Time) (*Event, []Event) {
 func (a *app) renderPage(w http.ResponseWriter, r *http.Request, kiosk bool) {
 	securityHeaders(w)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Cache-Control", "private, no-store")
 	pg := a.pageContext(r.Context(), a.now())
 	pg.KioskMode = kiosk
 	pg.DevMode = a.devMode
@@ -836,6 +837,18 @@ func (a *app) receiveFrigateEvent(w http.ResponseWriter, r *http.Request) {
 	}
 	a.frigateMu.Unlock()
 	w.WriteHeader(http.StatusAccepted)
+}
+
+func (a *app) publishDashboardRefresh() {
+	event := frigateEvent{ID: "dashboard-refresh", Kind: "dashboard-refresh"}
+	a.frigateMu.Lock()
+	for client := range a.frigateClients {
+		select {
+		case client <- event:
+		default:
+		}
+	}
+	a.frigateMu.Unlock()
 }
 
 func (a *app) essentialsSensors(w http.ResponseWriter, r *http.Request) {
@@ -1083,6 +1096,10 @@ func (a *app) streamFrigateEvents(w http.ResponseWriter, r *http.Request) {
 	client := make(chan frigateEvent, 4)
 	a.frigateMu.Lock()
 	a.frigateClients[client] = struct{}{}
+	select {
+	case client <- frigateEvent{ID: "dashboard-refresh", Kind: "dashboard-refresh"}:
+	default:
+	}
 	for _, event := range a.frigateActive {
 		select {
 		case client <- event:
@@ -1402,6 +1419,7 @@ func (a *app) mutate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 400)
 		return
 	}
+	a.publishDashboardRefresh()
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
 
@@ -1469,6 +1487,7 @@ func (a *app) reviewTravel(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	a.publishDashboardRefresh()
 	http.Redirect(w, r, "/dashboard#travel-review", http.StatusSeeOther)
 }
 

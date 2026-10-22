@@ -4,6 +4,9 @@
   var root = document.documentElement;
   var body = document.body;
   var panel = document.getElementById('feature-window');
+  var sharedCalendar = document.querySelector('.calendar');
+  var sharedTaskPane = document.getElementById('pane-tasks');
+  var sharedTaskTab = document.getElementById('tab-tasks');
   var panes = [document.getElementById('pane-weather'), document.getElementById('pane-tasks'), document.getElementById('pane-cameras')];
   var tabs = [document.getElementById('tab-weather'), document.getElementById('tab-tasks'), document.getElementById('tab-cameras')];
   var paneBaseClasses = ['feature-pane','feature-pane','feature-pane cameras-overview'];
@@ -365,6 +368,51 @@
     }
     refreshHeaderSensors();
   }
+  var sharedRefreshPending = false;
+  var sharedRefreshTimer = null;
+  function isEditingSharedContent() {
+    var focused = document.activeElement;
+    if (!focused || !/^(INPUT|TEXTAREA|SELECT)$/.test(focused.tagName)) return false;
+    return sharedCalendar.contains(focused) || sharedTaskPane.contains(focused);
+  }
+  function scheduleSharedRefresh() {
+    if (sharedRefreshTimer !== null) window.clearTimeout(sharedRefreshTimer);
+    sharedRefreshTimer = window.setTimeout(refreshSharedContent, 250);
+  }
+  function refreshSharedContent() {
+    sharedRefreshTimer = null;
+    if (isEditingSharedContent()) {
+      sharedRefreshPending = true;
+      return;
+    }
+    var request = new XMLHttpRequest();
+    request.open('GET', window.location.pathname, true);
+    request.setRequestHeader('Cache-Control', 'no-cache');
+    request.onload = function () {
+      if (request.status < 200 || request.status >= 300) return;
+      if (isEditingSharedContent()) {
+        sharedRefreshPending = true;
+        return;
+      }
+      try {
+        var latest = new DOMParser().parseFromString(request.responseText, 'text/html');
+        var latestCalendar = latest.querySelector('.calendar');
+        var latestTasks = latest.getElementById('pane-tasks');
+        var latestTaskTab = latest.getElementById('tab-tasks');
+        if (!latestCalendar || !latestTasks || !latestTaskTab) return;
+        sharedCalendar.innerHTML = latestCalendar.innerHTML;
+        sharedTaskPane.innerHTML = latestTasks.innerHTML;
+        var currentCount = sharedTaskTab.querySelector('.pill-count');
+        var latestCount = latestTaskTab.querySelector('.pill-count');
+        if (currentCount && latestCount) currentCount.textContent = latestCount.textContent;
+        sharedRefreshPending = false;
+      } catch (error) { /* Keep the current display if its browser cannot parse refreshed markup. */ }
+    };
+    request.send();
+  }
+  document.addEventListener('focusout', function () {
+    if (sharedRefreshPending && !isEditingSharedContent()) scheduleSharedRefresh();
+  }, true);
   function stopCameraRotation() {
     cameraSessionGeneration++;
     if (cameraCycleTimer !== null) window.clearInterval(cameraCycleTimer);
@@ -383,6 +431,10 @@
   }
   function stopCameraPlayer(video) {
     if (!video) return;
+    if (video._cameraStartupTimer !== null && video._cameraStartupTimer !== undefined) {
+      window.clearTimeout(video._cameraStartupTimer);
+      video._cameraStartupTimer = null;
+    }
     if (video._cameraSocket) {
       video._cameraSocket.onclose = null;
       video._cameraSocket.onerror = null;
@@ -422,13 +474,29 @@
     var mediaSource = null;
     var sourceBuffer = null;
     var chunks = [];
+    var codecCandidates = ['avc1.640029','avc1.64002A','avc1.640033','hvc1.1.6.L153.B0'];
+    var supportedCodecs = [];
+    if (typeof MediaSource.isTypeSupported === 'function') {
+      for (var codecIndex = 0; codecIndex < codecCandidates.length; codecIndex++) {
+        if (MediaSource.isTypeSupported('video/mp4; codecs="' + codecCandidates[codecIndex] + '"')) supportedCodecs.push(codecCandidates[codecIndex]);
+      }
+    }
+    video._cameraStartupTimer = window.setTimeout(function () {
+      if (video.readyState < 2) showCameraSnapshotFallback(video, camera);
+    }, 12000);
+    video.addEventListener('loadeddata', function () {
+      if (video._cameraStartupTimer !== null) window.clearTimeout(video._cameraStartupTimer);
+      video._cameraStartupTimer = null;
+    }, {once:true});
+    video.addEventListener('error', function () { showCameraSnapshotFallback(video, camera); }, {once:true});
     function appendNext() {
       if (!sourceBuffer || sourceBuffer.updating || !chunks.length) return;
       try { sourceBuffer.appendBuffer(chunks.shift()); }
-      catch (error) { chunks = []; }
+      catch (error) { showCameraSnapshotFallback(video, camera); }
     }
     socket.onopen = function () {
-      socket.send(JSON.stringify({type:'mse',value:'avc1.640029,avc1.64002A,avc1.640033,hvc1.1.6.L153.B0,mp4a.40.2,mp4a.40.5,flac,opus'}));
+      if (!supportedCodecs.length) { showCameraSnapshotFallback(video, camera); return; }
+      socket.send(JSON.stringify({type:'mse',value:supportedCodecs.join(',')}));
     };
     socket.onmessage = function (event) {
       if (typeof event.data === 'string') {
@@ -443,13 +511,17 @@
           if (socket.readyState !== WebSocket.OPEN) return;
           try {
             sourceBuffer = mediaSource.addSourceBuffer(message.value);
+            sourceBuffer.mode = 'segments';
             sourceBuffer.addEventListener('updateend', function () {
               if (sourceBuffer.buffered.length && !sourceBuffer.updating) {
                 var end = sourceBuffer.buffered.end(sourceBuffer.buffered.length - 1);
                 var start = sourceBuffer.buffered.start(sourceBuffer.buffered.length - 1);
-                if (end - start > 45) {
-                  try { sourceBuffer.remove(start, end - 30); return; } catch (error) {}
+                if (end - start > 15) {
+                  try { sourceBuffer.remove(start, end - 8); return; } catch (error) {}
                 }
+                var liveStart = Math.max(start, end - 5);
+                if (mediaSource.setLiveSeekableRange) mediaSource.setLiveSeekableRange(liveStart, end);
+                if (video.currentTime < liveStart || video.currentTime > end) video.currentTime = liveStart;
               }
               appendNext();
             });
@@ -483,6 +555,8 @@
     }
     var video = document.createElement('video');
     video.muted = true;
+    video.defaultMuted = true;
+    video.setAttribute('muted', '');
     video.autoplay = true;
     video.playsInline = true;
     video.setAttribute('aria-label', camera.replace(/[-_]/g, ' ') + ' live camera video');
@@ -680,8 +754,13 @@
   },100);
   window.setInterval(refreshHint,1000);
   /* Retain the currently selected tasks pane after a task form POST / redirect. */
-  var submitted = document.querySelectorAll('#pane-tasks form');
-  for (var n=0;n<submitted.length;n++) submitted[n].addEventListener('submit',function () { save('resume-tasks',String(Date.now())); });
+  panel.addEventListener('submit',function (event) {
+    var target = event.target;
+    if (!target || target.tagName !== 'FORM') return;
+    var node = target;
+    while (node && node !== panel && node.id !== 'pane-tasks') node = node.parentNode;
+    if (node && node.id === 'pane-tasks') save('resume-tasks',String(Date.now()));
+  });
   var resumed = Number(read('resume-tasks', '0'));
   if (resumed && Date.now()-resumed < 15000) { show(1,true); save('resume-tasks','0'); }
 
@@ -802,6 +881,10 @@
     doorStream.addEventListener('frigate', function (message) {
       try {
         var event = JSON.parse(message.data);
+        if (event.kind === 'dashboard-refresh') {
+          scheduleSharedRefresh();
+          return;
+        }
         if (event.kind === 'temperature' || event.kind === 'water') {
           updateHeaderSensorFromEvent(event);
           sensorPane.setAttribute('data-sensor-key', event.kind + ':' + (event.sensor || ''));

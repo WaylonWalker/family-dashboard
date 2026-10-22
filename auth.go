@@ -633,6 +633,7 @@ func (a *app) deviceTask(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "task not found", 404)
 		return
 	}
+	a.publishDashboardRefresh()
 	http.Redirect(w, r, "/kiosk", http.StatusSeeOther)
 }
 
