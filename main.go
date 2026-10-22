@@ -393,6 +393,7 @@ type frigateEvent struct {
 	Label        string  `json:"label"`
 	Timestamp    string  `json:"timestamp"`
 	Snapshot     string  `json:"snapshot"`
+	SnapshotURL  string  `json:"snapshot_url,omitempty"`
 	ClipURL      string  `json:"clip_url"`
 	Kind         string  `json:"kind,omitempty"`
 	Sensor       string  `json:"sensor,omitempty"`
