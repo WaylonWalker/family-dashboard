@@ -438,7 +438,9 @@ func (a *app) frame(r *http.Request) bool {
 func securityHeaders(w http.ResponseWriter) {
 	h := w.Header()
 	h.Set("Cache-Control", "private, no-store")
-	h.Set("Referrer-Policy", "no-referrer")
+	// Same-origin form submissions are the fallback CSRF signal for browsers
+	// that omit Origin. Never send a referrer to another origin.
+	h.Set("Referrer-Policy", "same-origin")
 	h.Set("X-Content-Type-Options", "nosniff")
 	h.Set("X-Frame-Options", "DENY")
 	h.Set("Content-Security-Policy", "default-src 'none'; manifest-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'")
