@@ -20,8 +20,11 @@
   var rotate = document.getElementById('rotate-toggle');
   var wakeLockToggle = document.getElementById('wake-lock-toggle');
   var wakeLockStatus = document.getElementById('wake-lock-status');
+  var isKiosk = body.getAttribute('data-kiosk') === 'true';
   var wakeLockSentinel = null;
   var wakeLockRequestId = 0;
+  var wakeLockPending = false;
+  var wakeLockRetryTimer = null;
   var active = 0;
   var holdUntil = 0;
   var rotationStartedAt = 0;
@@ -42,12 +45,21 @@
   font.value = allowed(read('font', 'system'), ['system','editorial','modern','mono'], 'system');
   style.value = allowed(read('style', 'balanced'), ['balanced','precision','elevated','brutal','minimal'], 'balanced');
   rotate.checked = read('rotate', 'true') !== 'false';
-  wakeLockToggle.checked = read('keep-awake', 'false') === 'true';
+  wakeLockToggle.checked = read('keep-awake', isKiosk ? 'true' : 'false') === 'true';
+
+  function scheduleWakeLockRetry() {
+    if (!wakeLockToggle.checked || document.hidden || wakeLockRetryTimer !== null) return;
+    wakeLockRetryTimer = window.setTimeout(function () {
+      wakeLockRetryTimer = null;
+      requestWakeLock();
+    }, 30000);
+  }
 
   function requestWakeLock() {
     if (!wakeLockToggle.checked) return;
+    if (wakeLockSentinel || wakeLockPending) return;
     if (!('wakeLock' in navigator)) {
-      wakeLockStatus.textContent = 'Unavailable · this browser does not support screen wake lock.';
+      wakeLockStatus.textContent = 'Unavailable · use Fire TV display settings to prevent sleep.';
       return;
     }
     if (document.hidden) {
@@ -55,8 +67,10 @@
       return;
     }
     var requestId = ++wakeLockRequestId;
+    wakeLockPending = true;
     wakeLockStatus.textContent = 'Requesting screen wake lock…';
     navigator.wakeLock.request('screen').then(function (sentinel) {
+      wakeLockPending = false;
       if (requestId !== wakeLockRequestId || !wakeLockToggle.checked) {
         sentinel.release();
         return;
@@ -68,17 +82,20 @@
         if (wasCurrent) wakeLockSentinel = null;
         if (wasCurrent && wakeLockToggle.checked && !document.hidden) {
           wakeLockStatus.textContent = 'Wake lock released · trying again…';
-          window.setTimeout(requestWakeLock, 1000);
+          scheduleWakeLockRetry();
         }
       });
     }).catch(function () {
+      wakeLockPending = false;
       if (requestId !== wakeLockRequestId || !wakeLockToggle.checked) return;
-      wakeLockStatus.textContent = 'Not granted · check browser support and Fire TV sleep settings.';
+      wakeLockStatus.textContent = 'Not granted · retrying; check Fire TV sleep settings if it keeps sleeping.';
+      scheduleWakeLockRetry();
     });
   }
 
   function releaseWakeLock() {
     wakeLockRequestId++;
+    wakeLockPending = false;
     if (wakeLockSentinel) {
       var sentinel = wakeLockSentinel;
       wakeLockSentinel = null;
@@ -95,8 +112,17 @@
     }
   });
   document.addEventListener('visibilitychange', function () {
-    if (document.hidden) releaseWakeLock();
-    else if (wakeLockToggle.checked) requestWakeLock();
+    if (document.hidden) {
+      if (wakeLockRetryTimer !== null) window.clearTimeout(wakeLockRetryTimer);
+      wakeLockRetryTimer = null;
+      releaseWakeLock();
+    } else if (wakeLockToggle.checked) requestWakeLock();
+  });
+  window.addEventListener('pageshow', function () {
+    if (wakeLockToggle.checked) requestWakeLock();
+  });
+  window.addEventListener('focus', function () {
+    if (wakeLockToggle.checked) requestWakeLock();
   });
 
   function applyTheme() {
@@ -126,8 +152,8 @@
   style.addEventListener('change', function () { save('style',style.value); applyTheme(); });
   rotate.addEventListener('change', function () { save('rotate',String(rotate.checked)); refreshHint(); });
   document.getElementById('reset-settings').addEventListener('click', function () {
-    theme.value='auto'; texture.value='paper'; font.value='system'; style.value='balanced'; rotate.checked=true; wakeLockToggle.checked=false;
-    save('theme','auto');save('texture','paper');save('font','system');save('style','balanced');save('rotate','true');save('keep-awake','false');releaseWakeLock();wakeLockStatus.textContent='Off · screen sleep follows Fire TV settings.';applyTheme();refreshHint();
+    theme.value='auto'; texture.value='paper'; font.value='system'; style.value='balanced'; rotate.checked=true; wakeLockToggle.checked=isKiosk;
+    save('theme','auto');save('texture','paper');save('font','system');save('style','balanced');save('rotate','true');save('keep-awake',String(isKiosk));releaseWakeLock();wakeLockStatus.textContent=isKiosk?'Requesting screen wake lock…':'Off · screen sleep follows Fire TV settings.';if(isKiosk)requestWakeLock();applyTheme();refreshHint();
   });
   applyTheme();
   if (wakeLockToggle.checked) requestWakeLock();
@@ -319,6 +345,26 @@
       else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
     }
   });
+  var doorAlert = document.getElementById('door-alert');
+  if (doorAlert && window.EventSource) {
+    var seenDoorEvents = {};
+    var doorStream = new EventSource(isKiosk ? '/kiosk/frigate/events/stream' : '/api/frigate/events/stream');
+    doorStream.addEventListener('frigate', function (message) {
+      try {
+        var event = JSON.parse(message.data);
+        if (seenDoorEvents[event.id]) return;
+        seenDoorEvents[event.id] = true;
+        document.getElementById('door-alert-camera').textContent = (event.camera || 'Camera').replace(/[-_]/g, ' ');
+        document.getElementById('door-alert-snapshot').src = event.snapshot || '';
+        document.getElementById('door-alert-clip').href = event.clip_url || '#';
+        doorAlert.hidden = false;
+      } catch (_) {}
+    });
+    document.getElementById('door-alert-close').addEventListener('click', function () {
+      doorAlert.hidden = true;
+      document.getElementById('door-alert-snapshot').removeAttribute('src');
+    });
+  }
   refreshHint();
   if ('serviceWorker' in navigator && window.isSecureContext) {
     navigator.serviceWorker.register('/sw.js').catch(function () {

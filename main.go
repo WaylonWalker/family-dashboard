@@ -359,6 +359,18 @@ type app struct {
 	approveTpl     *template.Template
 	approveDoneTpl *template.Template
 	devicesTpl     *template.Template
+	frigateMu      sync.Mutex
+	frigateClients map[chan frigateEvent]struct{}
+	frigateToken   string
+}
+
+type frigateEvent struct {
+	ID        string `json:"id"`
+	Camera    string `json:"camera"`
+	Label     string `json:"label"`
+	Timestamp string `json:"timestamp"`
+	Snapshot  string `json:"snapshot"`
+	ClipURL   string `json:"clip_url"`
 }
 
 func newApp(path string) (*app, error) {
@@ -414,7 +426,7 @@ func newApp(path string) (*app, error) {
 			Minutes:  15,
 		},
 	)
-	a := &app{store: store, tmpl: tpl, csrf: newID(), tz: tz, now: time.Now, calendar: feed, schoolCalendar: schoolCalendar, weather: weather, travelRules: travelRules, devMode: os.Getenv("FAMILY_DASHBOARD_DEV_MODE") == "1", devVersion: newID()}
+			a := &app{store: store, tmpl: tpl, csrf: newID(), tz: tz, now: time.Now, calendar: feed, schoolCalendar: schoolCalendar, weather: weather, travelRules: travelRules, devMode: os.Getenv("FAMILY_DASHBOARD_DEV_MODE") == "1", devVersion: newID(), frigateClients: make(map[chan frigateEvent]struct{}), frigateToken: strings.TrimSpace(os.Getenv("FRIGATE_EVENT_TOKEN"))}
 	if err := a.initializeAuth(path); err != nil {
 		return nil, err
 	}
@@ -697,6 +709,79 @@ func (a *app) renderPage(w http.ResponseWriter, r *http.Request, kiosk bool) {
 	}
 }
 
+func (a *app) receiveFrigateEvent(w http.ResponseWriter, r *http.Request) {
+	if a.frigateToken == "" {
+		http.Error(w, "Frigate event integration is not configured", http.StatusServiceUnavailable)
+		return
+	}
+	provided := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
+	if subtle.ConstantTimeCompare([]byte(provided), []byte(a.frigateToken)) != 1 {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	r.Body = http.MaxBytesReader(w, r.Body, 6<<20)
+	var event frigateEvent
+	if err := json.NewDecoder(r.Body).Decode(&event); err != nil || event.ID == "" || event.Label != "person" || event.Camera == "" {
+		http.Error(w, "invalid Frigate event", http.StatusBadRequest)
+		return
+	}
+	a.frigateMu.Lock()
+	for client := range a.frigateClients {
+		select {
+		case client <- event:
+		default:
+		}
+	}
+	a.frigateMu.Unlock()
+	w.WriteHeader(http.StatusAccepted)
+}
+
+func (a *app) streamFrigateEvents(w http.ResponseWriter, r *http.Request) {
+	if !a.human(r, "family-hq:read") && !a.frame(r) {
+		http.Error(w, "Family HQ access is required", http.StatusForbidden)
+		return
+	}
+	flusher, ok := w.(http.Flusher)
+	if !ok {
+		http.Error(w, "streaming unavailable", http.StatusInternalServerError)
+		return
+	}
+	if err := http.NewResponseController(w).SetWriteDeadline(time.Time{}); err != nil {
+		http.Error(w, "streaming deadline cannot be cleared", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache, no-store")
+	w.Header().Set("X-Accel-Buffering", "no")
+	client := make(chan frigateEvent, 4)
+	a.frigateMu.Lock()
+	a.frigateClients[client] = struct{}{}
+	a.frigateMu.Unlock()
+	defer func() {
+		a.frigateMu.Lock()
+		delete(a.frigateClients, client)
+		a.frigateMu.Unlock()
+	}()
+	keepalive := time.NewTicker(20 * time.Second)
+	defer keepalive.Stop()
+	for {
+		select {
+		case <-r.Context().Done():
+			return
+		case <-keepalive.C:
+			_, _ = io.WriteString(w, ": keepalive\n\n")
+			flusher.Flush()
+		case event := <-client:
+			payload, err := json.Marshal(event)
+			if err != nil {
+				continue
+			}
+			_, _ = fmt.Fprintf(w, "event: frigate\ndata: %s\n\n", payload)
+			flusher.Flush()
+		}
+	}
+}
+
 func (a *app) routes() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
@@ -709,6 +794,8 @@ func (a *app) routes() http.Handler {
 	mux.HandleFunc("GET /dashboard", a.requireHuman("family-hq:read", func(w http.ResponseWriter, r *http.Request) {
 		a.renderPage(w, r, false)
 	}))
+	mux.HandleFunc("POST /api/frigate/events", a.receiveFrigateEvent)
+	mux.HandleFunc("GET /api/frigate/events/stream", a.requireHuman("family-hq:read", a.streamFrigateEvents))
 	mux.HandleFunc("GET /og", a.openGraphImage)
 	mux.HandleFunc("GET /manifest.webmanifest", func(w http.ResponseWriter, r *http.Request) {
 		b, err := webFS.ReadFile("web/manifest.webmanifest")

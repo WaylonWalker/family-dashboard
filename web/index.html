@@ -23,7 +23,7 @@
     .feature-pane + .feature-pane{border-top:2px solid var(--line);margin-top:15px;padding-top:15px}
   </style></noscript>
 </head>
-<body data-weather="{{.WeatherKind}}" data-hour="{{.Hour24}}">
+<body data-weather="{{.WeatherKind}}" data-hour="{{.Hour24}}" data-kiosk="{{.KioskMode}}">
   <!-- SVG symbols are embedded: no emoji fonts, CDN, or external requests required. -->
   <svg class="svg-sprite" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" focusable="false">
     <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1zM9 21v-7h6v7"/></symbol>
@@ -106,6 +106,14 @@
       </aside>
     </main>
   </div>
+
+  <section class="door-alert" id="door-alert" role="dialog" aria-modal="true" aria-labelledby="door-alert-title" aria-live="assertive" hidden>
+    <div class="door-alert-card"><button class="door-alert-close" id="door-alert-close" type="button" aria-label="Dismiss door alert">×</button>
+      <p class="eyebrow">FRIGATE · PERSON DETECTED</p><h2 id="door-alert-title">Someone is at the door</h2>
+      <p id="door-alert-camera"></p><img id="door-alert-snapshot" alt="Frigate person detection snapshot">
+      <a id="door-alert-clip" href="#" target="_blank" rel="noopener">View video clip</a>
+    </div>
+  </section>
 
   <div class="settings-backdrop" id="settings-backdrop" hidden></div>
   <aside class="settings-drawer" id="settings" aria-labelledby="settings-title" aria-modal="true" role="dialog" hidden>

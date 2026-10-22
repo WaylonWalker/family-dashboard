@@ -138,6 +138,8 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
   .weather-now-wear-label{flex:none;color:var(--accent)!important;font-size:8px!important;font-weight:800;letter-spacing:1px;text-transform:uppercase}
 }
 
+.door-alert[hidden]{display:none}.door-alert{position:fixed;z-index:50;inset:0;display:grid;place-items:center;padding:20px;background:#101510cc;backdrop-filter:blur(5px)}.door-alert-card{position:relative;width:min(680px,100%);max-height:calc(100vh - 40px);overflow:auto;padding:24px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}.door-alert-card h2{margin:0 40px 8px 0;font-size:clamp(24px,5vw,38px)}.door-alert-card p:not(.eyebrow){margin:0 0 14px;color:var(--muted);text-transform:capitalize}.door-alert-card img{display:block;width:100%;max-height:55vh;object-fit:contain;border-radius:12px;background:#101510}.door-alert-card>a{display:inline-flex;margin-top:14px;padding:12px 17px;border-radius:10px;background:var(--accent);color:var(--surface);font-weight:750;text-decoration:none}.door-alert-close{position:absolute;top:15px;right:15px;width:40px;height:40px;border:1px solid var(--line);border-radius:50%;background:var(--soft);color:var(--ink);font-size:26px;cursor:pointer}
+
 @media (max-width:520px){
   .next-up{flex-direction:column;align-items:stretch;gap:9px;min-height:0;padding:13px 14px}
   .next-up-copy{width:100%}

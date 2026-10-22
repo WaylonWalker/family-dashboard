@@ -661,6 +661,7 @@ func (a *app) initializeAuth(path string) error {
 }
 func (a *app) authRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /kiosk", a.kioskPage)
+	mux.HandleFunc("GET /kiosk/frigate/events/stream", a.streamFrigateEvents)
 	mux.HandleFunc("GET /kiosk/pair/status", a.pairingStatus)
 	mux.HandleFunc("POST /kiosk/tasks", a.deviceTask)
 	mux.HandleFunc("GET /pair/approve", a.requireHuman("family-hq:manage", a.approvePage))

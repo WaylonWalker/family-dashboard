@@ -1,0 +1,14 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: family-dashboard-frigate
+  namespace: family-dashboard
+spec:
+  encryptedData:
+    FRIGATE_EVENT_TOKEN: AgCwjr88YGvqoktWsVqiGv7NEkqm+I1K8gp7Q7XkWTnrUButVA9R2mO5Fsg4HCrkolCLZPZOrMNTV+8Yw1s3BVFonfGvvXQjaoVOTTHgfrsACoBm1WbET+ihE7F+aZdpOVMnVhHCDxok7qgxl6DoYEIRnu9n0BCLyEqREZYpDCJaBS9V5E5k8WfflXI5gNyQ2sig0Hs6D3wcYEP59z9Cb5L4Mt6Nz0xvXtE88+VoCWQdU8M40UBXR3J6kchGtxbjCHvS8eNOyKsOue8EZ9XqLfVXAnxpKrX60OMM/+QIJAynWDdaeilH0+mC1gGrvFOvKkrA8ZJ7WGbiGdI5wpzQsCrvlyCKuDlHpT5kygEkEtPneVYDeJzHv4Jnp3jAhRll7r0yHT8ZOyjD5ab19kRcabrfn94tbUixDXvP98LDe5qub4pvm1DASZ3FDiEF2Eyf5J2b+Jo/XaKR+cIhYYJgnbF1Dz2laa340mXZ0b3KAHHi4rUPoomsPqLwKgx54PaC9b7h6c+SHOZnpTpW9eC0sENP/F0Ld4a+tIMGt59WbW/q+mfaSA7qRxNGjtk459BCvNUpNyqnc81gmneXAKH0oxvS6AJ3X5Tmbr2FnKuDCRGLd32vTlVrpGEqdAtymRXg22ZxU62eri7me9W6BB7PUsdEJAjf4gFH3Of9cmN3+gEuUpo5xqm80j7MAjgbQ+n8DoZxteCqK5AjJdz4zNtQricXrROixz0xqDn3IVWvT1y2EV7jb1bqhR1oc1Xs4CQqlkK2UxOmFt70o9Zs5Kn4TUTS
+  template:
+    metadata:
+      name: family-dashboard-frigate
+      namespace: family-dashboard
+    type: Opaque

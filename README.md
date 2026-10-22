@@ -401,3 +401,12 @@ node scripts/test_pair_qr.cjs  # Optional: tests the bundled offline QR generato
 All QR generation is local; the frame sends no pairing URL to a third-party QR service. The QR library is vendored with third-party notices in `THIRD_PARTY_LICENSES.md`.
 
 **Current bounds:** one application replica (pending pairings are in-memory and device records are a single JSON file), 16 active frames, no remote unpair push (revocation takes effect on the next request).
+
+### Frigate person alerts
+
+The `notify-bridge` app sends approved person detections from its configured
+door cameras to `POST /api/frigate/events` with a bearer token. Family
+Dashboard reads that token from the `family-dashboard-frigate` Secret; the
+matching sealed secret is included in the `k8s` kustomization. Browser and
+paired kiosk clients receive accepted events from the authenticated SSE
+stream.
