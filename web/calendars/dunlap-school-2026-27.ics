@@ -357,11 +357,1739 @@ DESCRIPTION:Source: Dunlap CUSD #323 2026–27 district calendar. Emergency
   days are conditional: no school only if used.
 END:VEVENT
 BEGIN:VEVENT
+UID:45f19977-06aa-4c76-b990-5f54fbd26b4a@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260812T073900
+DTEND;TZID=America/Chicago:20260812T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:d90d1d58-3331-443b-9953-8fe176ab8288@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260813T073900
+DTEND;TZID=America/Chicago:20260813T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:d5bd5b5c-89d6-4f6e-abc7-576404d38618@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260814T073900
+DTEND;TZID=America/Chicago:20260814T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:64a5879a-5ba1-4914-a609-2c5c1fd96288@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260817T073900
+DTEND;TZID=America/Chicago:20260817T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:ed94c340-6c9f-495c-b87e-17a588629907@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260818T073900
+DTEND;TZID=America/Chicago:20260818T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:6bc9993c-509c-44c2-aef5-85b6be1304a0@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260819T073900
+DTEND;TZID=America/Chicago:20260819T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:7abf34a1-f30f-4e4f-b468-5795331d19b3@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260820T073900
+DTEND;TZID=America/Chicago:20260820T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:f61f552e-f79d-4b46-81da-f59332c9d08c@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260821T073900
+DTEND;TZID=America/Chicago:20260821T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:71b4169a-39ac-48e7-8a11-3bbb04a0d1ca@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260824T073900
+DTEND;TZID=America/Chicago:20260824T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:e13cd214-4c54-4834-b57b-632ec4772cb9@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260825T073900
+DTEND;TZID=America/Chicago:20260825T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:442d45b1-b4df-43a3-885c-8c28578d6454@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260826T073900
+DTEND;TZID=America/Chicago:20260826T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:cb4e0612-133d-4199-b220-77c44fd1bcba@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260827T073900
+DTEND;TZID=America/Chicago:20260827T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:7452f7ff-261a-4b49-9329-a1d2d1d25e72@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260828T073900
+DTEND;TZID=America/Chicago:20260828T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:2c12f897-0fd7-4e25-8b70-5fa470451934@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260831T073900
+DTEND;TZID=America/Chicago:20260831T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:413bc8c9-358e-466a-a7dc-763faaf8aa9f@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260901T073900
+DTEND;TZID=America/Chicago:20260901T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:44109db5-f6c5-41fc-bdcf-38381ef39e7c@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260902T073900
+DTEND;TZID=America/Chicago:20260902T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:ecc00d57-7018-4c3c-8695-0206f78352a5@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260903T073900
+DTEND;TZID=America/Chicago:20260903T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:4e0a2aaf-4459-49fe-a82c-5712335163f8@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260904T073900
+DTEND;TZID=America/Chicago:20260904T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:7efddb64-2ffb-442a-abbd-f35a5371df9e@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260908T073900
+DTEND;TZID=America/Chicago:20260908T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:774f9b1d-9231-4182-bab8-3fcfff63f597@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260909T073900
+DTEND;TZID=America/Chicago:20260909T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:f9e94f89-fc19-4da3-8e34-fa16c2bfd7c5@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260910T073900
+DTEND;TZID=America/Chicago:20260910T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:2a265363-f1d8-4c2c-87cb-ca18f5f0be0f@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260911T073900
+DTEND;TZID=America/Chicago:20260911T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:dd1a9151-393a-4d89-b5ed-2b6c7c5992d7@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260914T073900
+DTEND;TZID=America/Chicago:20260914T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:f23ac227-97a5-499e-ab01-0553c73d5586@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260915T073900
+DTEND;TZID=America/Chicago:20260915T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:05cc9100-be77-406a-ba1a-f9a6b043efed@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260916T073900
+DTEND;TZID=America/Chicago:20260916T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:681e073c-5ad7-46ef-886d-0769415c4e55@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260917T073900
+DTEND;TZID=America/Chicago:20260917T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:ee101824-8bc5-4706-be4b-c4255f9f4ff9@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260918T073900
+DTEND;TZID=America/Chicago:20260918T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:029a11eb-b7d3-48a2-96f0-2f5fa34aa48f@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260921T073900
+DTEND;TZID=America/Chicago:20260921T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:daeeb53b-a7db-43c7-a120-4f52bf850f41@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260922T073900
+DTEND;TZID=America/Chicago:20260922T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:62e56e04-38db-4178-ab21-c8c087ad4da7@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260923T073900
+DTEND;TZID=America/Chicago:20260923T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:facb2b1e-c596-4a06-bb02-57beb610b6d9@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260924T073900
+DTEND;TZID=America/Chicago:20260924T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:f452e885-9432-4020-a02c-d194f8e0f6c6@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260928T073900
+DTEND;TZID=America/Chicago:20260928T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:a0188250-c769-4212-9703-1055c5e7f1f8@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260929T073900
+DTEND;TZID=America/Chicago:20260929T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:99eb3158-056c-4f44-9662-62ba8caa11a5@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20260930T073900
+DTEND;TZID=America/Chicago:20260930T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:d206af9a-37ad-4fa7-9dac-9b850732ef38@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261001T073900
+DTEND;TZID=America/Chicago:20261001T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:50b9a599-a690-43fb-9aaa-eb470ce69926@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261002T073900
+DTEND;TZID=America/Chicago:20261002T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:2602228c-d150-4123-9ddd-cbd6942c81e2@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261005T073900
+DTEND;TZID=America/Chicago:20261005T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:be086cd7-0ca2-4686-a0ee-9fae6bb75a83@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261006T073900
+DTEND;TZID=America/Chicago:20261006T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:fddd0093-f1a1-4d64-aa7b-7a1ae647a480@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Improvement Day — Half Day
+DTSTART;TZID=America/Chicago:20261007T073900
+DTEND;TZID=America/Chicago:20261007T120000
+DESCRIPTION:District SIP bell schedule dismisses middle school at noon.
+END:VEVENT
+BEGIN:VEVENT
+UID:27cc51d5-b573-49cd-8de1-dd03a8cdb063@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261008T073900
+DTEND;TZID=America/Chicago:20261008T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:72df4d68-c27b-4da7-88ea-04d8baff0771@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261009T073900
+DTEND;TZID=America/Chicago:20261009T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:4a7da7cd-a100-4cc9-b988-856da9acf0f9@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261013T073900
+DTEND;TZID=America/Chicago:20261013T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:76195a44-ef17-4e76-8791-2f70c033ec3d@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261014T073900
+DTEND;TZID=America/Chicago:20261014T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:2a6aa7a4-822e-477e-8241-da58b7edb469@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261015T073900
+DTEND;TZID=America/Chicago:20261015T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:694948ad-02ac-4581-87ff-00430ff6ec84@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261016T073900
+DTEND;TZID=America/Chicago:20261016T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:b18d01de-d875-4a8e-9950-21942fe31909@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261019T073900
+DTEND;TZID=America/Chicago:20261019T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:d73a7f6d-7f9b-4030-8c78-10459a4c3ff2@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261020T073900
+DTEND;TZID=America/Chicago:20261020T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:6468d3fc-d306-4134-92a5-a940461a1005@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261026T073900
+DTEND;TZID=America/Chicago:20261026T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:9b682aa1-4ace-46fb-92a9-fb79b7f92dfa@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261027T073900
+DTEND;TZID=America/Chicago:20261027T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:d54500a9-c51d-40f8-8791-3f833fdacb21@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261028T073900
+DTEND;TZID=America/Chicago:20261028T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:f07f9991-81c4-41e2-b428-6d293bcd9094@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261029T073900
+DTEND;TZID=America/Chicago:20261029T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:ceb1be32-efef-4177-a73e-fae7477130da@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261030T073900
+DTEND;TZID=America/Chicago:20261030T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:df6e7596-ecf7-481f-8200-43cfe3901701@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261102T073900
+DTEND;TZID=America/Chicago:20261102T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:e5de8b64-bbd9-46a6-a6f7-20ba1778bd1d@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261103T073900
+DTEND;TZID=America/Chicago:20261103T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:bad14849-e45d-4b87-86f2-e41f484f3f20@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Improvement Day — Half Day
+DTSTART;TZID=America/Chicago:20261104T073900
+DTEND;TZID=America/Chicago:20261104T120000
+DESCRIPTION:District SIP bell schedule dismisses middle school at noon.
+END:VEVENT
+BEGIN:VEVENT
+UID:7f065aa3-3ecf-488f-9144-02ef6cd48ba4@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261105T073900
+DTEND;TZID=America/Chicago:20261105T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:6707f46d-f484-4ef2-bbda-0674bd5a2749@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261106T073900
+DTEND;TZID=America/Chicago:20261106T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:a81a6cc3-0692-458c-ac85-adb2b6812c0c@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261109T073900
+DTEND;TZID=America/Chicago:20261109T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:87df5fbe-92b3-45d0-923b-318718b4ace2@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261110T073900
+DTEND;TZID=America/Chicago:20261110T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:11c3570b-f63a-4698-8f81-9877ce70ec03@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261111T073900
+DTEND;TZID=America/Chicago:20261111T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:487f395e-8766-416c-810d-0c36c858cb7a@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261112T073900
+DTEND;TZID=America/Chicago:20261112T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:580fc828-2866-478c-93a1-8cd240fd893e@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261113T073900
+DTEND;TZID=America/Chicago:20261113T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:ded36744-e1ab-4860-a4f4-c2d82eae835d@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261116T073900
+DTEND;TZID=America/Chicago:20261116T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:7cc9a4df-cc02-4065-acca-76b9dba2bb0d@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261117T073900
+DTEND;TZID=America/Chicago:20261117T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:bc9b689f-8991-45ea-97b8-f0eac1240a0d@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261118T073900
+DTEND;TZID=America/Chicago:20261118T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:572d3132-9c39-47df-b218-314fbd19949d@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261119T073900
+DTEND;TZID=America/Chicago:20261119T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:b8f64c64-0fe2-4bdd-8edb-df963c3d0666@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261120T073900
+DTEND;TZID=America/Chicago:20261120T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:78e8b1fb-f930-4764-851a-779dc7f1f804@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261123T073900
+DTEND;TZID=America/Chicago:20261123T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:18eac355-6292-4675-b3b0-ff8bf2bb5854@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261124T073900
+DTEND;TZID=America/Chicago:20261124T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:bf442209-0346-4904-81c0-0de89d73391a@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261130T073900
+DTEND;TZID=America/Chicago:20261130T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:9646c728-d9d9-4f65-b9d1-98dd736cf2d6@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261201T073900
+DTEND;TZID=America/Chicago:20261201T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:fe5cbc45-0d8a-42ab-9cae-c05699d640b2@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261202T073900
+DTEND;TZID=America/Chicago:20261202T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:36ea110e-a74e-40fc-bd8d-9a2d98e8ef0a@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261203T073900
+DTEND;TZID=America/Chicago:20261203T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:3ea743d4-2181-480b-9c6f-0ca4073cd6c0@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261204T073900
+DTEND;TZID=America/Chicago:20261204T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:d42b9f39-757e-4f9b-bcf1-cb0bd4a547c9@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261207T073900
+DTEND;TZID=America/Chicago:20261207T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:32529068-8e04-4590-8df1-9b33ef578702@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261208T073900
+DTEND;TZID=America/Chicago:20261208T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:403adb01-aea6-41b5-8a4e-acfe0fb3da01@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261209T073900
+DTEND;TZID=America/Chicago:20261209T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:5a4636a9-0c2d-4a12-a7d1-8d53fe3e553d@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261210T073900
+DTEND;TZID=America/Chicago:20261210T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:dfe4e2bc-8aae-4af7-8b29-30f1a122560f@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261211T073900
+DTEND;TZID=America/Chicago:20261211T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:43b2ac23-984f-4090-887d-920042344072@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261214T073900
+DTEND;TZID=America/Chicago:20261214T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:646607e3-f9a0-4f11-b585-218fc90e9786@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261215T073900
+DTEND;TZID=America/Chicago:20261215T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:676af10a-d9da-4049-ac15-1f1768c20119@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261216T073900
+DTEND;TZID=America/Chicago:20261216T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:6ce77687-1b18-45e7-afdc-a71c0b4543ad@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20261217T073900
+DTEND;TZID=America/Chicago:20261217T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:3fb21114-73c3-4335-bf3d-12914880995a@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — One Hour Early Dismissal
+DTSTART;TZID=America/Chicago:20261218T073900
+DTEND;TZID=America/Chicago:20261218T143000
+DESCRIPTION:District calendar says all buildings dismiss one hour early.
+END:VEVENT
+BEGIN:VEVENT
+UID:e827528e-8d29-463a-b6d6-606083af5f6d@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270105T073900
+DTEND;TZID=America/Chicago:20270105T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:62fc2957-6357-4c5d-a973-85e60c2fbc27@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270106T073900
+DTEND;TZID=America/Chicago:20270106T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:fcae58c1-8ae1-49ec-95bf-23e3bdb5af95@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270107T073900
+DTEND;TZID=America/Chicago:20270107T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:b8409990-f7ed-47ff-9d1b-ce1e25de3881@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270108T073900
+DTEND;TZID=America/Chicago:20270108T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:8dc9af2c-e934-4a2e-8b65-00b7efa04ca8@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270111T073900
+DTEND;TZID=America/Chicago:20270111T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:5e71552f-9b04-42b5-a98d-a634ef2c973e@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270112T073900
+DTEND;TZID=America/Chicago:20270112T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:c55ffb8b-a7ab-40ca-a86a-4bea0d389c86@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270113T073900
+DTEND;TZID=America/Chicago:20270113T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:c09a88d0-82bf-48de-a7e6-c7d86cd76778@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270114T073900
+DTEND;TZID=America/Chicago:20270114T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:dc8b5927-2e3b-48b7-99aa-5dec2159926b@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270115T073900
+DTEND;TZID=America/Chicago:20270115T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:d78bd5e4-aef2-4812-a5ba-d56a26ab6c84@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270119T073900
+DTEND;TZID=America/Chicago:20270119T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:4daced1a-e3b3-4583-b82b-6bcd7c60842c@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270120T073900
+DTEND;TZID=America/Chicago:20270120T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:c27baae2-b8a5-489d-ae06-1a3ea02a9991@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270121T073900
+DTEND;TZID=America/Chicago:20270121T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:274d8934-58ec-45b8-987b-6385f344d738@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270122T073900
+DTEND;TZID=America/Chicago:20270122T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:faf36e17-7169-4e22-aff5-366da0399889@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270125T073900
+DTEND;TZID=America/Chicago:20270125T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:af337ca7-2cca-4f41-a6e7-244e29a07f90@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270126T073900
+DTEND;TZID=America/Chicago:20270126T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:c143c74e-f74f-459d-b912-6de76ac607b0@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270127T073900
+DTEND;TZID=America/Chicago:20270127T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:66565af1-db1d-42a5-bc40-0b9dcf34d4b6@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270128T073900
+DTEND;TZID=America/Chicago:20270128T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:485dfdc7-ab65-4511-a431-bbebc987ff7a@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270129T073900
+DTEND;TZID=America/Chicago:20270129T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:f21d2ccd-50b8-475d-b0ff-7ebeeaeda8b4@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270201T073900
+DTEND;TZID=America/Chicago:20270201T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:e5cdb954-61e3-4305-b5e5-122e869d8988@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270202T073900
+DTEND;TZID=America/Chicago:20270202T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:5d249e80-f81f-454f-a755-e7e9d55693c2@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Improvement Day — Half Day
+DTSTART;TZID=America/Chicago:20270203T073900
+DTEND;TZID=America/Chicago:20270203T120000
+DESCRIPTION:District SIP bell schedule dismisses middle school at noon.
+END:VEVENT
+BEGIN:VEVENT
+UID:a2f8f134-dbf1-4ccf-a2fb-83eb607aaf1c@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270204T073900
+DTEND;TZID=America/Chicago:20270204T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:39602c2e-7018-4124-befc-60d1bcfbdab0@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270205T073900
+DTEND;TZID=America/Chicago:20270205T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:e64bb6bf-159e-4b3f-b101-9e9a8d628329@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270208T073900
+DTEND;TZID=America/Chicago:20270208T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:804bc085-1c12-49d8-befe-e77e876c942d@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270209T073900
+DTEND;TZID=America/Chicago:20270209T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:09a34fe3-7f8e-4d2c-be96-7b6e67c9c882@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270210T073900
+DTEND;TZID=America/Chicago:20270210T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:f4d04c0a-c100-4c17-99ce-dd48cf8b5e76@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270211T073900
+DTEND;TZID=America/Chicago:20270211T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:1b14a0e6-c827-4320-90ce-0b7651f3ef54@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270212T073900
+DTEND;TZID=America/Chicago:20270212T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:eb509c4c-07ad-4144-bdab-d73f30225275@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270216T073900
+DTEND;TZID=America/Chicago:20270216T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:b5ac1fb9-b530-42a7-96c8-ffe4b22deaa7@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270217T073900
+DTEND;TZID=America/Chicago:20270217T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:c2474f6c-cdac-4905-a5de-5771a0ecec7e@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270218T073900
+DTEND;TZID=America/Chicago:20270218T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:f79cbc70-10cb-4070-ac5e-d4c7a004dd0a@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270219T073900
+DTEND;TZID=America/Chicago:20270219T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:6360905b-2769-44e8-9a77-74e92a02c2f5@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270222T073900
+DTEND;TZID=America/Chicago:20270222T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:a4d47b78-5c37-4b6c-b568-2b69a1eb7b2f@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270223T073900
+DTEND;TZID=America/Chicago:20270223T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:94722cd8-524d-4f37-8729-072637654d30@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270224T073900
+DTEND;TZID=America/Chicago:20270224T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:c52ca0e4-6148-4f3a-a331-40a02350243e@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270225T073900
+DTEND;TZID=America/Chicago:20270225T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:4545d41c-f887-42cb-8f38-5ba44bf7d9c2@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270226T073900
+DTEND;TZID=America/Chicago:20270226T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:1a201e25-5bce-4161-a393-802169109216@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270301T073900
+DTEND;TZID=America/Chicago:20270301T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:c609b820-e065-4802-b256-f19a77f8a22d@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270302T073900
+DTEND;TZID=America/Chicago:20270302T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:e07383f2-ba48-4d8a-9ddb-50b0a0445224@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Improvement Day — Half Day
+DTSTART;TZID=America/Chicago:20270303T073900
+DTEND;TZID=America/Chicago:20270303T120000
+DESCRIPTION:District SIP bell schedule dismisses middle school at noon.
+END:VEVENT
+BEGIN:VEVENT
+UID:291c12ac-ea71-4c57-b277-6d19539b40cb@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270304T073900
+DTEND;TZID=America/Chicago:20270304T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:085f7327-5038-43d3-ac90-dcc1324d58e6@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270305T073900
+DTEND;TZID=America/Chicago:20270305T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:29761660-86d0-4287-a1c8-335f20495601@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270308T073900
+DTEND;TZID=America/Chicago:20270308T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:63fb456f-069a-49ec-84b4-35eab38cda80@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270309T073900
+DTEND;TZID=America/Chicago:20270309T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:1e24bc77-6384-4035-a983-2e6ea3910052@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270310T073900
+DTEND;TZID=America/Chicago:20270310T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:415b52e7-773a-4d6f-9125-9b99f9d4b26c@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270311T073900
+DTEND;TZID=America/Chicago:20270311T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:e1995a6d-3f45-48ce-b2f6-b1df249bcff8@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270312T073900
+DTEND;TZID=America/Chicago:20270312T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:aef72d80-ce78-4f1e-a880-905a8b9c9080@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270315T073900
+DTEND;TZID=America/Chicago:20270315T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:9b41c41d-6067-4350-bd4d-4999f4f096a4@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270316T073900
+DTEND;TZID=America/Chicago:20270316T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:fa74fbe9-ce33-44f9-a2a4-be80c5efad3d@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270317T073900
+DTEND;TZID=America/Chicago:20270317T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:c30796b8-b149-4eaf-ba93-d87944050a57@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270318T073900
+DTEND;TZID=America/Chicago:20270318T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:06fd2b56-8e69-4e40-8971-2622520419b4@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270319T073900
+DTEND;TZID=America/Chicago:20270319T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:c3a28fcc-7005-4d9f-ab42-916de2441e99@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270322T073900
+DTEND;TZID=America/Chicago:20270322T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:ab8b52a6-2bca-470a-ab29-de22bc501d4f@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270323T073900
+DTEND;TZID=America/Chicago:20270323T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:6350928f-8592-469e-af41-e838f50eebb9@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270324T073900
+DTEND;TZID=America/Chicago:20270324T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:102c3b55-c94f-434c-b4cc-8e4cb31a76da@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270325T073900
+DTEND;TZID=America/Chicago:20270325T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:ec435ee0-2985-42d5-ae7f-b69260f27a6a@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270405T073900
+DTEND;TZID=America/Chicago:20270405T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:1961cb25-6c09-488b-9be2-2e6c4ce1738b@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270406T073900
+DTEND;TZID=America/Chicago:20270406T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:d7a8d650-a457-4310-94c2-984c6c7edf7d@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270407T073900
+DTEND;TZID=America/Chicago:20270407T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:7cb18ad7-122e-4bac-9af9-1c208311e2c7@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270408T073900
+DTEND;TZID=America/Chicago:20270408T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:09018179-7bad-4253-af18-7602216b4572@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270409T073900
+DTEND;TZID=America/Chicago:20270409T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:52297b69-05bb-4bf8-bfcb-9fa688eed1d6@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270412T073900
+DTEND;TZID=America/Chicago:20270412T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:3e5fd92a-6b01-4990-9b51-074122376dac@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270413T073900
+DTEND;TZID=America/Chicago:20270413T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:5b325a0c-1b75-4df2-ab0b-a7bed709ec83@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270414T073900
+DTEND;TZID=America/Chicago:20270414T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:f13db6d8-4f48-4565-b8ce-9bee713908db@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270415T073900
+DTEND;TZID=America/Chicago:20270415T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:032bdf69-85e0-4b59-827d-19e9a788eaa8@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270416T073900
+DTEND;TZID=America/Chicago:20270416T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:c47ddbd5-f23d-406d-8ca0-24614195dd29@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270419T073900
+DTEND;TZID=America/Chicago:20270419T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:fb43e6f6-4567-4bdd-8294-3033da4beb48@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270420T073900
+DTEND;TZID=America/Chicago:20270420T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:a0220cf0-d9b5-4971-9245-351b7b48a022@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Improvement Day — Half Day
+DTSTART;TZID=America/Chicago:20270421T073900
+DTEND;TZID=America/Chicago:20270421T120000
+DESCRIPTION:District SIP bell schedule dismisses middle school at noon.
+END:VEVENT
+BEGIN:VEVENT
+UID:0c23855c-e72b-4290-ae30-f3a7472adbbc@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270422T073900
+DTEND;TZID=America/Chicago:20270422T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:428e07f7-0046-47b5-ba34-c645cc86f8a1@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270423T073900
+DTEND;TZID=America/Chicago:20270423T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:34aa3c75-e098-4013-b1ae-c7753822ba98@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270426T073900
+DTEND;TZID=America/Chicago:20270426T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:3ee964ea-a36a-4ddd-885d-34ce70cbc822@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270427T073900
+DTEND;TZID=America/Chicago:20270427T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:8344fd9f-7ee3-4816-9621-dc31a06dcad0@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270428T073900
+DTEND;TZID=America/Chicago:20270428T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:e0be5c5d-6c39-48c9-946c-651febcec147@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270429T073900
+DTEND;TZID=America/Chicago:20270429T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:a30aee4a-3727-4ed1-94f1-bfee28a18712@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270503T073900
+DTEND;TZID=America/Chicago:20270503T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:a7ee96dd-7b3d-4af8-9425-491922051fcb@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270504T073900
+DTEND;TZID=America/Chicago:20270504T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:52edfaa1-c44f-4bf0-a42b-8f3de802b5c2@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270505T073900
+DTEND;TZID=America/Chicago:20270505T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:43b63784-595b-4cf3-a354-fb5956080fcc@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270506T073900
+DTEND;TZID=America/Chicago:20270506T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:2fb92973-4dd8-46c5-889c-4aa24f25578a@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270510T073900
+DTEND;TZID=America/Chicago:20270510T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:e4e6d55f-df3d-4aad-8064-28d973218b95@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270511T073900
+DTEND;TZID=America/Chicago:20270511T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:baeac804-88e6-42b1-ae39-bdf42e108595@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270512T073900
+DTEND;TZID=America/Chicago:20270512T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:c3aa1d01-9fe8-4e80-8f75-39b81e296ff5@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270513T073900
+DTEND;TZID=America/Chicago:20270513T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:8b21960e-1a3c-41d6-9784-4fab7754b15d@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270517T073900
+DTEND;TZID=America/Chicago:20270517T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:4de6ca43-7a76-48ff-855a-e2592cfeed8e@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270518T073900
+DTEND;TZID=America/Chicago:20270518T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:f6312516-0c6b-41a2-b7c9-4b6f9ba02aab@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270519T073900
+DTEND;TZID=America/Chicago:20270519T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:fb9038f5-f76b-469a-a75c-7cb078798d0e@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270520T073900
+DTEND;TZID=America/Chicago:20270520T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:b35f3350-d3eb-4ad5-ba37-0675acbde5ce@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270524T073900
+DTEND;TZID=America/Chicago:20270524T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:a395c70d-3a4d-49f5-ba1d-bb00adf1636a@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270525T073900
+DTEND;TZID=America/Chicago:20270525T153000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:5ec50747-5ef2-480e-8876-0249f63add14@dunlap-family-calendar
+DTSTAMP:20261021T000000Z
+SUMMARY:School Day — Elementary & Middle
+DTSTART;TZID=America/Chicago:20270526T073900
+DTEND;TZID=America/Chicago:20270526T150000
+DESCRIPTION:Elementary school begins at 7:39 a.m.\; middle school begins at
+  8:20 a.m. and dismisses at 3:30 p.m. on regular days\, or 3:00 p.m. Wedne
+ sdays.
+END:VEVENT
+BEGIN:VEVENT
 UID:45969abf-d128-4bb2-a209-415945cf6825@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260812T074500
-DTEND;TZID=America/Chicago:20260812T080500
+DTSTART;TZID=America/Chicago:20260812T073000
+DTEND;TZID=America/Chicago:20260812T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:3b3c5df2-c246-4e44-9529-1c5f4214e336@dunlap-family-calendar
@@ -388,8 +2116,8 @@ BEGIN:VEVENT
 UID:91a5035e-fe91-42d5-8032-471ee09b1a9b@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260813T074500
-DTEND;TZID=America/Chicago:20260813T080500
+DTSTART;TZID=America/Chicago:20260813T073000
+DTEND;TZID=America/Chicago:20260813T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:b82a656d-144b-4178-a924-82b901444a2e@dunlap-family-calendar
@@ -416,8 +2144,8 @@ BEGIN:VEVENT
 UID:c5c3b8d3-9141-44ab-a2b8-048d6a59093f@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260814T074500
-DTEND;TZID=America/Chicago:20260814T080500
+DTSTART;TZID=America/Chicago:20260814T073000
+DTEND;TZID=America/Chicago:20260814T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:704325a6-e7f2-4a7c-9d39-29aa0faa503c@dunlap-family-calendar
@@ -444,8 +2172,8 @@ BEGIN:VEVENT
 UID:fcc63dd6-0a90-4dfb-b443-85551c17ff99@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260817T074500
-DTEND;TZID=America/Chicago:20260817T080500
+DTSTART;TZID=America/Chicago:20260817T073000
+DTEND;TZID=America/Chicago:20260817T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:3665b33b-4143-43a1-b878-64b6e62a8a65@dunlap-family-calendar
@@ -472,8 +2200,8 @@ BEGIN:VEVENT
 UID:59a07f75-c47d-4154-98e7-127d2d99df8f@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260818T074500
-DTEND;TZID=America/Chicago:20260818T080500
+DTSTART;TZID=America/Chicago:20260818T073000
+DTEND;TZID=America/Chicago:20260818T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:fe6046b5-c7e9-454d-80bb-c37d08df8c11@dunlap-family-calendar
@@ -500,8 +2228,8 @@ BEGIN:VEVENT
 UID:dee53625-6371-49e5-9022-56982ad49ae8@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260819T074500
-DTEND;TZID=America/Chicago:20260819T080500
+DTSTART;TZID=America/Chicago:20260819T073000
+DTEND;TZID=America/Chicago:20260819T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:e4a54671-cdea-4959-af5c-fb30d71b006f@dunlap-family-calendar
@@ -528,8 +2256,8 @@ BEGIN:VEVENT
 UID:4ad680ce-0b4c-42db-a1ae-8d4f431237f9@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260820T074500
-DTEND;TZID=America/Chicago:20260820T080500
+DTSTART;TZID=America/Chicago:20260820T073000
+DTEND;TZID=America/Chicago:20260820T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:b82405e9-81b8-4152-91e5-b2418d9c4ae0@dunlap-family-calendar
@@ -556,8 +2284,8 @@ BEGIN:VEVENT
 UID:6b000c8c-0f32-4341-aaf6-f882d50797ab@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260821T074500
-DTEND;TZID=America/Chicago:20260821T080500
+DTSTART;TZID=America/Chicago:20260821T073000
+DTEND;TZID=America/Chicago:20260821T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:1f865ae8-79e2-4554-bf6f-6094dacf5c59@dunlap-family-calendar
@@ -584,8 +2312,8 @@ BEGIN:VEVENT
 UID:6887c54f-6df7-44af-9898-8380c5bbd683@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260824T074500
-DTEND;TZID=America/Chicago:20260824T080500
+DTSTART;TZID=America/Chicago:20260824T073000
+DTEND;TZID=America/Chicago:20260824T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:b5c6edf0-b002-47de-9477-dd10eadb33e7@dunlap-family-calendar
@@ -612,8 +2340,8 @@ BEGIN:VEVENT
 UID:b8f5b25a-e9ca-4a90-a930-2595dde18592@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260825T074500
-DTEND;TZID=America/Chicago:20260825T080500
+DTSTART;TZID=America/Chicago:20260825T073000
+DTEND;TZID=America/Chicago:20260825T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:e051a1a9-2558-4981-8325-3539eafa89d6@dunlap-family-calendar
@@ -640,8 +2368,8 @@ BEGIN:VEVENT
 UID:a17634af-6b10-400a-88bc-e357df874325@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260826T074500
-DTEND;TZID=America/Chicago:20260826T080500
+DTSTART;TZID=America/Chicago:20260826T073000
+DTEND;TZID=America/Chicago:20260826T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:2f013c07-1c0c-4058-9fde-4e1ac3994152@dunlap-family-calendar
@@ -668,8 +2396,8 @@ BEGIN:VEVENT
 UID:806699a4-0148-4263-956f-7c1b02cac3fe@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260827T074500
-DTEND;TZID=America/Chicago:20260827T080500
+DTSTART;TZID=America/Chicago:20260827T073000
+DTEND;TZID=America/Chicago:20260827T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:1007eeb9-e480-4566-949d-4a7ae65ba6a0@dunlap-family-calendar
@@ -696,8 +2424,8 @@ BEGIN:VEVENT
 UID:137763b1-e39f-47e0-8032-3ca52c2e41b3@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260828T074500
-DTEND;TZID=America/Chicago:20260828T080500
+DTSTART;TZID=America/Chicago:20260828T073000
+DTEND;TZID=America/Chicago:20260828T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:65dc40ec-cf33-4c37-a44c-294ae5639701@dunlap-family-calendar
@@ -724,8 +2452,8 @@ BEGIN:VEVENT
 UID:fc5d48e0-5871-415e-a0e9-47e77e2d083b@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260831T074500
-DTEND;TZID=America/Chicago:20260831T080500
+DTSTART;TZID=America/Chicago:20260831T073000
+DTEND;TZID=America/Chicago:20260831T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:849bfbc9-28e1-4a8f-8f40-5e461524e40d@dunlap-family-calendar
@@ -752,8 +2480,8 @@ BEGIN:VEVENT
 UID:56f90ce9-aec9-4bf9-91dd-14ca02fbd683@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260901T074500
-DTEND;TZID=America/Chicago:20260901T080500
+DTSTART;TZID=America/Chicago:20260901T073000
+DTEND;TZID=America/Chicago:20260901T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:1233ff94-d5c9-4917-aa60-82ba5c2ff12a@dunlap-family-calendar
@@ -780,8 +2508,8 @@ BEGIN:VEVENT
 UID:54050f93-dff1-41c8-a0f8-b1b9a7fc9db8@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260902T074500
-DTEND;TZID=America/Chicago:20260902T080500
+DTSTART;TZID=America/Chicago:20260902T073000
+DTEND;TZID=America/Chicago:20260902T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:f3bb0b17-37a6-48f2-8bad-80b78ed923e7@dunlap-family-calendar
@@ -808,8 +2536,8 @@ BEGIN:VEVENT
 UID:a75b74fa-b24e-408f-adc9-8314c2422f5f@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260903T074500
-DTEND;TZID=America/Chicago:20260903T080500
+DTSTART;TZID=America/Chicago:20260903T073000
+DTEND;TZID=America/Chicago:20260903T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:8061f700-e64a-48e5-916e-f963865d12cf@dunlap-family-calendar
@@ -836,8 +2564,8 @@ BEGIN:VEVENT
 UID:c2a63d36-f970-46f4-afd3-7f8a92242318@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260904T074500
-DTEND;TZID=America/Chicago:20260904T080500
+DTSTART;TZID=America/Chicago:20260904T073000
+DTEND;TZID=America/Chicago:20260904T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:ad09907a-2e76-4f4e-a647-98f917731519@dunlap-family-calendar
@@ -864,8 +2592,8 @@ BEGIN:VEVENT
 UID:a4f8620b-3111-468a-aaa6-885cc535b630@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260908T074500
-DTEND;TZID=America/Chicago:20260908T080500
+DTSTART;TZID=America/Chicago:20260908T073000
+DTEND;TZID=America/Chicago:20260908T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:4012d85e-358d-408f-b8d5-b6da71f1cdcf@dunlap-family-calendar
@@ -892,8 +2620,8 @@ BEGIN:VEVENT
 UID:9c6b29c3-147e-4674-8846-e7a2c412a5b6@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260909T074500
-DTEND;TZID=America/Chicago:20260909T080500
+DTSTART;TZID=America/Chicago:20260909T073000
+DTEND;TZID=America/Chicago:20260909T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:f8405df7-2416-4c29-889a-d5bd8b974433@dunlap-family-calendar
@@ -920,8 +2648,8 @@ BEGIN:VEVENT
 UID:5e8bb515-1a86-4282-8148-fcb0b5cc8bcd@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260910T074500
-DTEND;TZID=America/Chicago:20260910T080500
+DTSTART;TZID=America/Chicago:20260910T073000
+DTEND;TZID=America/Chicago:20260910T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:a0ffbebd-9ca1-429b-abce-2eec1d1a7b60@dunlap-family-calendar
@@ -948,8 +2676,8 @@ BEGIN:VEVENT
 UID:8f7a78cc-8516-4757-8813-6b0fc92f9dd3@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260911T074500
-DTEND;TZID=America/Chicago:20260911T080500
+DTSTART;TZID=America/Chicago:20260911T073000
+DTEND;TZID=America/Chicago:20260911T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:f60310f1-3d6a-474c-a9c4-d53ae29c22a6@dunlap-family-calendar
@@ -976,8 +2704,8 @@ BEGIN:VEVENT
 UID:5e6114a9-62fb-4b15-be60-8cbf1fc43c7f@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260914T074500
-DTEND;TZID=America/Chicago:20260914T080500
+DTSTART;TZID=America/Chicago:20260914T073000
+DTEND;TZID=America/Chicago:20260914T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:ecfe7ef2-3376-490b-b256-d4e030124e7e@dunlap-family-calendar
@@ -1004,8 +2732,8 @@ BEGIN:VEVENT
 UID:38d01ec4-b002-4ecc-b3a6-1d61ad82562b@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260915T074500
-DTEND;TZID=America/Chicago:20260915T080500
+DTSTART;TZID=America/Chicago:20260915T073000
+DTEND;TZID=America/Chicago:20260915T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:af6dbd97-1828-4aa5-a16f-0b0d6c538020@dunlap-family-calendar
@@ -1032,8 +2760,8 @@ BEGIN:VEVENT
 UID:f05352cf-79c8-47cb-9485-47ec25d66dd0@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260916T074500
-DTEND;TZID=America/Chicago:20260916T080500
+DTSTART;TZID=America/Chicago:20260916T073000
+DTEND;TZID=America/Chicago:20260916T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:bc72ceea-ec46-46b5-a1a0-7ff2ba284647@dunlap-family-calendar
@@ -1060,8 +2788,8 @@ BEGIN:VEVENT
 UID:37516a40-f031-4225-8a4b-2773de0fcc20@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260917T074500
-DTEND;TZID=America/Chicago:20260917T080500
+DTSTART;TZID=America/Chicago:20260917T073000
+DTEND;TZID=America/Chicago:20260917T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:6d1e09a9-a500-4861-8d40-8a023830bfe5@dunlap-family-calendar
@@ -1088,8 +2816,8 @@ BEGIN:VEVENT
 UID:b4f8cadd-191d-4a71-882a-c665a86394fa@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260918T074500
-DTEND;TZID=America/Chicago:20260918T080500
+DTSTART;TZID=America/Chicago:20260918T073000
+DTEND;TZID=America/Chicago:20260918T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:af1d0045-9c2e-4df6-ac7c-c76f5eae6e35@dunlap-family-calendar
@@ -1116,8 +2844,8 @@ BEGIN:VEVENT
 UID:424c911f-151d-4b23-8917-67a171afe0db@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260921T074500
-DTEND;TZID=America/Chicago:20260921T080500
+DTSTART;TZID=America/Chicago:20260921T073000
+DTEND;TZID=America/Chicago:20260921T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:c2538840-d110-48c2-b692-be38f122cbb7@dunlap-family-calendar
@@ -1144,8 +2872,8 @@ BEGIN:VEVENT
 UID:6c567530-5992-42b8-8caa-da4538637825@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260922T074500
-DTEND;TZID=America/Chicago:20260922T080500
+DTSTART;TZID=America/Chicago:20260922T073000
+DTEND;TZID=America/Chicago:20260922T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:9f4b64b6-3c1d-4585-a6a7-a7405252f8b1@dunlap-family-calendar
@@ -1172,8 +2900,8 @@ BEGIN:VEVENT
 UID:91d10647-aae8-4a08-a4f2-26f8c6423484@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260923T074500
-DTEND;TZID=America/Chicago:20260923T080500
+DTSTART;TZID=America/Chicago:20260923T073000
+DTEND;TZID=America/Chicago:20260923T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:645a0c37-57fd-4356-8f40-38c99423cc4d@dunlap-family-calendar
@@ -1200,8 +2928,8 @@ BEGIN:VEVENT
 UID:58f30718-ab51-4984-8ce3-5a5792db4c92@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260924T074500
-DTEND;TZID=America/Chicago:20260924T080500
+DTSTART;TZID=America/Chicago:20260924T073000
+DTEND;TZID=America/Chicago:20260924T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:19ec562d-56fe-4778-8f16-3c4c4eb4e6bf@dunlap-family-calendar
@@ -1228,8 +2956,8 @@ BEGIN:VEVENT
 UID:812515fb-9269-4f7b-914a-ecc260b4ffca@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260928T074500
-DTEND;TZID=America/Chicago:20260928T080500
+DTSTART;TZID=America/Chicago:20260928T073000
+DTEND;TZID=America/Chicago:20260928T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:2820e47c-faba-49a7-94ef-5d26c2adb6b2@dunlap-family-calendar
@@ -1256,8 +2984,8 @@ BEGIN:VEVENT
 UID:f9b46019-7ee4-4420-a986-81d8c6389cc7@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260929T074500
-DTEND;TZID=America/Chicago:20260929T080500
+DTSTART;TZID=America/Chicago:20260929T073000
+DTEND;TZID=America/Chicago:20260929T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:9769526a-74e5-46a7-81b7-21a7c2aad012@dunlap-family-calendar
@@ -1284,8 +3012,8 @@ BEGIN:VEVENT
 UID:d5346d03-161f-4219-a095-481da7f3bcb5@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20260930T074500
-DTEND;TZID=America/Chicago:20260930T080500
+DTSTART;TZID=America/Chicago:20260930T073000
+DTEND;TZID=America/Chicago:20260930T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:205e8e9a-e62d-4934-affa-8540e7c82a51@dunlap-family-calendar
@@ -1312,8 +3040,8 @@ BEGIN:VEVENT
 UID:fca5416f-95a1-4cc9-bf83-7b5b3da216f4@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261001T074500
-DTEND;TZID=America/Chicago:20261001T080500
+DTSTART;TZID=America/Chicago:20261001T073000
+DTEND;TZID=America/Chicago:20261001T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:40a7ce9b-f625-48d4-811a-0606d76595d8@dunlap-family-calendar
@@ -1340,8 +3068,8 @@ BEGIN:VEVENT
 UID:83c0f24b-c964-4a70-b625-a1ccd6b7c631@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261002T074500
-DTEND;TZID=America/Chicago:20261002T080500
+DTSTART;TZID=America/Chicago:20261002T073000
+DTEND;TZID=America/Chicago:20261002T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:0d250435-e2b6-49ec-8fce-397ae93bae85@dunlap-family-calendar
@@ -1368,8 +3096,8 @@ BEGIN:VEVENT
 UID:d27b6624-c9a2-4dd0-a496-15662e57d244@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261005T074500
-DTEND;TZID=America/Chicago:20261005T080500
+DTSTART;TZID=America/Chicago:20261005T073000
+DTEND;TZID=America/Chicago:20261005T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:0b7dd5c2-c100-4336-816f-422692086084@dunlap-family-calendar
@@ -1396,8 +3124,8 @@ BEGIN:VEVENT
 UID:5ca0b209-703a-4b69-a216-5826eccc8631@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261006T074500
-DTEND;TZID=America/Chicago:20261006T080500
+DTSTART;TZID=America/Chicago:20261006T073000
+DTEND;TZID=America/Chicago:20261006T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:531e37a0-f69e-419f-acf0-9e2688ae7396@dunlap-family-calendar
@@ -1424,8 +3152,8 @@ BEGIN:VEVENT
 UID:dfab01de-1c72-43ff-8559-ef129bb12a87@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261007T074500
-DTEND;TZID=America/Chicago:20261007T080500
+DTSTART;TZID=America/Chicago:20261007T073000
+DTEND;TZID=America/Chicago:20261007T075000
 DESCRIPTION:District half day for students. Times below use the regular sch
  edule you provided.
 END:VEVENT
@@ -1460,8 +3188,8 @@ BEGIN:VEVENT
 UID:ed59d22a-f1ce-4d80-8d45-366ba21ddc10@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261008T074500
-DTEND;TZID=America/Chicago:20261008T080500
+DTSTART;TZID=America/Chicago:20261008T073000
+DTEND;TZID=America/Chicago:20261008T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:463ad161-0299-44a2-b2c6-0c9abff1338a@dunlap-family-calendar
@@ -1488,8 +3216,8 @@ BEGIN:VEVENT
 UID:cefb39c6-4a84-40de-8ad8-b1559e245ff1@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261009T074500
-DTEND;TZID=America/Chicago:20261009T080500
+DTSTART;TZID=America/Chicago:20261009T073000
+DTEND;TZID=America/Chicago:20261009T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:acf6a69b-4dcb-428e-91ff-25c7b3f9fdc7@dunlap-family-calendar
@@ -1516,8 +3244,8 @@ BEGIN:VEVENT
 UID:08c9bfc7-1a7d-46ab-b4ca-536a0065aee2@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261013T074500
-DTEND;TZID=America/Chicago:20261013T080500
+DTSTART;TZID=America/Chicago:20261013T073000
+DTEND;TZID=America/Chicago:20261013T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:8bcaaf6c-cb49-4c74-91f9-066278db087a@dunlap-family-calendar
@@ -1544,8 +3272,8 @@ BEGIN:VEVENT
 UID:4dd57d45-f6d8-4ede-9ba3-10c6f01e02b4@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261014T074500
-DTEND;TZID=America/Chicago:20261014T080500
+DTSTART;TZID=America/Chicago:20261014T073000
+DTEND;TZID=America/Chicago:20261014T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:aed48c5b-46cf-45c3-8329-99404661d5fc@dunlap-family-calendar
@@ -1572,8 +3300,8 @@ BEGIN:VEVENT
 UID:2ebc4f37-38c0-4837-a619-738190f51d2e@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261015T074500
-DTEND;TZID=America/Chicago:20261015T080500
+DTSTART;TZID=America/Chicago:20261015T073000
+DTEND;TZID=America/Chicago:20261015T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:f6eccb18-8f5b-4baf-b688-98f2631510f6@dunlap-family-calendar
@@ -1600,8 +3328,8 @@ BEGIN:VEVENT
 UID:6a79844b-7142-47c4-a909-222270ef18a3@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261016T074500
-DTEND;TZID=America/Chicago:20261016T080500
+DTSTART;TZID=America/Chicago:20261016T073000
+DTEND;TZID=America/Chicago:20261016T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:45bf29ac-4725-4e9c-a740-2dac8ce9d09c@dunlap-family-calendar
@@ -1628,8 +3356,8 @@ BEGIN:VEVENT
 UID:4b2d159e-8c2d-4f1c-b5d4-3a515ec4b67b@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261019T074500
-DTEND;TZID=America/Chicago:20261019T080500
+DTSTART;TZID=America/Chicago:20261019T073000
+DTEND;TZID=America/Chicago:20261019T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:08187bb6-f6cd-4982-95bd-45ad6c919ce4@dunlap-family-calendar
@@ -1656,8 +3384,8 @@ BEGIN:VEVENT
 UID:17bbbacf-887b-47ff-be70-dc19c6240ac2@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261020T074500
-DTEND;TZID=America/Chicago:20261020T080500
+DTSTART;TZID=America/Chicago:20261020T073000
+DTEND;TZID=America/Chicago:20261020T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:372ae5b8-cbd6-4c4b-8d9c-ad5ef9b875e3@dunlap-family-calendar
@@ -1684,8 +3412,8 @@ BEGIN:VEVENT
 UID:0d3dde73-c43a-47f9-952f-943962bfc3ad@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261026T074500
-DTEND;TZID=America/Chicago:20261026T080500
+DTSTART;TZID=America/Chicago:20261026T073000
+DTEND;TZID=America/Chicago:20261026T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:1f9a84e5-c79e-4cb6-98a7-fe7e8adb4ab3@dunlap-family-calendar
@@ -1712,8 +3440,8 @@ BEGIN:VEVENT
 UID:e99f1eaa-1f4e-4c22-9a36-bfd5930ddce9@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261027T074500
-DTEND;TZID=America/Chicago:20261027T080500
+DTSTART;TZID=America/Chicago:20261027T073000
+DTEND;TZID=America/Chicago:20261027T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:e2851bac-bfc1-4ef6-b015-ef232be29058@dunlap-family-calendar
@@ -1740,8 +3468,8 @@ BEGIN:VEVENT
 UID:fae8281f-8781-4f8e-bd18-0811b663b820@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261028T074500
-DTEND;TZID=America/Chicago:20261028T080500
+DTSTART;TZID=America/Chicago:20261028T073000
+DTEND;TZID=America/Chicago:20261028T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:c3be9db7-4d6c-4b11-a2f6-0f381d557a0e@dunlap-family-calendar
@@ -1768,8 +3496,8 @@ BEGIN:VEVENT
 UID:d54bfceb-853d-49b1-8b4f-84a438c04d3c@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261029T074500
-DTEND;TZID=America/Chicago:20261029T080500
+DTSTART;TZID=America/Chicago:20261029T073000
+DTEND;TZID=America/Chicago:20261029T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:b8c89d53-ac58-4060-9f88-b0bc5b322d5a@dunlap-family-calendar
@@ -1796,8 +3524,8 @@ BEGIN:VEVENT
 UID:5fb0abc7-443e-4fdf-9eb3-2b5bd1715b50@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261030T074500
-DTEND;TZID=America/Chicago:20261030T080500
+DTSTART;TZID=America/Chicago:20261030T073000
+DTEND;TZID=America/Chicago:20261030T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:68c67a9d-1bb8-4d60-b5f0-8c33d128387b@dunlap-family-calendar
@@ -1824,8 +3552,8 @@ BEGIN:VEVENT
 UID:40771641-34d4-4b2b-a3d4-2b9c16fbaa22@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261102T074500
-DTEND;TZID=America/Chicago:20261102T080500
+DTSTART;TZID=America/Chicago:20261102T073000
+DTEND;TZID=America/Chicago:20261102T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:0a66cbc5-1015-4c5b-abde-81301fb3f4b6@dunlap-family-calendar
@@ -1852,8 +3580,8 @@ BEGIN:VEVENT
 UID:c53222a2-870e-44a9-a947-32e4147135a9@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261103T074500
-DTEND;TZID=America/Chicago:20261103T080500
+DTSTART;TZID=America/Chicago:20261103T073000
+DTEND;TZID=America/Chicago:20261103T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:3424304f-35bb-4d42-8182-c36a1e2bb557@dunlap-family-calendar
@@ -1880,8 +3608,8 @@ BEGIN:VEVENT
 UID:14308a52-2329-4643-ac5f-a9e79168c448@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261104T074500
-DTEND;TZID=America/Chicago:20261104T080500
+DTSTART;TZID=America/Chicago:20261104T073000
+DTEND;TZID=America/Chicago:20261104T075000
 DESCRIPTION:District half day for students. Times below use the regular sch
  edule you provided.
 END:VEVENT
@@ -1916,8 +3644,8 @@ BEGIN:VEVENT
 UID:ea422eb1-cebf-402f-a509-feccf1022fa7@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261105T074500
-DTEND;TZID=America/Chicago:20261105T080500
+DTSTART;TZID=America/Chicago:20261105T073000
+DTEND;TZID=America/Chicago:20261105T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:26585179-709c-43b4-9a8e-ade1333b328a@dunlap-family-calendar
@@ -1944,8 +3672,8 @@ BEGIN:VEVENT
 UID:a574aaf6-5c17-424a-b4ba-841419f00572@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261106T074500
-DTEND;TZID=America/Chicago:20261106T080500
+DTSTART;TZID=America/Chicago:20261106T073000
+DTEND;TZID=America/Chicago:20261106T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:09959687-9eff-4912-8ff1-39284f611196@dunlap-family-calendar
@@ -1972,8 +3700,8 @@ BEGIN:VEVENT
 UID:bf4167f3-5801-43e7-8f6a-8b038fd76178@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261109T074500
-DTEND;TZID=America/Chicago:20261109T080500
+DTSTART;TZID=America/Chicago:20261109T073000
+DTEND;TZID=America/Chicago:20261109T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:ac0374b4-c84b-4f86-aff4-0531ceba87f6@dunlap-family-calendar
@@ -2000,8 +3728,8 @@ BEGIN:VEVENT
 UID:c4bc73d4-3239-4806-8aea-0c52a7bd0a9e@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261110T074500
-DTEND;TZID=America/Chicago:20261110T080500
+DTSTART;TZID=America/Chicago:20261110T073000
+DTEND;TZID=America/Chicago:20261110T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:f290e0ab-3c26-44c4-8b18-d2b05e2ff7a2@dunlap-family-calendar
@@ -2028,8 +3756,8 @@ BEGIN:VEVENT
 UID:89218e2f-06c4-40cc-a096-91de124e7ba1@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261111T074500
-DTEND;TZID=America/Chicago:20261111T080500
+DTSTART;TZID=America/Chicago:20261111T073000
+DTEND;TZID=America/Chicago:20261111T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:dc0cb13f-4dfb-473c-91fb-e8c23d7d1bb9@dunlap-family-calendar
@@ -2056,8 +3784,8 @@ BEGIN:VEVENT
 UID:d8befa27-aa2d-43f5-8d0a-21218bcc4676@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261112T074500
-DTEND;TZID=America/Chicago:20261112T080500
+DTSTART;TZID=America/Chicago:20261112T073000
+DTEND;TZID=America/Chicago:20261112T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:4d9a4910-605c-496f-a391-0ade3f0f03e9@dunlap-family-calendar
@@ -2084,8 +3812,8 @@ BEGIN:VEVENT
 UID:86b19d2f-4601-4a77-9255-6e3ba3d2871b@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261113T074500
-DTEND;TZID=America/Chicago:20261113T080500
+DTSTART;TZID=America/Chicago:20261113T073000
+DTEND;TZID=America/Chicago:20261113T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:7782c71e-8363-4739-b8d5-9b191f105518@dunlap-family-calendar
@@ -2112,8 +3840,8 @@ BEGIN:VEVENT
 UID:cb4506e7-ab2a-4cb7-9976-a0c9d6c7bfc4@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261116T074500
-DTEND;TZID=America/Chicago:20261116T080500
+DTSTART;TZID=America/Chicago:20261116T073000
+DTEND;TZID=America/Chicago:20261116T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:82df276f-78ff-4437-87ca-2c8752208697@dunlap-family-calendar
@@ -2140,8 +3868,8 @@ BEGIN:VEVENT
 UID:e67cafea-76a8-4a76-bacd-c3d16afb6a68@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261117T074500
-DTEND;TZID=America/Chicago:20261117T080500
+DTSTART;TZID=America/Chicago:20261117T073000
+DTEND;TZID=America/Chicago:20261117T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:d49fd225-9479-408c-abe5-d01368963cb1@dunlap-family-calendar
@@ -2168,8 +3896,8 @@ BEGIN:VEVENT
 UID:58d99557-d073-4579-ae1e-1d03dbd9f505@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261118T074500
-DTEND;TZID=America/Chicago:20261118T080500
+DTSTART;TZID=America/Chicago:20261118T073000
+DTEND;TZID=America/Chicago:20261118T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:73c9f082-1358-4e77-a06f-919ec6db090d@dunlap-family-calendar
@@ -2196,8 +3924,8 @@ BEGIN:VEVENT
 UID:9af16db8-a6bc-41ab-9400-1e614473de42@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261119T074500
-DTEND;TZID=America/Chicago:20261119T080500
+DTSTART;TZID=America/Chicago:20261119T073000
+DTEND;TZID=America/Chicago:20261119T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:19a7f8d1-5278-462a-9b20-66bc46ea5757@dunlap-family-calendar
@@ -2224,8 +3952,8 @@ BEGIN:VEVENT
 UID:664b9854-2b69-48ae-9975-2010b7c8f324@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261120T074500
-DTEND;TZID=America/Chicago:20261120T080500
+DTSTART;TZID=America/Chicago:20261120T073000
+DTEND;TZID=America/Chicago:20261120T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:7c6ea577-2662-4426-ab89-3cf44ee8ccab@dunlap-family-calendar
@@ -2252,8 +3980,8 @@ BEGIN:VEVENT
 UID:cc0c811f-b621-44f7-8134-5526c5d60f66@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261123T074500
-DTEND;TZID=America/Chicago:20261123T080500
+DTSTART;TZID=America/Chicago:20261123T073000
+DTEND;TZID=America/Chicago:20261123T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:5edcd62d-d5ed-4782-b1c2-6afae8e352a6@dunlap-family-calendar
@@ -2280,8 +4008,8 @@ BEGIN:VEVENT
 UID:1aa94c97-290a-4f6e-a7de-f6c5fd92cfee@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261124T074500
-DTEND;TZID=America/Chicago:20261124T080500
+DTSTART;TZID=America/Chicago:20261124T073000
+DTEND;TZID=America/Chicago:20261124T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:3f9a01d8-775b-44fa-a7c3-262aed62b2f4@dunlap-family-calendar
@@ -2308,8 +4036,8 @@ BEGIN:VEVENT
 UID:d265a1f0-0a5e-402e-84e8-f122b3e940dc@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261130T074500
-DTEND;TZID=America/Chicago:20261130T080500
+DTSTART;TZID=America/Chicago:20261130T073000
+DTEND;TZID=America/Chicago:20261130T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:4e2c5cb7-0cbb-4ce5-919a-1351dc110a7f@dunlap-family-calendar
@@ -2336,8 +4064,8 @@ BEGIN:VEVENT
 UID:941e3ac1-7aee-46ce-a087-dc884c0258fc@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261201T074500
-DTEND;TZID=America/Chicago:20261201T080500
+DTSTART;TZID=America/Chicago:20261201T073000
+DTEND;TZID=America/Chicago:20261201T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:5fc0b5f4-3737-4871-9ed7-7d8b15e320ec@dunlap-family-calendar
@@ -2364,8 +4092,8 @@ BEGIN:VEVENT
 UID:537379aa-92aa-475b-a7b4-55e78fe0b350@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261202T074500
-DTEND;TZID=America/Chicago:20261202T080500
+DTSTART;TZID=America/Chicago:20261202T073000
+DTEND;TZID=America/Chicago:20261202T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:0cd5d00b-cfca-402d-a7c0-45f01700fcf3@dunlap-family-calendar
@@ -2392,8 +4120,8 @@ BEGIN:VEVENT
 UID:acdbf98e-77df-44c7-9d20-0090e90d19b3@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261203T074500
-DTEND;TZID=America/Chicago:20261203T080500
+DTSTART;TZID=America/Chicago:20261203T073000
+DTEND;TZID=America/Chicago:20261203T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:2bfedc78-247a-4633-8330-5cec024a7229@dunlap-family-calendar
@@ -2420,8 +4148,8 @@ BEGIN:VEVENT
 UID:ad4b4e3b-bb43-4774-83aa-5fb349a5cca8@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261204T074500
-DTEND;TZID=America/Chicago:20261204T080500
+DTSTART;TZID=America/Chicago:20261204T073000
+DTEND;TZID=America/Chicago:20261204T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:ace69ac3-c0bb-4941-8d72-a699e4f6f678@dunlap-family-calendar
@@ -2448,8 +4176,8 @@ BEGIN:VEVENT
 UID:2761d993-386b-4462-88e8-9e144d30336a@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261207T074500
-DTEND;TZID=America/Chicago:20261207T080500
+DTSTART;TZID=America/Chicago:20261207T073000
+DTEND;TZID=America/Chicago:20261207T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:8066fc1b-eac4-4da8-9900-ccdc0fff6793@dunlap-family-calendar
@@ -2476,8 +4204,8 @@ BEGIN:VEVENT
 UID:0d21f183-c6ec-4f7f-ab1f-a8530a200359@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261208T074500
-DTEND;TZID=America/Chicago:20261208T080500
+DTSTART;TZID=America/Chicago:20261208T073000
+DTEND;TZID=America/Chicago:20261208T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:aebe9be0-cfad-4a76-bdf5-959b7e516628@dunlap-family-calendar
@@ -2504,8 +4232,8 @@ BEGIN:VEVENT
 UID:88720d7f-2c2c-4852-a677-7e69f90d4cd1@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261209T074500
-DTEND;TZID=America/Chicago:20261209T080500
+DTSTART;TZID=America/Chicago:20261209T073000
+DTEND;TZID=America/Chicago:20261209T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:832bf122-b319-4acc-934f-7a619e99fc38@dunlap-family-calendar
@@ -2532,8 +4260,8 @@ BEGIN:VEVENT
 UID:4dc954fa-f3c7-4432-8e8b-e35475389bb7@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261210T074500
-DTEND;TZID=America/Chicago:20261210T080500
+DTSTART;TZID=America/Chicago:20261210T073000
+DTEND;TZID=America/Chicago:20261210T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:9ad02c36-ae55-4ba8-850e-234188a89211@dunlap-family-calendar
@@ -2560,8 +4288,8 @@ BEGIN:VEVENT
 UID:6d8d80f7-8fd7-41e3-999a-17e1082323fb@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261211T074500
-DTEND;TZID=America/Chicago:20261211T080500
+DTSTART;TZID=America/Chicago:20261211T073000
+DTEND;TZID=America/Chicago:20261211T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:4155c663-54cc-4d30-b6bd-c2392badc38c@dunlap-family-calendar
@@ -2588,8 +4316,8 @@ BEGIN:VEVENT
 UID:7f1f9835-ba4a-4b0d-b33a-4422d88528e8@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261214T074500
-DTEND;TZID=America/Chicago:20261214T080500
+DTSTART;TZID=America/Chicago:20261214T073000
+DTEND;TZID=America/Chicago:20261214T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:71a454f0-fedc-4400-9c92-02d81dbdf996@dunlap-family-calendar
@@ -2616,8 +4344,8 @@ BEGIN:VEVENT
 UID:41b822a6-2d2d-4e5d-b5d8-c9a29eb1af5d@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261215T074500
-DTEND;TZID=America/Chicago:20261215T080500
+DTSTART;TZID=America/Chicago:20261215T073000
+DTEND;TZID=America/Chicago:20261215T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:1d591d9c-c77b-4aa0-9dec-a70d06cb0012@dunlap-family-calendar
@@ -2644,8 +4372,8 @@ BEGIN:VEVENT
 UID:66fe9329-edb9-4ed2-92a1-aa3a0cf1da3b@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261216T074500
-DTEND;TZID=America/Chicago:20261216T080500
+DTSTART;TZID=America/Chicago:20261216T073000
+DTEND;TZID=America/Chicago:20261216T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:88555cb0-a781-4021-a756-234ab9e206d6@dunlap-family-calendar
@@ -2672,8 +4400,8 @@ BEGIN:VEVENT
 UID:76024b62-1ef7-4feb-a78e-5d4c7555331a@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261217T074500
-DTEND;TZID=America/Chicago:20261217T080500
+DTSTART;TZID=America/Chicago:20261217T073000
+DTEND;TZID=America/Chicago:20261217T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:f99737f4-28b5-465b-8f95-caa2f07116e3@dunlap-family-calendar
@@ -2700,8 +4428,8 @@ BEGIN:VEVENT
 UID:c14145eb-5f5f-43cd-9138-7939b723efa1@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20261218T074500
-DTEND;TZID=America/Chicago:20261218T080500
+DTSTART;TZID=America/Chicago:20261218T073000
+DTEND;TZID=America/Chicago:20261218T075000
 DESCRIPTION:District calendar: all buildings dismiss one hour early.
 END:VEVENT
 BEGIN:VEVENT
@@ -2732,8 +4460,8 @@ BEGIN:VEVENT
 UID:eb298089-f4b4-404c-b227-016702bca312@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270105T074500
-DTEND;TZID=America/Chicago:20270105T080500
+DTSTART;TZID=America/Chicago:20270105T073000
+DTEND;TZID=America/Chicago:20270105T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:ba23a709-18d2-42cd-a663-1767c8279fbb@dunlap-family-calendar
@@ -2760,8 +4488,8 @@ BEGIN:VEVENT
 UID:e9f72b94-9d0f-43b9-83ab-461a966059a1@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270106T074500
-DTEND;TZID=America/Chicago:20270106T080500
+DTSTART;TZID=America/Chicago:20270106T073000
+DTEND;TZID=America/Chicago:20270106T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:35664ecc-8fa7-4fd1-a6f6-69d5c35b4843@dunlap-family-calendar
@@ -2788,8 +4516,8 @@ BEGIN:VEVENT
 UID:596611b7-c44e-4934-9f4d-71d867f2bcd3@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270107T074500
-DTEND;TZID=America/Chicago:20270107T080500
+DTSTART;TZID=America/Chicago:20270107T073000
+DTEND;TZID=America/Chicago:20270107T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:06777c45-b59d-4748-b6a7-233697c89ec0@dunlap-family-calendar
@@ -2816,8 +4544,8 @@ BEGIN:VEVENT
 UID:fd18163b-9b80-4339-a111-37ddb4b08c4e@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270108T074500
-DTEND;TZID=America/Chicago:20270108T080500
+DTSTART;TZID=America/Chicago:20270108T073000
+DTEND;TZID=America/Chicago:20270108T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:50d8613b-7d26-4598-ae6d-3228beb2459f@dunlap-family-calendar
@@ -2844,8 +4572,8 @@ BEGIN:VEVENT
 UID:b61a9aa1-5dea-4c9a-a8ae-71e681a3255f@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270111T074500
-DTEND;TZID=America/Chicago:20270111T080500
+DTSTART;TZID=America/Chicago:20270111T073000
+DTEND;TZID=America/Chicago:20270111T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:3b5416d7-fa92-4b45-9350-34c117c97b08@dunlap-family-calendar
@@ -2872,8 +4600,8 @@ BEGIN:VEVENT
 UID:cc8ae171-60a7-40a0-a81e-7bdaa78cc774@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270112T074500
-DTEND;TZID=America/Chicago:20270112T080500
+DTSTART;TZID=America/Chicago:20270112T073000
+DTEND;TZID=America/Chicago:20270112T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:9554641c-d139-419f-adb9-7bfe8d3b3812@dunlap-family-calendar
@@ -2900,8 +4628,8 @@ BEGIN:VEVENT
 UID:4ad60ca5-3dfa-4799-a1c8-3c6f2842ef7e@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270113T074500
-DTEND;TZID=America/Chicago:20270113T080500
+DTSTART;TZID=America/Chicago:20270113T073000
+DTEND;TZID=America/Chicago:20270113T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:ac8a0a53-25ea-42e8-84c1-2eb008930e15@dunlap-family-calendar
@@ -2928,8 +4656,8 @@ BEGIN:VEVENT
 UID:a05728f8-de9e-4d5e-9b37-b45837f308fd@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270114T074500
-DTEND;TZID=America/Chicago:20270114T080500
+DTSTART;TZID=America/Chicago:20270114T073000
+DTEND;TZID=America/Chicago:20270114T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:e96e4ce3-1d3e-4e04-a9f2-0ca9e11f2c07@dunlap-family-calendar
@@ -2956,8 +4684,8 @@ BEGIN:VEVENT
 UID:6a45c4bc-5c42-4d89-8e21-101557b7b8b9@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270115T074500
-DTEND;TZID=America/Chicago:20270115T080500
+DTSTART;TZID=America/Chicago:20270115T073000
+DTEND;TZID=America/Chicago:20270115T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:74cdbced-8f43-4238-b0f0-350d99a2dec8@dunlap-family-calendar
@@ -2984,8 +4712,8 @@ BEGIN:VEVENT
 UID:8ac35dbb-424d-4f89-a58c-88e9ea583c08@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270119T074500
-DTEND;TZID=America/Chicago:20270119T080500
+DTSTART;TZID=America/Chicago:20270119T073000
+DTEND;TZID=America/Chicago:20270119T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:a0a02b5a-a19b-4fb4-8c1d-4444e438f295@dunlap-family-calendar
@@ -3012,8 +4740,8 @@ BEGIN:VEVENT
 UID:d423c695-e940-4472-a695-3b563ba3708b@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270120T074500
-DTEND;TZID=America/Chicago:20270120T080500
+DTSTART;TZID=America/Chicago:20270120T073000
+DTEND;TZID=America/Chicago:20270120T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:05dd2896-19d2-40ff-a858-1ecf819a3ef6@dunlap-family-calendar
@@ -3040,8 +4768,8 @@ BEGIN:VEVENT
 UID:bf61a720-234d-4d9b-90e6-c744c2ec6418@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270121T074500
-DTEND;TZID=America/Chicago:20270121T080500
+DTSTART;TZID=America/Chicago:20270121T073000
+DTEND;TZID=America/Chicago:20270121T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:ef8c94f7-a8bd-41a8-8f11-9bdfc6e23356@dunlap-family-calendar
@@ -3068,8 +4796,8 @@ BEGIN:VEVENT
 UID:c78f7703-6875-4dd1-890e-d207b4f40356@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270122T074500
-DTEND;TZID=America/Chicago:20270122T080500
+DTSTART;TZID=America/Chicago:20270122T073000
+DTEND;TZID=America/Chicago:20270122T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:08dc904d-dded-4405-88d6-1a5f848fd268@dunlap-family-calendar
@@ -3096,8 +4824,8 @@ BEGIN:VEVENT
 UID:f516f514-85cc-41c0-bcf7-44df0c6d71a2@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270125T074500
-DTEND;TZID=America/Chicago:20270125T080500
+DTSTART;TZID=America/Chicago:20270125T073000
+DTEND;TZID=America/Chicago:20270125T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:651765cd-33d1-496e-b632-c09c759147c6@dunlap-family-calendar
@@ -3124,8 +4852,8 @@ BEGIN:VEVENT
 UID:d575161c-e85a-4bab-b973-42b332fc474e@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270126T074500
-DTEND;TZID=America/Chicago:20270126T080500
+DTSTART;TZID=America/Chicago:20270126T073000
+DTEND;TZID=America/Chicago:20270126T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:7d5ce6ad-df5d-4a12-9355-24ddd16f1f20@dunlap-family-calendar
@@ -3152,8 +4880,8 @@ BEGIN:VEVENT
 UID:a658583a-6e9f-4603-8934-6f479d12856e@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270127T074500
-DTEND;TZID=America/Chicago:20270127T080500
+DTSTART;TZID=America/Chicago:20270127T073000
+DTEND;TZID=America/Chicago:20270127T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:331fdac7-5487-490d-97fe-6e30587c9320@dunlap-family-calendar
@@ -3180,8 +4908,8 @@ BEGIN:VEVENT
 UID:f844ccc8-26fc-45b9-9eee-eda6dea5e27e@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270128T074500
-DTEND;TZID=America/Chicago:20270128T080500
+DTSTART;TZID=America/Chicago:20270128T073000
+DTEND;TZID=America/Chicago:20270128T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:4d0bd4b0-a105-41db-b879-d54c81f4510a@dunlap-family-calendar
@@ -3208,8 +4936,8 @@ BEGIN:VEVENT
 UID:6ed48bc8-6dbd-4bf6-94fe-04c81c6f43af@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270129T074500
-DTEND;TZID=America/Chicago:20270129T080500
+DTSTART;TZID=America/Chicago:20270129T073000
+DTEND;TZID=America/Chicago:20270129T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:a1df0946-fc74-4c62-9025-6c884c265ca0@dunlap-family-calendar
@@ -3236,8 +4964,8 @@ BEGIN:VEVENT
 UID:6d59740d-f937-457a-978d-08b8135af57a@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270201T074500
-DTEND;TZID=America/Chicago:20270201T080500
+DTSTART;TZID=America/Chicago:20270201T073000
+DTEND;TZID=America/Chicago:20270201T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:4da02fd6-b55d-43da-8d69-9df27d917427@dunlap-family-calendar
@@ -3264,8 +4992,8 @@ BEGIN:VEVENT
 UID:08a05f38-1ceb-4815-9b98-3028afd5bd36@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270202T074500
-DTEND;TZID=America/Chicago:20270202T080500
+DTSTART;TZID=America/Chicago:20270202T073000
+DTEND;TZID=America/Chicago:20270202T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:219da7e1-6c0b-4c9d-a880-f77c2aa1d4a4@dunlap-family-calendar
@@ -3292,8 +5020,8 @@ BEGIN:VEVENT
 UID:d4e439fb-967d-486a-933c-8675c0e94af8@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270203T074500
-DTEND;TZID=America/Chicago:20270203T080500
+DTSTART;TZID=America/Chicago:20270203T073000
+DTEND;TZID=America/Chicago:20270203T075000
 DESCRIPTION:District half day for students. Times below use the regular sch
  edule you provided.
 END:VEVENT
@@ -3328,8 +5056,8 @@ BEGIN:VEVENT
 UID:472272a5-a700-4525-bcef-46675cada873@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270204T074500
-DTEND;TZID=America/Chicago:20270204T080500
+DTSTART;TZID=America/Chicago:20270204T073000
+DTEND;TZID=America/Chicago:20270204T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:76665f8d-2aac-4eef-8b4f-3ef2be631309@dunlap-family-calendar
@@ -3356,8 +5084,8 @@ BEGIN:VEVENT
 UID:c54748d3-8cb2-4051-a53d-a013b79fe3f6@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270205T074500
-DTEND;TZID=America/Chicago:20270205T080500
+DTSTART;TZID=America/Chicago:20270205T073000
+DTEND;TZID=America/Chicago:20270205T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:36fb8d88-eb07-40a6-8d92-5601ea5916f3@dunlap-family-calendar
@@ -3384,8 +5112,8 @@ BEGIN:VEVENT
 UID:0cfcd1c2-8086-4021-bd56-cd1abbdaba23@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270208T074500
-DTEND;TZID=America/Chicago:20270208T080500
+DTSTART;TZID=America/Chicago:20270208T073000
+DTEND;TZID=America/Chicago:20270208T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:3d12fd04-a636-43d2-894d-4e366d5a83c4@dunlap-family-calendar
@@ -3412,8 +5140,8 @@ BEGIN:VEVENT
 UID:f6217ba8-5701-428c-bf29-99aea52650b0@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270209T074500
-DTEND;TZID=America/Chicago:20270209T080500
+DTSTART;TZID=America/Chicago:20270209T073000
+DTEND;TZID=America/Chicago:20270209T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:3a51c6d0-d5c1-4392-b76c-0bf0e0d9ae65@dunlap-family-calendar
@@ -3440,8 +5168,8 @@ BEGIN:VEVENT
 UID:f6820fdc-7cda-405b-8eef-19c463e16cb4@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270210T074500
-DTEND;TZID=America/Chicago:20270210T080500
+DTSTART;TZID=America/Chicago:20270210T073000
+DTEND;TZID=America/Chicago:20270210T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:e265c7d7-47ab-48bf-bd45-74c098236973@dunlap-family-calendar
@@ -3468,8 +5196,8 @@ BEGIN:VEVENT
 UID:6a2a9056-4573-46f1-b3a4-ac2f1e68dd31@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270211T074500
-DTEND;TZID=America/Chicago:20270211T080500
+DTSTART;TZID=America/Chicago:20270211T073000
+DTEND;TZID=America/Chicago:20270211T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:91f4f7e5-623a-4fc1-8ecd-a1f90ce7b4a3@dunlap-family-calendar
@@ -3496,8 +5224,8 @@ BEGIN:VEVENT
 UID:640d293e-7463-40df-b08f-c61eb841a527@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270212T074500
-DTEND;TZID=America/Chicago:20270212T080500
+DTSTART;TZID=America/Chicago:20270212T073000
+DTEND;TZID=America/Chicago:20270212T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:6466675c-3dc4-4bf9-a425-be5875ad833c@dunlap-family-calendar
@@ -3524,8 +5252,8 @@ BEGIN:VEVENT
 UID:d9820dc5-aa66-45ef-b3cb-50a612ec6366@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270216T074500
-DTEND;TZID=America/Chicago:20270216T080500
+DTSTART;TZID=America/Chicago:20270216T073000
+DTEND;TZID=America/Chicago:20270216T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:3b097c53-ec3b-42a0-bbbb-1ff76a31f2bf@dunlap-family-calendar
@@ -3552,8 +5280,8 @@ BEGIN:VEVENT
 UID:813fbf62-d63b-41a4-b8aa-341c238c0159@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270217T074500
-DTEND;TZID=America/Chicago:20270217T080500
+DTSTART;TZID=America/Chicago:20270217T073000
+DTEND;TZID=America/Chicago:20270217T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:feda110d-749e-4ed4-a620-5c7f4c5810bf@dunlap-family-calendar
@@ -3580,8 +5308,8 @@ BEGIN:VEVENT
 UID:51e316b4-569c-4af2-9e6f-d555c61280af@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270218T074500
-DTEND;TZID=America/Chicago:20270218T080500
+DTSTART;TZID=America/Chicago:20270218T073000
+DTEND;TZID=America/Chicago:20270218T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:6190597b-1247-4f23-91b5-642cdaf99e6f@dunlap-family-calendar
@@ -3608,8 +5336,8 @@ BEGIN:VEVENT
 UID:420ca5d7-76b5-4a76-92f1-735d1a36a6de@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270219T074500
-DTEND;TZID=America/Chicago:20270219T080500
+DTSTART;TZID=America/Chicago:20270219T073000
+DTEND;TZID=America/Chicago:20270219T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:bacfdba1-9400-4031-8a29-6b483fd47af1@dunlap-family-calendar
@@ -3636,8 +5364,8 @@ BEGIN:VEVENT
 UID:e48fa0d8-7320-4e02-85fe-200eaeca256a@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270222T074500
-DTEND;TZID=America/Chicago:20270222T080500
+DTSTART;TZID=America/Chicago:20270222T073000
+DTEND;TZID=America/Chicago:20270222T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:a6f81619-25f1-4c83-b6f2-024c8beb7ee3@dunlap-family-calendar
@@ -3664,8 +5392,8 @@ BEGIN:VEVENT
 UID:76794490-5a96-43b5-a563-46c89c37d84a@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270223T074500
-DTEND;TZID=America/Chicago:20270223T080500
+DTSTART;TZID=America/Chicago:20270223T073000
+DTEND;TZID=America/Chicago:20270223T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:5b7766d4-32f6-46f2-9217-5d72750a8112@dunlap-family-calendar
@@ -3692,8 +5420,8 @@ BEGIN:VEVENT
 UID:967c4aa9-826e-4786-a07d-7cc8fc199607@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270224T074500
-DTEND;TZID=America/Chicago:20270224T080500
+DTSTART;TZID=America/Chicago:20270224T073000
+DTEND;TZID=America/Chicago:20270224T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:8cb24a77-f4c3-4ff2-8388-9ca29a7baf04@dunlap-family-calendar
@@ -3720,8 +5448,8 @@ BEGIN:VEVENT
 UID:8b63c47f-5230-412d-9c55-12850758ced8@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270225T074500
-DTEND;TZID=America/Chicago:20270225T080500
+DTSTART;TZID=America/Chicago:20270225T073000
+DTEND;TZID=America/Chicago:20270225T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:58213d0f-63dc-4c48-8fe9-0106aaf8d24f@dunlap-family-calendar
@@ -3748,8 +5476,8 @@ BEGIN:VEVENT
 UID:46308ddf-8831-452d-b2c7-eeed297520df@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270226T074500
-DTEND;TZID=America/Chicago:20270226T080500
+DTSTART;TZID=America/Chicago:20270226T073000
+DTEND;TZID=America/Chicago:20270226T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:5abff0fe-f06d-4d3d-851b-f801892bebf0@dunlap-family-calendar
@@ -3776,8 +5504,8 @@ BEGIN:VEVENT
 UID:ce0e3d99-a9f8-48c3-9b68-6060ba361ba9@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270301T074500
-DTEND;TZID=America/Chicago:20270301T080500
+DTSTART;TZID=America/Chicago:20270301T073000
+DTEND;TZID=America/Chicago:20270301T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:62bc719e-76be-4b2a-b5c5-2b2cebd253c8@dunlap-family-calendar
@@ -3804,8 +5532,8 @@ BEGIN:VEVENT
 UID:cc491c0b-baeb-4848-ab58-1149069f2652@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270302T074500
-DTEND;TZID=America/Chicago:20270302T080500
+DTSTART;TZID=America/Chicago:20270302T073000
+DTEND;TZID=America/Chicago:20270302T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:908060d5-64a2-4d49-9d5a-bbca58bf16c3@dunlap-family-calendar
@@ -3832,8 +5560,8 @@ BEGIN:VEVENT
 UID:991f7e5d-facf-45ae-a8ce-c324ad156432@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270303T074500
-DTEND;TZID=America/Chicago:20270303T080500
+DTSTART;TZID=America/Chicago:20270303T073000
+DTEND;TZID=America/Chicago:20270303T075000
 DESCRIPTION:District half day for students. Times below use the regular sch
  edule you provided.
 END:VEVENT
@@ -3868,8 +5596,8 @@ BEGIN:VEVENT
 UID:9205908b-bc47-483c-8cb6-1ea56f15717e@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270304T074500
-DTEND;TZID=America/Chicago:20270304T080500
+DTSTART;TZID=America/Chicago:20270304T073000
+DTEND;TZID=America/Chicago:20270304T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:7b7084c7-dea8-4cff-8fa5-2b2975f4871f@dunlap-family-calendar
@@ -3896,8 +5624,8 @@ BEGIN:VEVENT
 UID:71b2ec04-a528-42b5-8da1-fa134e177678@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270305T074500
-DTEND;TZID=America/Chicago:20270305T080500
+DTSTART;TZID=America/Chicago:20270305T073000
+DTEND;TZID=America/Chicago:20270305T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:ef2aba63-7a0d-4e69-b9fb-8aba48c9fe36@dunlap-family-calendar
@@ -3924,8 +5652,8 @@ BEGIN:VEVENT
 UID:d61ce234-2280-4110-acb8-58be6e36fe6e@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270308T074500
-DTEND;TZID=America/Chicago:20270308T080500
+DTSTART;TZID=America/Chicago:20270308T073000
+DTEND;TZID=America/Chicago:20270308T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:54c46472-e90b-4093-8ec7-ef38ea586b0a@dunlap-family-calendar
@@ -3952,8 +5680,8 @@ BEGIN:VEVENT
 UID:5c9110e3-683f-42d9-a41d-7c39d38527b0@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270309T074500
-DTEND;TZID=America/Chicago:20270309T080500
+DTSTART;TZID=America/Chicago:20270309T073000
+DTEND;TZID=America/Chicago:20270309T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:470a8aed-fb0e-413b-88cc-250e1ea4596d@dunlap-family-calendar
@@ -3980,8 +5708,8 @@ BEGIN:VEVENT
 UID:3d97e7ac-0969-4425-ab05-c83b646a8d77@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270310T074500
-DTEND;TZID=America/Chicago:20270310T080500
+DTSTART;TZID=America/Chicago:20270310T073000
+DTEND;TZID=America/Chicago:20270310T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:77f02387-b53d-48b3-9085-01bbd64c5b5c@dunlap-family-calendar
@@ -4008,8 +5736,8 @@ BEGIN:VEVENT
 UID:8fc58546-9fb2-4ea3-92cf-fe06c63fc1f2@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270311T074500
-DTEND;TZID=America/Chicago:20270311T080500
+DTSTART;TZID=America/Chicago:20270311T073000
+DTEND;TZID=America/Chicago:20270311T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:f8943b2a-7185-4565-b6cb-47b748da502e@dunlap-family-calendar
@@ -4036,8 +5764,8 @@ BEGIN:VEVENT
 UID:2d998695-e603-4b36-b74f-a98fc647fc82@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270312T074500
-DTEND;TZID=America/Chicago:20270312T080500
+DTSTART;TZID=America/Chicago:20270312T073000
+DTEND;TZID=America/Chicago:20270312T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:8763e619-bcca-4aac-9756-840d492be94c@dunlap-family-calendar
@@ -4064,8 +5792,8 @@ BEGIN:VEVENT
 UID:cdf4dab7-fa2b-4488-93be-cc1f36f904fc@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270315T074500
-DTEND;TZID=America/Chicago:20270315T080500
+DTSTART;TZID=America/Chicago:20270315T073000
+DTEND;TZID=America/Chicago:20270315T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:ce4ba88a-398e-4637-95a0-a0b62ee3bc28@dunlap-family-calendar
@@ -4092,8 +5820,8 @@ BEGIN:VEVENT
 UID:ee635ee5-7c82-4fb6-a328-0a4521d8c9e3@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270316T074500
-DTEND;TZID=America/Chicago:20270316T080500
+DTSTART;TZID=America/Chicago:20270316T073000
+DTEND;TZID=America/Chicago:20270316T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:da4ca7e1-2f58-41d6-837f-9c1c77df75aa@dunlap-family-calendar
@@ -4120,8 +5848,8 @@ BEGIN:VEVENT
 UID:d5d796ab-4937-483e-8002-4563f34f2053@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270317T074500
-DTEND;TZID=America/Chicago:20270317T080500
+DTSTART;TZID=America/Chicago:20270317T073000
+DTEND;TZID=America/Chicago:20270317T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:7082087d-37f8-403c-b495-50487ad349fa@dunlap-family-calendar
@@ -4148,8 +5876,8 @@ BEGIN:VEVENT
 UID:43f7c11a-8cce-4ec8-afcf-69e57fbb5c15@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270318T074500
-DTEND;TZID=America/Chicago:20270318T080500
+DTSTART;TZID=America/Chicago:20270318T073000
+DTEND;TZID=America/Chicago:20270318T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:7892db56-dfb8-452e-a2d2-0ff3279c03ac@dunlap-family-calendar
@@ -4176,8 +5904,8 @@ BEGIN:VEVENT
 UID:7baeac1d-bdec-4bc0-9207-da84e1c0fba6@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270319T074500
-DTEND;TZID=America/Chicago:20270319T080500
+DTSTART;TZID=America/Chicago:20270319T073000
+DTEND;TZID=America/Chicago:20270319T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:42e7f392-ecdf-440f-93ad-dfdf8bfaeaf9@dunlap-family-calendar
@@ -4204,8 +5932,8 @@ BEGIN:VEVENT
 UID:d8ede01c-2fb0-498c-b4ce-6542d864ed1a@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270322T074500
-DTEND;TZID=America/Chicago:20270322T080500
+DTSTART;TZID=America/Chicago:20270322T073000
+DTEND;TZID=America/Chicago:20270322T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:d60427ce-6544-4f8c-9954-8d463e1ebb38@dunlap-family-calendar
@@ -4232,8 +5960,8 @@ BEGIN:VEVENT
 UID:a97a1a2f-b361-4a13-ab9d-a946fde8f082@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270323T074500
-DTEND;TZID=America/Chicago:20270323T080500
+DTSTART;TZID=America/Chicago:20270323T073000
+DTEND;TZID=America/Chicago:20270323T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:66dc3485-4cf1-4bb4-9a8d-3e54ccb3fbd2@dunlap-family-calendar
@@ -4260,8 +5988,8 @@ BEGIN:VEVENT
 UID:55e1368a-adf3-4787-a623-3b530ec30072@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270324T074500
-DTEND;TZID=America/Chicago:20270324T080500
+DTSTART;TZID=America/Chicago:20270324T073000
+DTEND;TZID=America/Chicago:20270324T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:5fffe2e5-9ecb-4cca-a56b-5b2eba98e603@dunlap-family-calendar
@@ -4288,8 +6016,8 @@ BEGIN:VEVENT
 UID:cfe2d38e-c8ee-4db9-93ac-d9dee60b0bf7@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270325T074500
-DTEND;TZID=America/Chicago:20270325T080500
+DTSTART;TZID=America/Chicago:20270325T073000
+DTEND;TZID=America/Chicago:20270325T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:7b6c50d2-c4d3-42ba-bbce-8d06844978f4@dunlap-family-calendar
@@ -4316,8 +6044,8 @@ BEGIN:VEVENT
 UID:d5701ec4-72fc-48f2-a2a3-5eeff4105b45@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270405T074500
-DTEND;TZID=America/Chicago:20270405T080500
+DTSTART;TZID=America/Chicago:20270405T073000
+DTEND;TZID=America/Chicago:20270405T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:c92c9b0e-3638-48cc-add6-da32584592e3@dunlap-family-calendar
@@ -4344,8 +6072,8 @@ BEGIN:VEVENT
 UID:28fa47eb-e755-4bd0-b1c3-10521ee9f3ae@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270406T074500
-DTEND;TZID=America/Chicago:20270406T080500
+DTSTART;TZID=America/Chicago:20270406T073000
+DTEND;TZID=America/Chicago:20270406T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:9ab24de3-5579-4788-a35b-3d55f93a655c@dunlap-family-calendar
@@ -4372,8 +6100,8 @@ BEGIN:VEVENT
 UID:ddf26cb7-0be0-433d-bf95-9ad7f5f7890e@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270407T074500
-DTEND;TZID=America/Chicago:20270407T080500
+DTSTART;TZID=America/Chicago:20270407T073000
+DTEND;TZID=America/Chicago:20270407T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:c49df447-7930-4564-b3ad-2871ed35a8fb@dunlap-family-calendar
@@ -4400,8 +6128,8 @@ BEGIN:VEVENT
 UID:43872e58-417d-41ed-bcd4-4d474ae8c06b@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270408T074500
-DTEND;TZID=America/Chicago:20270408T080500
+DTSTART;TZID=America/Chicago:20270408T073000
+DTEND;TZID=America/Chicago:20270408T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:9a6cd380-9a4f-41a1-b0f8-4975c36ecb9b@dunlap-family-calendar
@@ -4428,8 +6156,8 @@ BEGIN:VEVENT
 UID:4982d01b-1142-439e-b798-a64cd73a1b93@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270409T074500
-DTEND;TZID=America/Chicago:20270409T080500
+DTSTART;TZID=America/Chicago:20270409T073000
+DTEND;TZID=America/Chicago:20270409T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:efcfe51f-3dbe-4c53-a15b-1e93becd71cc@dunlap-family-calendar
@@ -4456,8 +6184,8 @@ BEGIN:VEVENT
 UID:5e706975-1ad6-4d00-8931-26c34e75b528@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270412T074500
-DTEND;TZID=America/Chicago:20270412T080500
+DTSTART;TZID=America/Chicago:20270412T073000
+DTEND;TZID=America/Chicago:20270412T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:e9e6a0c6-5eb3-4928-853f-04abe8007d19@dunlap-family-calendar
@@ -4484,8 +6212,8 @@ BEGIN:VEVENT
 UID:38e273aa-9e24-45c5-941d-fd67a0409de2@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270413T074500
-DTEND;TZID=America/Chicago:20270413T080500
+DTSTART;TZID=America/Chicago:20270413T073000
+DTEND;TZID=America/Chicago:20270413T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:5953af7e-dbf8-4111-afd9-f4da5171c149@dunlap-family-calendar
@@ -4512,8 +6240,8 @@ BEGIN:VEVENT
 UID:4e30e026-ba77-47cb-a7de-8bd8615fa819@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270414T074500
-DTEND;TZID=America/Chicago:20270414T080500
+DTSTART;TZID=America/Chicago:20270414T073000
+DTEND;TZID=America/Chicago:20270414T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:87ce5508-6fc7-4222-8dd9-09fcff22835f@dunlap-family-calendar
@@ -4540,8 +6268,8 @@ BEGIN:VEVENT
 UID:963f3fc4-5cd5-4c78-aff0-f13247049fe2@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270415T074500
-DTEND;TZID=America/Chicago:20270415T080500
+DTSTART;TZID=America/Chicago:20270415T073000
+DTEND;TZID=America/Chicago:20270415T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:e9b1e7e6-32d8-4f67-8447-0ff9a1ccf32b@dunlap-family-calendar
@@ -4568,8 +6296,8 @@ BEGIN:VEVENT
 UID:f5c419a7-26a2-42ce-88fe-3211c66bc665@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270416T074500
-DTEND;TZID=America/Chicago:20270416T080500
+DTSTART;TZID=America/Chicago:20270416T073000
+DTEND;TZID=America/Chicago:20270416T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:79b7cb22-2781-4d26-b689-3cdda05cc4c2@dunlap-family-calendar
@@ -4596,8 +6324,8 @@ BEGIN:VEVENT
 UID:9dd2233a-cedf-42f7-a4f5-8018c4ca7226@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270419T074500
-DTEND;TZID=America/Chicago:20270419T080500
+DTSTART;TZID=America/Chicago:20270419T073000
+DTEND;TZID=America/Chicago:20270419T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:6faf3873-dde2-42fe-874b-427b75c99329@dunlap-family-calendar
@@ -4624,8 +6352,8 @@ BEGIN:VEVENT
 UID:a8513754-2be8-4ed2-8e09-85bab8966d6a@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270420T074500
-DTEND;TZID=America/Chicago:20270420T080500
+DTSTART;TZID=America/Chicago:20270420T073000
+DTEND;TZID=America/Chicago:20270420T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:bfed8840-53a0-4dd3-894e-521f82c393e7@dunlap-family-calendar
@@ -4652,8 +6380,8 @@ BEGIN:VEVENT
 UID:aa65c654-1897-4f84-9508-97ce0390bcd8@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270421T074500
-DTEND;TZID=America/Chicago:20270421T080500
+DTSTART;TZID=America/Chicago:20270421T073000
+DTEND;TZID=America/Chicago:20270421T075000
 DESCRIPTION:District half day for students. Times below use the regular sch
  edule you provided.
 END:VEVENT
@@ -4688,8 +6416,8 @@ BEGIN:VEVENT
 UID:7edc1a96-f636-4027-8136-dc1d64cd1b8e@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270422T074500
-DTEND;TZID=America/Chicago:20270422T080500
+DTSTART;TZID=America/Chicago:20270422T073000
+DTEND;TZID=America/Chicago:20270422T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:17df0d52-6f1a-4ec3-8942-1d7f2d70d817@dunlap-family-calendar
@@ -4716,8 +6444,8 @@ BEGIN:VEVENT
 UID:9ef9a274-642d-4f62-b7f3-386bab9b6a83@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270423T074500
-DTEND;TZID=America/Chicago:20270423T080500
+DTSTART;TZID=America/Chicago:20270423T073000
+DTEND;TZID=America/Chicago:20270423T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:96f5b20b-b9f8-4a40-b891-cbec2fd257c8@dunlap-family-calendar
@@ -4744,8 +6472,8 @@ BEGIN:VEVENT
 UID:cf176cef-944a-4bb0-892f-62ec61c29312@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270426T074500
-DTEND;TZID=America/Chicago:20270426T080500
+DTSTART;TZID=America/Chicago:20270426T073000
+DTEND;TZID=America/Chicago:20270426T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:6b7d20c7-ba6c-456a-8dc2-d1d7ec4c5235@dunlap-family-calendar
@@ -4772,8 +6500,8 @@ BEGIN:VEVENT
 UID:7e7009f5-8515-4c47-b3a4-86529e876a44@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270427T074500
-DTEND;TZID=America/Chicago:20270427T080500
+DTSTART;TZID=America/Chicago:20270427T073000
+DTEND;TZID=America/Chicago:20270427T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:38d559b2-62e9-447a-8675-e111af44b39c@dunlap-family-calendar
@@ -4800,8 +6528,8 @@ BEGIN:VEVENT
 UID:24a0f768-17ee-45b6-997c-470a9077156d@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270428T074500
-DTEND;TZID=America/Chicago:20270428T080500
+DTSTART;TZID=America/Chicago:20270428T073000
+DTEND;TZID=America/Chicago:20270428T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:0e2f4ac5-0aab-47c9-8642-fd40021f673c@dunlap-family-calendar
@@ -4828,8 +6556,8 @@ BEGIN:VEVENT
 UID:68bf9721-394c-40ae-acd4-6230d5dce849@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270429T074500
-DTEND;TZID=America/Chicago:20270429T080500
+DTSTART;TZID=America/Chicago:20270429T073000
+DTEND;TZID=America/Chicago:20270429T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:8ea8363b-fc1b-4c48-929b-46e3f238cca1@dunlap-family-calendar
@@ -4856,8 +6584,8 @@ BEGIN:VEVENT
 UID:039940b4-7d9f-4668-a3c6-49498a0ad24e@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270503T074500
-DTEND;TZID=America/Chicago:20270503T080500
+DTSTART;TZID=America/Chicago:20270503T073000
+DTEND;TZID=America/Chicago:20270503T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:44116a45-d897-485e-b3a6-43e1b4631afd@dunlap-family-calendar
@@ -4884,8 +6612,8 @@ BEGIN:VEVENT
 UID:1075ab4a-8c1f-433f-921f-bf38505a1b68@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270504T074500
-DTEND;TZID=America/Chicago:20270504T080500
+DTSTART;TZID=America/Chicago:20270504T073000
+DTEND;TZID=America/Chicago:20270504T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:0c499390-ab2c-4c90-b15b-6f7a36dc74e6@dunlap-family-calendar
@@ -4912,8 +6640,8 @@ BEGIN:VEVENT
 UID:8b479c2c-e201-4c4f-b3b5-827ddd2bddb8@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270505T074500
-DTEND;TZID=America/Chicago:20270505T080500
+DTSTART;TZID=America/Chicago:20270505T073000
+DTEND;TZID=America/Chicago:20270505T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:cbc533b6-41a5-430f-a429-be980fd974bd@dunlap-family-calendar
@@ -4940,8 +6668,8 @@ BEGIN:VEVENT
 UID:9c02688d-ac32-435f-80a0-744d7573e626@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270506T074500
-DTEND;TZID=America/Chicago:20270506T080500
+DTSTART;TZID=America/Chicago:20270506T073000
+DTEND;TZID=America/Chicago:20270506T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:3f4af9ba-394f-430f-b0ab-40e6e865f6d1@dunlap-family-calendar
@@ -4968,8 +6696,8 @@ BEGIN:VEVENT
 UID:a790aa40-f134-4426-b3e8-e605bc400424@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270510T074500
-DTEND;TZID=America/Chicago:20270510T080500
+DTSTART;TZID=America/Chicago:20270510T073000
+DTEND;TZID=America/Chicago:20270510T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:bf69f311-3967-43e4-9d39-531d4dc6f9c0@dunlap-family-calendar
@@ -4996,8 +6724,8 @@ BEGIN:VEVENT
 UID:6a048189-2b99-4908-8a47-aa8b995b354e@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270511T074500
-DTEND;TZID=America/Chicago:20270511T080500
+DTSTART;TZID=America/Chicago:20270511T073000
+DTEND;TZID=America/Chicago:20270511T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:a3a09c99-64ce-4303-a977-6acdf5c7e6f4@dunlap-family-calendar
@@ -5024,8 +6752,8 @@ BEGIN:VEVENT
 UID:f0d70f3a-cfdc-4c30-aa21-96991dd7e8d4@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270512T074500
-DTEND;TZID=America/Chicago:20270512T080500
+DTSTART;TZID=America/Chicago:20270512T073000
+DTEND;TZID=America/Chicago:20270512T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:847e3960-7b61-44da-b1ca-cf91c43e78d1@dunlap-family-calendar
@@ -5052,8 +6780,8 @@ BEGIN:VEVENT
 UID:530faec6-8dc4-45ca-9678-d886c1fd7e9e@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270513T074500
-DTEND;TZID=America/Chicago:20270513T080500
+DTSTART;TZID=America/Chicago:20270513T073000
+DTEND;TZID=America/Chicago:20270513T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:0e267fe2-0777-466f-a8cf-f610bcc274f7@dunlap-family-calendar
@@ -5080,8 +6808,8 @@ BEGIN:VEVENT
 UID:ddb008a3-9616-44a8-9e4b-125085969ef9@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270517T074500
-DTEND;TZID=America/Chicago:20270517T080500
+DTSTART;TZID=America/Chicago:20270517T073000
+DTEND;TZID=America/Chicago:20270517T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:65ae3ce5-72c3-4468-be89-921463171962@dunlap-family-calendar
@@ -5108,8 +6836,8 @@ BEGIN:VEVENT
 UID:30ad2d37-47df-451b-bb00-9a64ba356363@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270518T074500
-DTEND;TZID=America/Chicago:20270518T080500
+DTSTART;TZID=America/Chicago:20270518T073000
+DTEND;TZID=America/Chicago:20270518T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:7b13d938-8135-4ecf-af8d-bf6d9442a917@dunlap-family-calendar
@@ -5136,8 +6864,8 @@ BEGIN:VEVENT
 UID:7826e14d-e3d5-4297-a881-64f27cebf216@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270519T074500
-DTEND;TZID=America/Chicago:20270519T080500
+DTSTART;TZID=America/Chicago:20270519T073000
+DTEND;TZID=America/Chicago:20270519T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:3ae78a6c-f6b3-4393-b7e4-c40be766c73d@dunlap-family-calendar
@@ -5164,8 +6892,8 @@ BEGIN:VEVENT
 UID:f8556ff8-2364-4d50-ba68-fcbf130927ff@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270520T074500
-DTEND;TZID=America/Chicago:20270520T080500
+DTSTART;TZID=America/Chicago:20270520T073000
+DTEND;TZID=America/Chicago:20270520T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:d9937b40-3f9a-4663-91dd-4f07355eefa0@dunlap-family-calendar
@@ -5192,8 +6920,8 @@ BEGIN:VEVENT
 UID:8babcd4a-63ca-401f-8858-5ada6a0365d6@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270524T074500
-DTEND;TZID=America/Chicago:20270524T080500
+DTSTART;TZID=America/Chicago:20270524T073000
+DTEND;TZID=America/Chicago:20270524T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:e84c4020-1258-43c6-b614-792ef3c87429@dunlap-family-calendar
@@ -5220,8 +6948,8 @@ BEGIN:VEVENT
 UID:9781f459-3716-49a5-ab56-8de45702f96a@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270525T074500
-DTEND;TZID=America/Chicago:20270525T080500
+DTSTART;TZID=America/Chicago:20270525T073000
+DTEND;TZID=America/Chicago:20270525T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:6443af1a-2cbc-4fb9-b36b-150014b666ef@dunlap-family-calendar
@@ -5248,8 +6976,8 @@ BEGIN:VEVENT
 UID:fee918fc-1bd2-4dec-9f13-78d1bbd6b07b@dunlap-family-calendar
 DTSTAMP:20261021T000000Z
 SUMMARY:Wyatt — Bus ride to school
-DTSTART;TZID=America/Chicago:20270526T074500
-DTEND;TZID=America/Chicago:20270526T080500
+DTSTART;TZID=America/Chicago:20270526T073000
+DTEND;TZID=America/Chicago:20270526T075000
 END:VEVENT
 BEGIN:VEVENT
 UID:43087251-0c94-493a-a94f-6f0290e1b977@dunlap-family-calendar

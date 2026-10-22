@@ -24,7 +24,7 @@ func TestDashboardAndTaskPersistence(t *testing.T) {
 	h := a.routes()
 	r := httptest.NewRecorder()
 	h.ServeHTTP(r, httptest.NewRequest(http.MethodGet, "/dashboard", nil))
-	if r.Code != 200 || !strings.Contains(r.Body.String(), "SCHOOL CALENDAR") || !strings.Contains(r.Body.String(), "School morning") || !strings.Contains(r.Body.String(), "Family tasks") || !strings.Contains(r.Body.String(), "Sensors") {
+	if r.Code != 200 || !strings.Contains(r.Body.String(), "SCHOOL CALENDAR") || !strings.Contains(r.Body.String(), "School morning") || strings.Contains(r.Body.String(), "School Day —") || strings.Contains(r.Body.String(), "Bus ride to school") || !strings.Contains(r.Body.String(), "Family tasks") || !strings.Contains(r.Body.String(), "Sensors") {
 		t.Fatalf("bad dashboard: status %d", r.Code)
 	}
 	values := url.Values{"action": {"add"}, "title": {"Buy milk"}, "csrf": {a.csrf}}

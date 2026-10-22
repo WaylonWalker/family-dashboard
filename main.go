@@ -481,7 +481,7 @@ func (a *app) pageContext(ctx context.Context, now time.Time) Page {
 		events = append(events, Event{Date: label, Weekday: d.Format("Mon"), Time: x.Clock, Start: start.Format(time.RFC3339), End: end.Format(time.RFC3339), Relative: relativeTime(start, n), Title: x.Title, Category: x.Category})
 	}
 	badge, note, message := "SCHOOL CALENDAR", "Dunlap CUSD 2026–27 · local iCal", ""
-	items, schoolErr := parseICalendar(a.schoolCalendar, n, a.tz)
+	schoolItems, schoolErr := parseICalendar(a.schoolCalendar, n, a.tz)
 	if schoolErr != nil {
 		message = "School calendar unavailable: " + schoolErr.Error()
 	}
@@ -517,27 +517,11 @@ func (a *app) pageContext(ctx context.Context, now time.Time) Page {
 	if a.calendar != nil {
 		badge = "SCHOOL + GOOGLE CALENDAR"
 	}
-	for _, item := range items {
-		d := item.start.In(a.tz)
-		label := d.Format("Jan 2")
-		if midnight(d, a.tz).Equal(midnight(n, a.tz)) {
-			label = "Today"
-		} else if midnight(d, a.tz).Equal(midnight(n, a.tz).AddDate(0, 0, 1)) {
-			label = "Tomorrow"
-		}
-		clock := d.Format("3:04 PM")
-		if item.allDay {
-			clock = "All day"
-		} else if item.end.Sub(item.start) > time.Hour {
-			clock += " – " + item.end.In(a.tz).Format("3:04 PM")
-		}
-		events = append(events, Event{Date: label, Weekday: d.Format("Mon"), Time: clock, Start: item.start.Format(time.RFC3339), End: item.end.Format(time.RFC3339), Relative: relativeTime(item.start, n), AllDay: item.allDay, SpanDays: allDayDays(item.start, item.end, a.tz), Title: item.title, Category: "school"})
-	}
 	for i := range events {
 		addTravelEstimate(&events[i], a.travelRules, n, a.tz)
 	}
-	// Calendar feeds are appended by source, so order the combined list by the
-	// actual start time before selecting the featured event or rendering it.
+	// Order family events by their actual start time before selecting the
+	// featured event or rendering the list.
 	upcoming := events[:0]
 	for _, event := range events {
 		end, err := time.Parse(time.RFC3339, event.End)
@@ -563,7 +547,7 @@ func (a *app) pageContext(ctx context.Context, now time.Time) Page {
 		}
 	}
 	wv := a.weather.snapshotContext(ctx, n)
-	schoolCards := schoolDayCards(items, wv, n, a.tz)
+	schoolCards := schoolDayCards(schoolItems, wv, n, a.tz)
 	addEventWeather(nextUp, wv, n, a.tz)
 	weatherKind := "unknown"
 	if len(wv.Slots) > 0 {
