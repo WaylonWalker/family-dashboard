@@ -623,9 +623,9 @@
     cameraProgressTimer = window.setInterval(function () {
       var elapsed = Math.min(30000, Date.now() - cameraCycleStartedAt);
       var progress = elapsed / 30000;
-      var labels = document.querySelectorAll('#camera-grid .camera-name');
-      for (var i = 0; i < labels.length; i++) {
-        labels[i].style.setProperty('--camera-progress', String(progress));
+      var rails = document.querySelectorAll('#camera-grid .camera-cycle-progress');
+      for (var i = 0; i < rails.length; i++) {
+        rails[i].style.setProperty('--camera-progress', String(progress));
       }
     }, 100);
   }
@@ -662,7 +662,12 @@
           }
         });
       })(tile);
-      tile.appendChild(flipper); grid.appendChild(tile); cameraTiles.push(tile);
+      tile.appendChild(flipper);
+      var cycleProgress = document.createElement('span');
+      cycleProgress.className = 'camera-cycle-progress';
+      cycleProgress.setAttribute('aria-hidden', 'true');
+      tile.appendChild(cycleProgress);
+      grid.appendChild(tile); cameraTiles.push(tile);
     }
   }
   function prepareNextCameraGroup(generation) {
@@ -748,9 +753,12 @@
         startCameraProgress();
         cameraSnapshotTimer = window.setInterval(refreshCameraSnapshots, 2000);
         if (cameraList.length > 4) {
+          grid.setAttribute('data-camera-cycle', 'true');
           var generation = cameraSessionGeneration;
           cameraWarmTimer = window.setTimeout(function () { prepareNextCameraGroup(generation); }, 27000);
           cameraCycleTimer = window.setInterval(function () { flipCameraGroup(generation); }, 30000);
+        } else {
+          grid.removeAttribute('data-camera-cycle');
         }
         return;
       }
