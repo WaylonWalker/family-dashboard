@@ -44,6 +44,53 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
 @media (max-width:520px){.shell{height:100dvh;min-height:0;padding:8px 10px max(8px,env(safe-area-inset-bottom));gap:7px;overflow:hidden}.header{min-height:48px;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:6px}.brand{gap:7px}.brand-icon{width:34px;height:34px;border-radius:11px}.brand-icon .icon{width:23px;height:23px}.brand h1{font-size:18px;white-space:nowrap}.brand p{display:none}.clock-block{grid-column:auto;grid-row:auto;gap:3px}.clock-block strong{font-size:28px;letter-spacing:-1.2px}.clock-block span{font-size:10px}.header-right{gap:5px}.date-block{padding-right:5px;font-size:7px;letter-spacing:.04em}.header-right .icon-button{min-width:36px;min-height:36px;padding:6px}.dashboard{display:flex;flex:1;min-height:0;width:100%;gap:0;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}.dashboard::-webkit-scrollbar{display:none}.calendar,.feature{box-sizing:border-box;flex:0 0 100%;width:100%;height:100%;min-height:0;max-height:100%;padding:10px 11px 8px;border:0;border-radius:12px;box-shadow:none;overflow-y:auto;overflow-x:hidden;scroll-snap-align:start;scroll-snap-stop:always}.calendar{overscroll-behavior-y:contain}.calendar .next-up{flex-shrink:0}.calendar .event-list{flex:none;min-height:0;overflow:visible}.panel h2{font-size:19px}.eyebrow{font-size:9px;letter-spacing:1.3px;margin-bottom:4px}.section-top,.feature-header{gap:7px}.week-strip{gap:3px;margin:11px 0 7px}.day{min-height:49px;border-radius:9px;gap:3px}.day strong{font-size:17px}.day span{font-size:9px}.connection{font-size:8px;padding:4px 6px}.next-up{margin-bottom:5px;padding:9px 10px}.event{gap:8px;padding:8px 2px;min-height:58px}.event-date{width:57px}.event-main h3{font-size:14px}.event-mark{height:29px}.panel-footer{padding-top:5px}.feature-tabs{margin:7px 0}.feature-tab{min-height:34px;padding:5px 7px;font-size:10px}.feature-window{min-height:0}.feature-pane{min-height:0}.feature-bottom{padding-top:5px}.calendar,.feature{border-bottom:1px solid var(--line)}.weather-now{padding:8px 10px;margin-bottom:3px}.weather-now-main{display:grid;grid-template-columns:25px auto minmax(0,1fr);align-items:center;gap:5px 8px}.weather-now-icon{width:24px;height:24px;grid-column:1;grid-row:1}.weather-now-temp{grid-column:2;grid-row:1;font-size:31px}.weather-now-copy{display:contents}.weather-now-copy strong{grid-column:3;grid-row:1;font-size:12px;overflow-wrap:anywhere}.weather-now-copy span{grid-column:3;grid-row:2;font-size:10px;line-height:1.2}.weather-now-copy small{grid-column:1/-1;grid-row:3;margin-top:2px;padding-top:5px;border-top:1px solid var(--line);font-size:10px;line-height:1.25}.weather-slot{grid-template-columns:52px 63px minmax(0,1fr);gap:4px;padding:8px 2px;min-height:62px}.wx-icon{width:20px;height:20px}.weather-slot-temp strong{font-size:18px}.weather-slot-wear strong{font-size:11px}.event-list,.weather-timeline,.task-list{overflow:visible;overscroll-behavior:auto;flex:initial;min-height:auto}.feature-window{touch-action:pan-y}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 
+/* Unresolved travel decisions get one warm marker and a compact review lane. */
+.travel-review{flex-shrink:0;margin:9px 0 12px;padding:11px 12px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;background:var(--soft)}
+.essentials-travel{margin:8px 0 0;padding:9px 10px;max-height:245px;overflow:auto}
+.travel-review.has-pending{border-left-color:#c27d3f}
+.travel-review-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.travel-review-head .eyebrow{margin:0 0 3px}
+.travel-review-head h3{margin:0;font-size:17px;line-height:1.15}
+.travel-review-count{flex-shrink:0;padding:5px 9px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:11px;font-weight:750;font-variant-numeric:tabular-nums}
+.travel-review.has-pending .travel-review-count{border-color:#c27d3f;color:var(--ink)}
+.travel-review-intro{margin:7px 0;color:var(--muted);font-size:11px;line-height:1.35}
+.travel-review-list{display:grid;gap:7px;max-height:220px;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.travel-review-item{padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
+.travel-review-event{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.travel-review-event strong{min-width:0;overflow-wrap:anywhere;font-size:13px}
+.travel-review-event span{flex-shrink:0;color:var(--muted);font-size:10px;text-align:right}
+.travel-review-actions{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:end;gap:8px;margin-top:8px}
+.travel-review-actions form{margin:0}
+.travel-choice-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:8px}
+.travel-choice-grid form{margin:0;min-width:0}
+.travel-choice{display:flex;width:100%;min-height:44px;align-items:center;justify-content:center;padding:7px 5px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--ink);font:inherit;font-size:12px;font-weight:800;line-height:1.1;text-align:center;cursor:pointer}
+.travel-choice:hover,.travel-choice:focus-visible{border-color:var(--accent);outline:2px solid color-mix(in srgb,var(--accent) 28%,transparent);outline-offset:1px}
+.travel-choice.no-travel{border-color:#c27d3f;color:var(--ink)}
+.travel-custom{min-width:0}
+.travel-custom summary{list-style:none}
+.travel-custom summary::-webkit-details-marker{display:none}
+.travel-custom[open]{grid-column:1/-1}
+.travel-custom-form{display:grid;grid-template-columns:minmax(80px,.55fr) minmax(100px,1fr) auto;align-items:end;gap:7px;margin-top:7px;padding:8px;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
+.travel-custom-form label{display:grid;gap:3px;color:var(--muted);font-size:9px;font-weight:700}
+.travel-custom-form label span{font-weight:400}
+.travel-custom-form input{width:100%;min-width:0;min-height:40px;padding:6px 8px;border:1px solid var(--line);border-radius:7px;background:var(--soft);color:var(--ink);font-size:13px}
+.travel-custom-form button{min-height:40px;padding:6px 10px;border:1px solid var(--accent);border-radius:8px;background:var(--accent);color:var(--surface);font-size:11px;font-weight:750}
+.travel-needed-form{display:grid;grid-template-columns:minmax(74px,.55fr) minmax(100px,1fr) auto;align-items:end;gap:7px}
+.travel-needed-form label{display:grid;gap:3px;color:var(--muted);font-size:9px;font-weight:700}
+.travel-needed-form label span{font-weight:400}
+.travel-needed-form input{width:100%;min-width:0;min-height:36px;padding:6px 8px;border:1px solid var(--line);border-radius:7px;background:var(--soft);color:var(--ink);font-size:13px}
+.travel-needed-form button,.travel-no-button,.travel-reopen button{min-height:36px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font-size:10px;font-weight:750;white-space:nowrap}
+.travel-needed-form button{border-color:var(--accent);background:var(--accent);color:var(--surface)}
+.travel-review-readonly,.travel-review-clear{margin:8px 0 0;color:var(--muted);font-size:11px}
+.travel-status{display:block;margin-top:4px;color:var(--muted)!important;font-size:10px!important;font-weight:700}
+.travel-status.pending{color:var(--ink)!important;font-weight:850}
+.event-mark.travel-missing{background:#c27d3f}
+.travel-reopen{flex-shrink:0;margin:0}
+.travel-reopen button{min-height:38px}
+.next-up-reopen{margin-top:7px}
+.next-up-reopen button{border-color:currentColor;background:transparent;color:inherit}
+@media(max-width:600px){.travel-review{margin:7px 0 10px;padding:9px}.essentials-travel{max-height:none;overflow:visible}.travel-review-list{max-height:none;overflow:visible}.travel-review-item{padding:8px}.travel-review-event{align-items:flex-start;flex-direction:column;gap:2px}.travel-review-event span{text-align:left}.travel-review-actions{grid-template-columns:1fr}.travel-no-button{width:100%;min-height:42px}.travel-needed-form{grid-template-columns:minmax(72px,.55fr) minmax(0,1fr)}.travel-needed-form button{grid-column:1/-1;min-height:42px}.travel-custom-form{grid-template-columns:1fr 1fr}.travel-custom-form button{grid-column:1/-1;min-height:44px}.travel-reopen button{min-height:42px}}
+
 @media(max-width:360px){.header{grid-template-columns:minmax(0,1fr) auto auto}.header .date-block{display:none}.brand h1{font-size:17px}.brand-icon{width:31px;height:31px}}
 
 .sensors-overview{gap:9px;overflow:hidden}
@@ -131,7 +178,14 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
 .feature.sensors-focus .camera-tile{display:block;width:100%;height:100%;min-height:0;border-radius:14px}
 .feature.sensors-focus .camera-tile img{width:100%;height:100%;object-fit:contain}
 .feature.sensors-focus .camera-tile figcaption{right:auto;bottom:12px;left:12px;max-width:70%;padding:7px 11px;border-radius:7px;font-size:clamp(13px,1.2vw,18px);letter-spacing:.04em}
-.feature.sensors-focus .camera-position{position:absolute;right:12px;bottom:12px;padding:7px 10px;border-radius:7px;background:#101510bf;color:#fff;font-size:13px;font-variant-numeric:tabular-nums}
+.feature.sensors-focus .camera-position{position:absolute;right:12px;bottom:12px;display:grid;place-items:center;width:50px;height:50px;border-radius:50%;background:#101510bf;color:#fff;font-size:11px;font-variant-numeric:tabular-nums}
+.feature.sensors-focus .camera-position>span{grid-area:1/1;white-space:nowrap}
+.feature.sensors-focus .camera-position-progress{grid-area:1/1;width:100%;height:100%;transform:rotate(-90deg)}
+.feature.sensors-focus .camera-position-track,.feature.sensors-focus .camera-position-arc{fill:none;stroke-width:2.5}
+.feature.sensors-focus .camera-position-track{stroke:#ffffff55}
+.feature.sensors-focus .camera-position-arc{stroke:#d9e866;stroke-dasharray:119.38;stroke-dashoffset:119.38;animation:camera-cycle-progress 30s linear forwards}
+@keyframes camera-cycle-progress{to{stroke-dashoffset:0}}
+@media(prefers-reduced-motion:reduce){.feature.sensors-focus .camera-position-arc{animation:none;stroke-dashoffset:0}}
 .feature.sensors-focus .feature-bottom{min-height:3px;padding:0;border:0;font-size:0}
 .feature.sensors-focus .feature-bottom #rotation-hint,.feature.sensors-focus .feature-bottom .pager{display:none}
 @media (orientation:landscape) and (min-width:900px){.dashboard.sensors-selected{grid-template-columns:minmax(0,.9fr) minmax(0,1.2fr)}}

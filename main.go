@@ -19,6 +19,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -155,6 +156,8 @@ type Event struct {
 	LeaveForPickup   bool
 	TravelLabel      string
 	TravelMinutes    int
+	TravelDecision   string
+	ReviewKey        string
 	WeatherAt        string
 	WeatherIcon      string
 	WeatherTemp      string
@@ -247,7 +250,7 @@ func normalizeEventTitle(s string) string {
 }
 
 func addTravelEstimate(event *Event, rules []travelRule, now time.Time, loc *time.Location) {
-	if event == nil || event.AllDay {
+	if event == nil {
 		return
 	}
 	start, err := time.Parse(time.RFC3339, event.Start)
@@ -258,7 +261,27 @@ func addTravelEstimate(event *Event, rules []travelRule, now time.Time, loc *tim
 	if !ok {
 		return
 	}
+	setTravelDuration(event, minutes, destination, now, loc)
+}
+
+func setTravelDuration(event *Event, minutes int, destination string, now time.Time, loc *time.Location) {
+	if event == nil || minutes < 1 || minutes > 360 {
+		return
+	}
 	travel := time.Duration(minutes) * time.Minute
+	event.TravelMinutes = minutes
+	event.TravelDecision = travelDecisionNeeded
+	event.TravelLabel = fmt.Sprintf("%d min each way", minutes)
+	if destination != "" {
+		event.TravelLabel += " to " + destination
+	}
+	if event.AllDay {
+		return
+	}
+	start, err := time.Parse(time.RFC3339, event.Start)
+	if err != nil {
+		return
+	}
 	leaveAt := start.Add(-travel)
 	if !now.Before(start) {
 		if end, err := time.Parse(time.RFC3339, event.End); err == nil && end.After(start) {
@@ -266,7 +289,6 @@ func addTravelEstimate(event *Event, rules []travelRule, now time.Time, loc *tim
 			event.LeaveForPickup = true
 		}
 	}
-	event.TravelMinutes = minutes
 	event.LeaveAt = leaveAt.Format(time.RFC3339)
 	event.LeaveCountdown = formatLeaveCountdown(leaveAt.Sub(now))
 	if !leaveAt.After(now) {
@@ -279,10 +301,6 @@ func addTravelEstimate(event *Event, rules []travelRule, now time.Time, loc *tim
 		event.LeaveLabel = "Leave for pickup by " + leaveAt.In(loc).Format("3:04 PM")
 	} else {
 		event.LeaveLabel = "Leave by " + leaveAt.In(loc).Format("3:04 PM")
-	}
-	event.TravelLabel = fmt.Sprintf("%d min each way", minutes)
-	if destination != "" {
-		event.TravelLabel += " to " + destination
 	}
 }
 
@@ -318,26 +336,28 @@ type Day struct {
 	Today  bool
 }
 type Page struct {
-	WeatherKind     string
-	Hour24          int
-	CalendarBadge   string
-	CalendarNote    string
-	CalendarMessage string
-	Weather         weatherView
-	Today           string
-	Clock           string
-	Period          string
-	Days            []Day
-	Events          []Event
-	NextUp          *Event
-	SchoolCards     []SchoolCard
-	SchoolAfternoon bool
-	Tasks           []Task
-	Count           int
-	CSRF            string
-	KioskMode       bool
-	DevMode         bool
-	TaskAction      string
+	WeatherKind           string
+	Hour24                int
+	CalendarBadge         string
+	CalendarNote          string
+	CalendarMessage       string
+	Weather               weatherView
+	Today                 string
+	Clock                 string
+	Period                string
+	Days                  []Day
+	Events                []Event
+	TravelReview          []Event
+	CanManageTravel       bool
+	NextUp                *Event
+	SchoolCards           []SchoolCard
+	SchoolAfternoon       bool
+	Tasks                 []Task
+	Count                 int
+	CSRF                  string
+	KioskMode             bool
+	DevMode               bool
+	TaskAction            string
 }
 
 type app struct {
@@ -351,6 +371,7 @@ type app struct {
 	now            func() time.Time
 	auth           authConfig
 	travelRules    []travelRule
+	travelReviews  *travelDecisionStore
 	devices        *deviceStore
 	pairings       *pairingPool
 	devMode        bool
@@ -437,7 +458,11 @@ func newApp(path string) (*app, error) {
 			Minutes:  15,
 		},
 	)
-	a := &app{store: store, tmpl: tpl, csrf: newID(), tz: tz, now: time.Now, calendar: feed, schoolCalendar: schoolCalendar, weather: weather, travelRules: travelRules, devMode: os.Getenv("FAMILY_DASHBOARD_DEV_MODE") == "1", devVersion: newID(), frigateClients: make(map[chan frigateEvent]struct{}), frigateToken: strings.TrimSpace(os.Getenv("FRIGATE_EVENT_TOKEN")), frigateActive: make(map[string]frigateEvent)}
+	travelReviews, err := openTravelDecisionStore(filepath.Join(filepath.Dir(path), "travel-decisions.json"))
+	if err != nil {
+		return nil, fmt.Errorf("open travel decisions: %w", err)
+	}
+	a := &app{store: store, tmpl: tpl, csrf: newID(), tz: tz, now: time.Now, calendar: feed, schoolCalendar: schoolCalendar, weather: weather, travelRules: travelRules, travelReviews: travelReviews, devMode: os.Getenv("FAMILY_DASHBOARD_DEV_MODE") == "1", devVersion: newID(), frigateClients: make(map[chan frigateEvent]struct{}), frigateToken: strings.TrimSpace(os.Getenv("FRIGATE_EVENT_TOKEN")), frigateActive: make(map[string]frigateEvent)}
 	if err := a.initializeAuth(path); err != nil {
 		return nil, err
 	}
@@ -508,7 +533,7 @@ func (a *app) pageContext(ctx context.Context, now time.Time) Page {
 			} else if item.end.Sub(item.start) > time.Hour {
 				clock = clock + " – " + item.end.In(a.tz).Format("3:04 PM")
 			}
-			events = append(events, Event{Date: label, Weekday: d.Format("Mon"), Time: clock, Start: item.start.Format(time.RFC3339), End: item.end.Format(time.RFC3339), Relative: relativeTime(item.start, n), AllDay: item.allDay, SpanDays: allDayDays(item.start, item.end, a.tz), Title: item.title, Category: "family"})
+			events = append(events, Event{Date: label, Weekday: d.Format("Mon"), Time: clock, Start: item.start.Format(time.RFC3339), End: item.end.Format(time.RFC3339), Relative: relativeTime(item.start, n), AllDay: item.allDay, SpanDays: allDayDays(item.start, item.end, a.tz), Title: item.title, Category: "family", ReviewKey: travelDecisionKey(item)})
 		}
 		if len(events) == 0 && message == "" {
 			message = "No upcoming events this week."
@@ -517,8 +542,42 @@ func (a *app) pageContext(ctx context.Context, now time.Time) Page {
 	if a.calendar != nil {
 		badge = "SCHOOL + GOOGLE CALENDAR"
 	}
+	travelReview := make([]Event, 0)
 	for i := range events {
-		addTravelEstimate(&events[i], a.travelRules, n, a.tz)
+		event := &events[i]
+		addTravelEstimate(event, a.travelRules, n, a.tz)
+		if event.ReviewKey == "" {
+			continue
+		}
+		if decision, ok := a.travelReviews.get(event.ReviewKey); ok {
+			switch decision.State {
+			case travelDecisionNeeded:
+				setTravelDuration(event, decision.Minutes, decision.Location, n, a.tz)
+			case travelDecisionNone:
+				event.TravelMinutes = 0
+				event.LeaveAt = ""
+				event.LeaveCountdown = ""
+				event.LeaveLabel = ""
+				event.TravelLabel = "No travel needed"
+				event.TravelDecision = travelDecisionNone
+			case travelDecisionPending:
+				event.TravelMinutes = 0
+				event.LeaveAt = ""
+				event.LeaveCountdown = ""
+				event.LeaveLabel = ""
+				event.TravelLabel = ""
+				event.LeaveForPickup = false
+				event.TravelDecision = travelDecisionPending
+			}
+		} else if event.TravelMinutes > 0 {
+			event.TravelDecision = travelDecisionNeeded
+		} else {
+			event.TravelDecision = travelDecisionPending
+		}
+		end, endErr := time.Parse(time.RFC3339, event.End)
+		if event.TravelDecision == travelDecisionPending && endErr == nil && end.After(n) {
+			travelReview = append(travelReview, *event)
+		}
 	}
 	// Order family events by their actual start time before selecting the
 	// featured event or rendering the list.
@@ -553,7 +612,7 @@ func (a *app) pageContext(ctx context.Context, now time.Time) Page {
 	if len(wv.Slots) > 0 {
 		weatherKind = wv.Slots[0].Icon
 	}
-	return Page{WeatherKind: weatherKind, Hour24: n.Hour(), Today: n.Format("Mon, Jan 2"), Clock: n.Format("3:04"), Period: n.Format("PM"), Days: days, Events: events, NextUp: nextUp, SchoolCards: schoolCards, SchoolAfternoon: n.Hour() >= 11, Tasks: tasks, Count: count, CSRF: a.csrf, CalendarBadge: badge, CalendarNote: note, CalendarMessage: message, Weather: wv}
+	return Page{WeatherKind: weatherKind, Hour24: n.Hour(), Today: n.Format("Mon, Jan 2"), Clock: n.Format("3:04"), Period: n.Format("PM"), Days: days, Events: events, TravelReview: travelReview, NextUp: nextUp, SchoolCards: schoolCards, SchoolAfternoon: n.Hour() >= 11, Tasks: tasks, Count: count, CSRF: a.csrf, CalendarBadge: badge, CalendarNote: note, CalendarMessage: message, Weather: wv}
 }
 
 func schoolDayCards(items []calendarItem, weather weatherView, now time.Time, loc *time.Location) []SchoolCard {
@@ -712,6 +771,7 @@ func (a *app) renderPage(w http.ResponseWriter, r *http.Request, kiosk bool) {
 	pg := a.pageContext(r.Context(), a.now())
 	pg.KioskMode = kiosk
 	pg.DevMode = a.devMode
+	pg.CanManageTravel = !kiosk && a.human(r, "family-hq:manage")
 	if kiosk {
 		pg.TaskAction = "/kiosk/tasks"
 	} else {
@@ -1112,6 +1172,7 @@ func (a *app) routes() http.Handler {
 		a.metricsHandler.ServeHTTP(w, r)
 	})
 	mux.HandleFunc("POST /tasks", a.requireHuman("family-hq:read", a.mutate))
+	mux.HandleFunc("POST /travel-review", a.requireHuman("family-hq:read", a.reviewTravel))
 	a.authRoutes(mux)
 	return instrumentHTTP(mux)
 }
@@ -1206,6 +1267,73 @@ func (a *app) mutate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+}
+
+func (a *app) reviewTravel(w http.ResponseWriter, r *http.Request) {
+	if !a.human(r, "family-hq:manage") {
+		http.Error(w, "Family HQ management access required", http.StatusForbidden)
+		return
+	}
+	if a.calendar == nil {
+		http.Error(w, "family calendar is not configured", http.StatusServiceUnavailable)
+		return
+	}
+	if !a.sameOrigin(r) {
+		http.Error(w, "invalid request origin", http.StatusForbidden)
+		return
+	}
+	r.Body = http.MaxBytesReader(w, r.Body, 4096)
+	if ct := r.Header.Get("Content-Type"); !strings.HasPrefix(ct, "application/x-www-form-urlencoded") {
+		http.Error(w, "form required", http.StatusUnsupportedMediaType)
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "bad form", http.StatusBadRequest)
+		return
+	}
+	if subtle.ConstantTimeCompare([]byte(r.PostForm.Get("csrf")), []byte(a.csrf)) != 1 {
+		http.Error(w, "forbidden", http.StatusForbidden)
+		return
+	}
+	key := r.PostForm.Get("key")
+	if key == "" || len(key) > 512 {
+		http.Error(w, "invalid calendar event", http.StatusBadRequest)
+		return
+	}
+	items, _, _ := a.calendar.snapshotContext(r.Context(), a.now())
+	found := false
+	for _, item := range items {
+		if travelDecisionKey(item) == key {
+			found = true
+			break
+		}
+	}
+	if !found {
+		http.Error(w, "calendar event is no longer upcoming", http.StatusConflict)
+		return
+	}
+	var err error
+	switch r.PostForm.Get("action") {
+	case travelDecisionNone:
+		err = a.travelReviews.set(key, travelDecisionNone, 0, "", a.now())
+	case travelDecisionNeeded:
+		minutes, parseErr := strconv.Atoi(r.PostForm.Get("minutes"))
+		if parseErr != nil {
+			http.Error(w, "enter a travel time in minutes", http.StatusBadRequest)
+			return
+		}
+		err = a.travelReviews.set(key, travelDecisionNeeded, minutes, r.PostForm.Get("location"), a.now())
+	case "reopen":
+		err = a.travelReviews.set(key, travelDecisionPending, 0, "", a.now())
+	default:
+		http.Error(w, "invalid travel decision", http.StatusBadRequest)
+		return
+	}
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	http.Redirect(w, r, "/dashboard#travel-review", http.StatusSeeOther)
 }
 
 func main() {

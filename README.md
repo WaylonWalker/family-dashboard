@@ -4,10 +4,9 @@ Small self-hosted family dashboard for a rooted touchscreen digital photo frame.
 Go standard-library app, server-rendered HTML/CSS, optimized for **1280×800**
 and responsive on phones. A lightweight alternative to a tablet-only Android app.
 
-**Features:** outdoor clothing and weather timeline, seven-day calendar (bundled
-Dunlap school iCal plus optional read-only Google Calendar via private iCal URL), editable tasks stored in one
-JSON file, first-run demo tasks, no JavaScript required for task edits.
-Photo management uses the v0.3 phone-to-frame pairing flow. Human access uses hlab-auth ForwardAuth; Google Calendar remains read-only.
+**Features:** outdoor clothing and weather timeline, school routine cards, a
+family calendar with travel review, editable tasks, and phone-to-frame pairing.
+Human access uses hlab-auth ForwardAuth; Google Calendar remains read-only.
 
 ## Local development
 
@@ -74,6 +73,17 @@ before the bus event; Ayla's leave deadline uses her listed arrival time. Rain
 probability during Ayla's walk home adds a morning pickup note and a pickup
 leave countdown beginning two hours before the planned pickup.
 
+The dashboard keeps school routine events in the school cards and shows family
+events in the appointments list. Upcoming family events without an automatic
+travel rule appear in the Essentials travel review panel for the next seven days
+until a manager records a travel time or marks the event as not needing travel.
+Quick choices cover no travel and 10, 15, 20, or 30 minutes each way, with a
+custom option. Decisions for events with an iCal UID
+apply to that event series; events without a UID are tracked individually.
+Managers can reopen a decision from the event list. Decisions persist in
+`travel-decisions.json` beside the task data on the dashboard's persistent
+volume. A saved decision overrides a title-based travel rule for that series.
+
 The backend fetches the feed on the first page view, caches successful results
 for 15 minutes, retries failures after 1 minute, and retains the last
 known-good events on temporary failures. With a Google feed configured, the page
@@ -85,9 +95,8 @@ Supported: timed and all-day events, local TZIDs, weekly/daily/monthly/yearly
 recurrences with common BYDAY/BYMONTH/BYMONTHDAY/COUNT/UNTIL rules, EXDATE,
 RDATE, moved or canceled instances. Complex recurrence clauses (for example,
 BYSETPOS) currently raise a visible connection/parse error rather than
-silently producing wrong dates. The school iCal and Google feed are shown
-together. The Google feed is read-only; Google Calendar stays the source of
-truth for family events.
+silently producing wrong dates. The Google feed is read-only; Google Calendar
+stays the source of truth for family events.
 
 Security: `.env` is ignored by Git. Do not place the secret address in the
 front-end, a public repository, browser JavaScript, query parameters, or logs.
