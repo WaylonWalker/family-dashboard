@@ -346,6 +346,47 @@
     }
   });
   var doorAlert = document.getElementById('door-alert');
+  var sensorPane = document.getElementById('pane-sensor-alert');
+  var sensorRefreshTimer = null;
+  var sensorImageURL = '';
+  var dismissedSensors = {};
+  function clearSensorAlert() {
+    if (!sensorPane) return;
+    window.clearInterval(sensorRefreshTimer);
+    sensorRefreshTimer = null;
+    sensorImageURL = '';
+    sensorPane.hidden = true;
+    document.querySelector('.feature-tabs').hidden = false;
+    document.getElementById('feature-prev').hidden = false;
+    document.getElementById('feature-next').hidden = false;
+    show(active, false);
+  }
+  function showSensorAlert(event) {
+    var key = (event.kind || '') + ':' + (event.sensor || '');
+    if (!event.active) { delete dismissedSensors[key]; clearSensorAlert(); return; }
+    if (dismissedSensors[key]) return;
+    document.querySelector('.feature-tabs').hidden = true;
+    document.getElementById('feature-prev').hidden = true;
+    document.getElementById('feature-next').hidden = true;
+    panes.forEach(function (pane) { pane.hidden = true; });
+    sensorPane.hidden = false;
+    name.textContent = event.kind === 'water' ? 'Water detected' : 'Freezer temperature';
+    document.getElementById('sensor-alert-kicker').textContent = event.kind === 'water' ? 'WATER SENSOR · ALERT' : 'FREEZER · ' + (event.severity || 'ALERT').toUpperCase();
+    document.getElementById('sensor-alert-title').textContent = event.kind === 'water' ? 'Water detected in the basement' : 'Freezer temperature alert';
+    document.getElementById('sensor-alert-summary').textContent = event.kind === 'water' ? (event.sensor || 'Water sensor') + ' is detecting water.' : (event.sensor || 'Freezer') + ' is out of range.';
+    document.getElementById('sensor-alert-reading').textContent = event.kind === 'temperature' && typeof event.temperature_f === 'number' ? event.temperature_f.toFixed(1) + ' °F' : 'WATER';
+    sensorImageURL = event.snapshot_url || '';
+    if (event.snapshot) document.getElementById('sensor-alert-image').src = event.snapshot;
+    else if (sensorImageURL) document.getElementById('sensor-alert-image').src = sensorImageURL + (sensorImageURL.indexOf('?') < 0 ? '?' : '&') + 'refresh=' + Date.now();
+    window.clearInterval(sensorRefreshTimer);
+    if (sensorImageURL) sensorRefreshTimer = window.setInterval(function () { document.getElementById('sensor-alert-image').src = sensorImageURL + (sensorImageURL.indexOf('?') < 0 ? '?' : '&') + 'refresh=' + Date.now(); }, 30000);
+    refreshHint();
+  }
+  document.getElementById('sensor-alert-dismiss').addEventListener('click', function () {
+    var eventKey = sensorPane.getAttribute('data-sensor-key');
+    if (eventKey) dismissedSensors[eventKey] = true;
+    clearSensorAlert();
+  });
   if (doorAlert && window.EventSource) {
     var seenDoorEvents = {};
     var doorAlertDuration = 30000;
@@ -386,6 +427,11 @@
     doorStream.addEventListener('frigate', function (message) {
       try {
         var event = JSON.parse(message.data);
+        if (event.kind === 'temperature' || event.kind === 'water') {
+          sensorPane.setAttribute('data-sensor-key', event.kind + ':' + (event.sensor || ''));
+          showSensorAlert(event);
+          return;
+        }
         if (seenDoorEvents[event.id]) return;
         seenDoorEvents[event.id] = true;
         document.getElementById('door-alert-camera').textContent = (event.camera || 'Camera').replace(/[-_]/g, ' ');

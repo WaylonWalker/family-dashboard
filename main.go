@@ -18,6 +18,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 	"syscall"
@@ -362,15 +363,21 @@ type app struct {
 	frigateMu      sync.Mutex
 	frigateClients map[chan frigateEvent]struct{}
 	frigateToken   string
+	frigateActive  map[string]frigateEvent
 }
 
 type frigateEvent struct {
-	ID        string `json:"id"`
-	Camera    string `json:"camera"`
-	Label     string `json:"label"`
-	Timestamp string `json:"timestamp"`
-	Snapshot  string `json:"snapshot"`
-	ClipURL   string `json:"clip_url"`
+	ID           string  `json:"id"`
+	Camera       string  `json:"camera"`
+	Label        string  `json:"label"`
+	Timestamp    string  `json:"timestamp"`
+	Snapshot     string  `json:"snapshot"`
+	ClipURL      string  `json:"clip_url"`
+	Kind         string  `json:"kind,omitempty"`
+	Sensor       string  `json:"sensor,omitempty"`
+	TemperatureF float64 `json:"temperature_f,omitempty"`
+	Severity     string  `json:"severity,omitempty"`
+	Active       bool    `json:"active,omitempty"`
 }
 
 func newApp(path string) (*app, error) {
@@ -426,7 +433,7 @@ func newApp(path string) (*app, error) {
 			Minutes:  15,
 		},
 	)
-			a := &app{store: store, tmpl: tpl, csrf: newID(), tz: tz, now: time.Now, calendar: feed, schoolCalendar: schoolCalendar, weather: weather, travelRules: travelRules, devMode: os.Getenv("FAMILY_DASHBOARD_DEV_MODE") == "1", devVersion: newID(), frigateClients: make(map[chan frigateEvent]struct{}), frigateToken: strings.TrimSpace(os.Getenv("FRIGATE_EVENT_TOKEN"))}
+	a := &app{store: store, tmpl: tpl, csrf: newID(), tz: tz, now: time.Now, calendar: feed, schoolCalendar: schoolCalendar, weather: weather, travelRules: travelRules, devMode: os.Getenv("FAMILY_DASHBOARD_DEV_MODE") == "1", devVersion: newID(), frigateClients: make(map[chan frigateEvent]struct{}), frigateToken: strings.TrimSpace(os.Getenv("FRIGATE_EVENT_TOKEN")), frigateActive: make(map[string]frigateEvent)}
 	if err := a.initializeAuth(path); err != nil {
 		return nil, err
 	}
@@ -525,6 +532,24 @@ func (a *app) pageContext(ctx context.Context, now time.Time) Page {
 	for i := range events {
 		addTravelEstimate(&events[i], a.travelRules, n, a.tz)
 	}
+	// Calendar feeds are appended by source, so order the combined list by the
+	// actual start time before selecting the featured event or rendering it.
+	upcoming := events[:0]
+	for _, event := range events {
+		end, err := time.Parse(time.RFC3339, event.End)
+		if err == nil && end.After(n) {
+			upcoming = append(upcoming, event)
+		}
+	}
+	events = upcoming
+	sort.SliceStable(events, func(i, j int) bool {
+		startI, errI := time.Parse(time.RFC3339, events[i].Start)
+		startJ, errJ := time.Parse(time.RFC3339, events[j].Start)
+		if errI != nil || errJ != nil {
+			return errI == nil && errJ != nil
+		}
+		return startI.Before(startJ)
+	})
 	nextUp, events := nextEvent(events, n)
 	tasks := a.store.list()
 	count := 0
@@ -721,11 +746,39 @@ func (a *app) receiveFrigateEvent(w http.ResponseWriter, r *http.Request) {
 	}
 	r.Body = http.MaxBytesReader(w, r.Body, 6<<20)
 	var event frigateEvent
-	if err := json.NewDecoder(r.Body).Decode(&event); err != nil || event.ID == "" || event.Label != "person" || event.Camera == "" {
+	if err := json.NewDecoder(r.Body).Decode(&event); err != nil || event.ID == "" {
 		http.Error(w, "invalid Frigate event", http.StatusBadRequest)
 		return
 	}
+	if event.Kind == "" {
+		event.Kind = "person"
+	}
+	if event.Kind == "person" {
+		if event.Label != "person" || event.Camera == "" {
+			http.Error(w, "invalid person event", http.StatusBadRequest)
+			return
+		}
+	} else if event.Kind == "temperature" || event.Kind == "water" {
+		if event.Sensor == "" || event.Severity == "" {
+			http.Error(w, "invalid sensor event", http.StatusBadRequest)
+			return
+		}
+	} else {
+		http.Error(w, "unsupported event kind", http.StatusBadRequest)
+		return
+	}
 	a.frigateMu.Lock()
+	if a.frigateActive == nil {
+		a.frigateActive = make(map[string]frigateEvent)
+	}
+	if event.Kind != "person" {
+		key := event.Kind + ":" + event.Sensor
+		if event.Active {
+			a.frigateActive[key] = event
+		} else {
+			delete(a.frigateActive, key)
+		}
+	}
 	for client := range a.frigateClients {
 		select {
 		case client <- event:
@@ -756,6 +809,12 @@ func (a *app) streamFrigateEvents(w http.ResponseWriter, r *http.Request) {
 	client := make(chan frigateEvent, 4)
 	a.frigateMu.Lock()
 	a.frigateClients[client] = struct{}{}
+	for _, event := range a.frigateActive {
+		select {
+		case client <- event:
+		default:
+		}
+	}
 	a.frigateMu.Unlock()
 	defer func() {
 		a.frigateMu.Lock()

@@ -12,8 +12,8 @@
   <link rel="icon" href="/favicon.ico" sizes="32x32" type="image/x-icon">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/icons/family-hq-192.png">
-  <link rel="stylesheet" href="/style.css?v=16">
-  <script src="/app.js?v=12" defer></script>
+  <link rel="stylesheet" href="/style.css?v=18">
+  <script src="/app.js?v=13" defer></script>
   {{if .DevMode}}<script src="/dev-reload.js" defer></script>{{end}}
   <noscript><style>
     .feature-pane[hidden]{display:flex!important}
@@ -82,6 +82,11 @@
           <button role="tab" type="button" id="tab-tasks" aria-controls="pane-tasks" aria-selected="false" tabindex="-1" class="feature-tab"><svg class="icon"><use href="#i-list" xlink:href="#i-list"/></svg> Tasks <span class="pill-count">{{.Count}}</span></button>
         </div>
         <div class="feature-window" id="feature-window">
+          <section class="feature-pane sensor-pane" id="pane-sensor-alert" hidden aria-live="assertive">
+            <div class="sensor-alert-head"><p class="eyebrow" id="sensor-alert-kicker">HOME SENSOR · ALERT</p><h3 id="sensor-alert-title">Freezer temperature alert</h3><p id="sensor-alert-summary"></p></div>
+            <div class="sensor-alert-image-wrap"><img id="sensor-alert-image" alt="Live sensor camera image, refreshed every 30 seconds"><span id="sensor-alert-reading" class="sensor-alert-reading"></span></div>
+            <div class="sensor-alert-foot"><span id="sensor-alert-updated">Refreshing camera image every 30 seconds</span><button id="sensor-alert-dismiss" type="button" class="sensor-alert-dismiss">Dismiss</button></div>
+          </section>
           <section class="feature-pane is-active" id="pane-weather" role="tabpanel" aria-labelledby="tab-weather">
             <div class="wx-heading"><div><div class="wx-kicker">{{.Weather.Location}}</div><strong>What to wear</strong></div><span class="wx-status">{{.Weather.Badge}}</span></div>
             {{if .Weather.Slots}}
