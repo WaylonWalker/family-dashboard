@@ -35,6 +35,7 @@
   var holdUntil = 0;
   var rotationStartedAt = 0;
   var lastFocus = null;
+  var settingsCloseTimer = null;
 
   function read(key, fallback) {
     try { return window.localStorage.getItem('familyhq.' + key) || fallback; }
@@ -513,13 +514,24 @@
   if (resumed && Date.now()-resumed < 15000) { show(1,true); save('resume-tasks','0'); }
 
   function closeSettings() {
-    drawer.hidden=true;backdrop.hidden=true;launch.setAttribute('aria-expanded','false');
+    drawer.classList.remove('is-open');backdrop.classList.remove('is-open');launch.setAttribute('aria-expanded','false');
+    window.clearTimeout(settingsCloseTimer);
+    settingsCloseTimer=window.setTimeout(function () {
+      if (!drawer.classList.contains('is-open')) { drawer.hidden=true;backdrop.hidden=true; }
+    },260);
     if (lastFocus && lastFocus.focus) lastFocus.focus();
     pause();
   }
   launch.addEventListener('click',function () {
+    window.clearTimeout(settingsCloseTimer);
     lastFocus=document.activeElement;drawer.hidden=false;backdrop.hidden=false;launch.setAttribute('aria-expanded','true');
+    window.requestAnimationFrame(function () { drawer.classList.add('is-open');backdrop.classList.add('is-open'); });
     theme.focus();pause();
+  });
+  drawer.addEventListener('transitionend',function (event) {
+    if (event.target===drawer&&!drawer.classList.contains('is-open')) {
+      window.clearTimeout(settingsCloseTimer);drawer.hidden=true;backdrop.hidden=true;
+    }
   });
   document.getElementById('close-settings').addEventListener('click',closeSettings);
   backdrop.addEventListener('click',closeSettings);
