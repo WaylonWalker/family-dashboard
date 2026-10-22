@@ -53,6 +53,10 @@
       </div>
       <div class="clock-block"><strong id="live-clock">{{.Clock}}</strong><span id="live-period">{{.Period}}</span></div>
       <div class="header-right">
+        <div class="header-sensors" aria-label="Home sensor status" aria-live="polite">
+          <span id="header-freezer" class="header-sensor">Freezer <strong>--</strong></span>
+          <span id="header-basement" class="header-sensor">Basement <strong>--</strong></span>
+        </div>
         <span id="live-date" class="date-block">{{.Today}}</span>
         <button id="open-settings" class="icon-button settings-launch" type="button" aria-label="Open display settings" aria-controls="settings" aria-expanded="false" title="Theme & display settings"><svg class="icon"><use href="#i-settings" xlink:href="#i-settings"/></svg></button>
       </div>

@@ -255,9 +255,11 @@
     }
   }
   updateClock();
+  refreshHeaderSensors();
   updateEventTimes();
   window.setInterval(updateEventTimes, 1000);
   window.setInterval(function () { if (theme.value === 'auto') applyTheme(); updateClock(); }, 60000);
+  window.setInterval(refreshHeaderSensors, 60000);
 
   function resetRotationProgress() {
     rotationStartedAt = 0;
@@ -284,9 +286,42 @@
     if (reading.kind === 'water') return 'Basement water';
     return (reading.name || 'Sensor').replace(/[-_]/g, ' ');
   }
+  function updateHeaderSensors(error, readings) {
+    var freezer = document.getElementById('header-freezer');
+    var basement = document.getElementById('header-basement');
+    var freezerValue = freezer.querySelector('strong');
+    var basementValue = basement.querySelector('strong');
+    freezer.classList.remove('is-alert');
+    basement.classList.remove('is-alert');
+    if (error) {
+      freezerValue.textContent = 'Offline';
+      basementValue.textContent = 'Offline';
+      return;
+    }
+    var temperature = null;
+    var water = null;
+    (readings || []).forEach(function (reading) {
+      if (reading.kind === 'temperature') temperature = reading;
+      if (reading.kind === 'water') water = reading;
+    });
+    freezerValue.textContent = temperature && typeof temperature.temperature_f === 'number' ? temperature.temperature_f.toFixed(1) + '°F' : '—';
+    basementValue.textContent = water ? (water.detected ? 'Wet' : 'Dry') : '—';
+    if (water && water.detected) basement.classList.add('is-alert');
+  }
+  function refreshHeaderSensors() {
+    var essentialsBase = isKiosk ? '/kiosk/api/essentials' : '/api/essentials';
+    requestJSON(essentialsBase + '/sensors', function (error, data) {
+      updateHeaderSensors(error, data && data.readings);
+    });
+  }
   function renderSensorReadings(readings) {
     var list = document.getElementById('sensor-reading-list');
     list.textContent = '';
+    readings = readings.filter(function (reading) {
+      if (reading.kind !== 'device') return true;
+      var device = (reading.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      return device !== 'standupfreezer' && device !== 'doorbell';
+    });
     if (!readings.length) {
       var empty = document.createElement('p');
       empty.className = 'sensor-view-message';
