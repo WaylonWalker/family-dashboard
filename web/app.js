@@ -33,6 +33,7 @@
   var cameraTiles = [];
   var cameraSessionGeneration = 0;
   var cameraRefreshGeneration = 0;
+  var cameraSnapshotTimer = null;
   var headerSensorRefreshGeneration = 0;
   var activeSensorAlerts = {temperature:false, water:false};
   var cameraProgressTimer = null;
@@ -423,6 +424,8 @@
     cameraProgressTimer = null;
   }
   function stopCameraStreams() {
+    if (cameraSnapshotTimer !== null) window.clearInterval(cameraSnapshotTimer);
+    cameraSnapshotTimer = null;
     for (var i = 0; i < cameraTiles.length; i++) {
       var faces = cameraTiles[i].querySelectorAll('.camera-face');
       for (var j = 0; j < faces.length; j++) clearCameraFace(faces[j]);
@@ -452,6 +455,15 @@
     if (!face) return;
     stopCameraPlayer(face.querySelector('video'));
     face.textContent = '';
+  }
+  function refreshCameraSnapshots() {
+    if (active !== 2 || document.hidden) return;
+    var images = document.querySelectorAll('#camera-grid .camera-snapshot-live');
+    for (var i = 0; i < images.length; i++) {
+      var camera = images[i].getAttribute('data-camera');
+      if (!camera) continue;
+      images[i].src = (isKiosk ? '/kiosk/api/essentials' : '/api/essentials') + '/cameras/' + encodeURIComponent(camera) + '/snapshot?refresh=' + Date.now();
+    }
   }
   function showCameraSnapshotFallback(video, camera) {
     if (!video || !video.parentNode || video._cameraFallback) return;
@@ -545,8 +557,12 @@
     face.className = 'camera-face ' + faceClass;
     if (!camera) return face;
     face._cameraIndex = cameraList.indexOf(camera);
-    if (!window.MediaSource || !window.WebSocket) {
+    if (wideDisplay || !window.MediaSource || !window.WebSocket) {
       var fallback = document.createElement('img');
+      if (wideDisplay) {
+        fallback.className = 'camera-snapshot-live';
+        fallback.setAttribute('data-camera', camera);
+      }
       fallback.src = (isKiosk ? '/kiosk/api/essentials' : '/api/essentials') + '/cameras/' + encodeURIComponent(camera) + '/snapshot?refresh=' + Date.now();
       fallback.alt = camera.replace(/[-_]/g, ' ') + ' camera snapshot';
       face.appendChild(fallback);
@@ -699,6 +715,7 @@
         grid.setAttribute('data-live-cameras', 'true');
         showCameraGrid(cameraIndex);
         startCameraProgress();
+        cameraSnapshotTimer = window.setInterval(refreshCameraSnapshots, 2000);
         if (cameraList.length > 4) {
           var generation = cameraSessionGeneration;
           cameraWarmTimer = window.setTimeout(function () { prepareNextCameraGroup(generation); }, 27000);
