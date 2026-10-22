@@ -98,6 +98,15 @@ func TestWeatherForecastCachedAndNoKeyInHTML(t *testing.T) {
 		t.Fatal(err)
 	}
 	a.weather = wf
+	a.calendar = &calendarFeed{
+		tz:      loc,
+		fetched: now,
+		next:    now.Add(time.Minute),
+		events: []calendarItem{{
+			uid: "family-dinner", title: "Family dinner",
+			start: dateIn(t, "2026-10-21 18:30"), end: dateIn(t, "2026-10-21 19:30"),
+		}},
+	}
 	a.now = func() time.Time { return now }
 	rr := httptest.NewRecorder()
 	a.routes().ServeHTTP(rr, httptest.NewRequest("GET", "/dashboard", nil))
