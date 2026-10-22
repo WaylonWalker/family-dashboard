@@ -130,7 +130,7 @@ func TestPairApproveRevokeFrame(t *testing.T) {
 	}
 	req = humanReq("GET", "/pair/approve?code="+code, "", "family-hq:manage")
 	w = served(a, req)
-	if w.Code != 200 || w.Header().Get("Referrer-Policy") != "origin" || !strings.Contains(w.Body.String(), "Approve this Fire TV?") || !strings.Contains(w.Body.String(), "/style.css?v=approve-3") {
+	if w.Code != 200 || w.Header().Get("Referrer-Policy") != "origin" || !strings.Contains(w.Body.String(), "Approve this Fire TV?") || !strings.Contains(w.Body.String(), "/style.css?v=approve-4") {
 		t.Fatalf("approval page: %d %s", w.Code, w.Body.String())
 	}
 	approvalCookie := cookieNamed(t, w, approvalCookieName)
@@ -148,7 +148,7 @@ func TestPairApproveRevokeFrame(t *testing.T) {
 	if w = served(a, good); w.Code != 200 {
 		t.Fatalf("approve: %d %s", w.Code, w.Body.String())
 	}
-	if !strings.Contains(w.Body.String(), "Fire TV paired") || !strings.Contains(w.Body.String(), "/style.css?v=approve-3") {
+	if !strings.Contains(w.Body.String(), "Fire TV paired") || !strings.Contains(w.Body.String(), "/style.css?v=approve-4") {
 		t.Fatalf("paired confirmation did not render themed page: %s", w.Body.String())
 	}
 	// The approval cannot be repeated.
