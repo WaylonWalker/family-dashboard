@@ -262,7 +262,7 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
 
 .door-alert[hidden]{display:none}
 .sensor-pane[hidden]{display:none}
-.header-sensor{padding:4px 6px;font-size:8px}.header-sensor strong{font-size:9px}
+.header-sensor{padding:4px 6px;font-size:8px}.header-sensor strong{font-size:9px}.sensor-signal{width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:#8b9186;box-shadow:0 0 0 2px rgba(139,145,134,.2)}.header-sensor.is-online .sensor-signal{background:#32834a;box-shadow:0 0 0 2px rgba(50,131,74,.2)}.header-sensor.is-offline .sensor-signal{background:#b43d32;box-shadow:0 0 0 2px rgba(180,61,50,.2)}
 @media(max-width:600px){.header-sensors{gap:3px}.header-sensor{padding:3px 4px;font-size:7px;letter-spacing:0}.header-sensor strong{font-size:8px}}
 .sensor-pane{gap:12px;overflow:hidden}
 .sensor-alert-head .eyebrow{margin:0 0 5px;color:#b43d32}

@@ -291,11 +291,28 @@
     var basement = document.getElementById('header-basement');
     var freezerValue = freezer.querySelector('strong');
     var basementValue = basement.querySelector('strong');
+    var freezerSignal = freezer.querySelector('.sensor-signal');
+    var basementSignal = basement.querySelector('.sensor-signal');
+    function setConnection(node, signal, reading) {
+      var online = false;
+      if (reading && typeof reading.online === 'boolean') online = reading.online;
+      else if (reading && reading.updated_at) {
+        var lastSeen = new Date(reading.updated_at).getTime();
+        online = !isNaN(lastSeen) && Date.now() - lastSeen < 30 * 60 * 1000;
+      }
+      node.classList.toggle('is-online', online);
+      node.classList.toggle('is-offline', !online);
+      signal.setAttribute('aria-label', online ? 'Online' : 'Offline');
+      node.title = node.textContent.trim() + ' sensor ' + (online ? 'online' : 'offline');
+      return online;
+    }
     freezer.classList.remove('is-alert');
     basement.classList.remove('is-alert');
     if (error) {
       freezerValue.textContent = 'Offline';
       basementValue.textContent = 'Offline';
+      setConnection(freezer, freezerSignal, null);
+      setConnection(basement, basementSignal, null);
       return;
     }
     var temperature = null;
@@ -304,8 +321,10 @@
       if (reading.kind === 'temperature') temperature = reading;
       if (reading.kind === 'water') water = reading;
     });
-    freezerValue.textContent = temperature && typeof temperature.temperature_f === 'number' ? temperature.temperature_f.toFixed(1) + '°F' : '—';
-    basementValue.textContent = water ? (water.detected ? 'Wet' : 'Dry') : '—';
+    var freezerOnline = setConnection(freezer, freezerSignal, temperature);
+    var basementOnline = setConnection(basement, basementSignal, water);
+    freezerValue.textContent = temperature && freezerOnline && typeof temperature.temperature_f === 'number' ? temperature.temperature_f.toFixed(1) + '°F' : 'Offline';
+    basementValue.textContent = water && basementOnline ? (water.detected ? 'Wet' : 'Dry') : 'Offline';
     if (water && water.detected) basement.classList.add('is-alert');
   }
   function refreshHeaderSensors() {
