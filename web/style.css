@@ -113,45 +113,35 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
 
 /* On a wall display, Sensors becomes the main event: readings stay legible
    above one large camera frame instead of competing in a tiny thumbnail grid. */
-body.sensors-focus .dashboard{grid-template-columns:minmax(0,1fr)}
-body.sensors-focus .calendar{display:none}
-body.sensors-focus .feature{grid-column:1/-1;min-height:0;padding:clamp(8px,1.1vw,18px)}
-body.sensors-focus .feature-header{display:none}
-body.sensors-focus .feature-tabs{gap:6px;margin:0 0 clamp(5px,.8vh,10px);padding:0;border:0}
-body.sensors-focus .feature-tab{min-height:38px;padding:5px 12px;font-size:12px}
-body.sensors-focus .feature-window{flex:1;min-height:0}
-body.sensors-focus .sensors-overview{gap:clamp(5px,.8vh,10px)}
-body.sensors-focus .sensor-reading-list{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;flex:none}
-body.sensors-focus .sensor-reading-card{gap:3px;padding:6px 12px;border-left-width:4px}
-body.sensors-focus .sensor-reading-label{font-size:12px}
-body.sensors-focus .sensor-reading-value{font-size:clamp(20px,2.2vw,30px);line-height:1.05}
-body.sensors-focus .sensor-reading-card.is-alert .sensor-reading-value{font-size:clamp(16px,1.6vw,22px)}
-body.sensors-focus .sensor-reading-card small{font-size:11px}
-body.sensors-focus .camera-grid{display:block;flex:1;min-height:0;max-height:none;overflow:hidden;border-radius:14px;background:#101510}
-body.sensors-focus .camera-tile{display:block;width:100%;height:100%;min-height:0;border-radius:14px}
-body.sensors-focus .camera-tile img{width:100%;height:100%;object-fit:contain}
-body.sensors-focus .camera-tile figcaption{right:auto;bottom:12px;left:12px;max-width:70%;padding:7px 11px;border-radius:7px;font-size:clamp(13px,1.2vw,18px);letter-spacing:.04em}
-body.sensors-focus .camera-position{position:absolute;right:12px;bottom:12px;padding:7px 10px;border-radius:7px;background:#101510bf;color:#fff;font-size:13px;font-variant-numeric:tabular-nums}
-body.sensors-focus .feature-bottom{min-height:3px;padding:0;border:0;font-size:0}
-body.sensors-focus .feature-bottom #rotation-hint,body.sensors-focus .feature-bottom .pager{display:none}
-@media (max-width:600px){body.sensors-focus .feature-tab{min-height:34px;font-size:11px}body.sensors-focus .sensor-reading-card small{display:none}}
+.feature.sensors-focus{min-height:0;padding:clamp(10px,1.1vw,18px)}
+.feature.sensors-focus .feature-header{display:none}
+.feature.sensors-focus .feature-tabs{gap:6px;margin:0 0 clamp(5px,.8vh,10px);padding:0;border:0}
+.feature.sensors-focus .feature-tab{min-height:38px;padding:5px 12px;font-size:12px}
+.feature.sensors-focus .feature-window{flex:1;min-height:0}
+.feature.sensors-focus .sensors-overview{gap:clamp(5px,.8vh,10px)}
+.feature.sensors-focus .sensor-reading-list{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;flex:none}
+.feature.sensors-focus .sensor-reading-card{gap:3px;padding:6px 12px;border-left-width:4px}
+.feature.sensors-focus .sensor-reading-label{font-size:12px}
+.feature.sensors-focus .sensor-reading-value{font-size:clamp(20px,2.2vw,30px);line-height:1.05}
+.feature.sensors-focus .sensor-reading-card.is-alert .sensor-reading-value{font-size:clamp(16px,1.6vw,22px)}
+.feature.sensors-focus .sensor-reading-card small{font-size:11px}
+.feature.sensors-focus .camera-grid{display:block;flex:1;min-height:0;max-height:none;overflow:hidden;border-radius:14px;background:#101510}
+.feature.sensors-focus .camera-tile{display:block;width:100%;height:100%;min-height:0;border-radius:14px}
+.feature.sensors-focus .camera-tile img{width:100%;height:100%;object-fit:contain}
+.feature.sensors-focus .camera-tile figcaption{right:auto;bottom:12px;left:12px;max-width:70%;padding:7px 11px;border-radius:7px;font-size:clamp(13px,1.2vw,18px);letter-spacing:.04em}
+.feature.sensors-focus .camera-position{position:absolute;right:12px;bottom:12px;padding:7px 10px;border-radius:7px;background:#101510bf;color:#fff;font-size:13px;font-variant-numeric:tabular-nums}
+.feature.sensors-focus .feature-bottom{min-height:3px;padding:0;border:0;font-size:0}
+.feature.sensors-focus .feature-bottom #rotation-hint,.feature.sensors-focus .feature-bottom .pager{display:none}
+@media (orientation:landscape) and (min-width:900px){.dashboard.sensors-selected{grid-template-columns:minmax(0,.9fr) minmax(0,1.2fr)}}
+@media (max-width:600px){.feature.sensors-focus .feature-tab{min-height:34px;font-size:11px}.feature.sensors-focus .sensor-reading-card small{display:none}}
 @media (orientation:landscape) and (max-width:899px){
-  body.sensors-focus .shell{height:100vh;height:100dvh;min-height:0;overflow:hidden;padding:7px 10px;gap:7px}
-  body.sensors-focus .header{min-height:36px;grid-template-columns:1fr;gap:0}
-  body.sensors-focus .brand,body.sensors-focus .date-block,body.sensors-focus .settings-launch{display:none}
-  body.sensors-focus .clock-block{grid-column:1;grid-row:1}
-  body.sensors-focus .clock-block strong{font-size:clamp(28px,7vh,42px)}
-  body.sensors-focus .clock-block span{font-size:13px}
-  body.sensors-focus .header-right{display:contents}
-  body.sensors-focus .dashboard{display:grid;grid-template-columns:minmax(0,1fr);flex:1;min-height:0}
-  body.sensors-focus .feature{height:100%;min-height:0;padding:7px}
-  body.sensors-focus .feature-tabs{margin-bottom:5px}
-  body.sensors-focus .feature-tab{min-height:31px;padding:3px 6px}
-  body.sensors-focus .sensor-reading-list{gap:5px}
-  body.sensors-focus .sensor-reading-card{padding:4px 7px}
-  body.sensors-focus .sensor-reading-label{font-size:10px}
-  body.sensors-focus .sensor-reading-value{font-size:20px}
-  body.sensors-focus .camera-grid{border-radius:9px}
+  .feature.sensors-focus .feature-tabs{margin-bottom:5px}
+  .feature.sensors-focus .feature-tab{min-height:31px;padding:3px 6px}
+  .feature.sensors-focus .sensor-reading-list{gap:5px}
+  .feature.sensors-focus .sensor-reading-card{padding:4px 7px}
+  .feature.sensors-focus .sensor-reading-label{font-size:10px}
+  .feature.sensors-focus .sensor-reading-value{font-size:20px}
+  .feature.sensors-focus .camera-grid{border-radius:9px}
 }
 
 /* Pairing runs under a strict CSP, so its layout belongs in this stylesheet. */

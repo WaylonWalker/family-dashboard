@@ -364,7 +364,7 @@
       }
       if (wideDisplay) {
         showCamera(cameraIndex);
-        if (cameras.length > 1) cameraCycleTimer = window.setInterval(function () { showCamera(cameraIndex + 1); }, 3000);
+        if (cameras.length > 1) cameraCycleTimer = window.setInterval(function () { showCamera(cameraIndex + 1); }, 30000);
         return;
       }
       cameras.forEach(function (camera) {
@@ -388,7 +388,8 @@
   }
   function show(index, manual) {
     active = (index + panes.length) % panes.length;
-    body.classList.toggle('sensors-focus',wideDisplay && active===2);
+    document.getElementById('feature-panel').classList.toggle('sensors-focus',wideDisplay && active===2);
+    document.querySelector('.dashboard').classList.toggle('sensors-selected',wideDisplay && active===2);
     if (active !== 2) { sensorRefreshGeneration++; stopCameraRotation(); }
     for (var i=0;i<panes.length;i++) {
       var visible=i===active;
