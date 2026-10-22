@@ -462,6 +462,15 @@
     for (var i = 0; i < images.length; i++) {
       var camera = images[i].getAttribute('data-camera');
       if (!camera) continue;
+      var requestId = (images[i]._cameraRefreshRequest || 0) + 1;
+      images[i]._cameraRefreshRequest = requestId;
+      images[i]._cameraRefreshPending = true;
+      if (images[i]._cameraLoadingTimer !== null && images[i]._cameraLoadingTimer !== undefined) window.clearTimeout(images[i]._cameraLoadingTimer);
+      images[i]._cameraLoadingTimer = window.setTimeout(function (image, id) {
+        return function () {
+          if (image._cameraRefreshRequest === id && image._cameraRefreshPending && image._cameraRefreshIndicator) image._cameraRefreshIndicator.classList.add('is-active');
+        };
+      }(images[i], requestId), 120);
       images[i].src = (isKiosk ? '/kiosk/api/essentials' : '/api/essentials') + '/cameras/' + encodeURIComponent(camera) + '/snapshot?refresh=' + Date.now();
     }
   }
@@ -563,10 +572,32 @@
         fallback.className = 'camera-snapshot-live';
         fallback.setAttribute('data-camera', camera);
       }
+      var refreshIndicator = null;
+      if (wideDisplay) {
+        refreshIndicator = document.createElement('span');
+        refreshIndicator.className = 'camera-fetch-indicator';
+        refreshIndicator.setAttribute('aria-hidden', 'true');
+        fallback._cameraRefreshIndicator = refreshIndicator;
+        fallback.addEventListener('load', function () {
+          fallback._cameraRefreshPending = false;
+          if (fallback._cameraLoadingTimer !== null && fallback._cameraLoadingTimer !== undefined) window.clearTimeout(fallback._cameraLoadingTimer);
+          refreshIndicator.classList.remove('is-active');
+        });
+        fallback.addEventListener('error', function () {
+          fallback._cameraRefreshPending = false;
+          if (fallback._cameraLoadingTimer !== null && fallback._cameraLoadingTimer !== undefined) window.clearTimeout(fallback._cameraLoadingTimer);
+          refreshIndicator.classList.remove('is-active');
+        });
+      }
       fallback.src = (isKiosk ? '/kiosk/api/essentials' : '/api/essentials') + '/cameras/' + encodeURIComponent(camera) + '/snapshot?refresh=' + Date.now();
       fallback.alt = camera.replace(/[-_]/g, ' ') + ' camera snapshot';
       face.appendChild(fallback);
-      var fallbackCaption = document.createElement('figcaption'); fallbackCaption.textContent = camera.replace(/[-_]/g, ' ') + ' · snapshot';
+      var fallbackCaption = document.createElement('figcaption');
+      if (wideDisplay) {
+        var fallbackName = document.createElement('span'); fallbackName.className = 'camera-name';
+        var fallbackText = document.createElement('span'); fallbackText.className = 'camera-name-text'; fallbackText.textContent = camera.replace(/[-_]/g, ' ');
+        fallbackName.appendChild(fallbackText); fallbackName.appendChild(refreshIndicator); fallbackCaption.appendChild(fallbackName);
+      } else fallbackCaption.textContent = camera.replace(/[-_]/g, ' ') + ' · snapshot';
       face.appendChild(fallbackCaption);
       return face;
     }
@@ -580,7 +611,7 @@
     video.setAttribute('aria-label', camera.replace(/[-_]/g, ' ') + ' live camera video');
     var caption = document.createElement('figcaption');
     var nameLabel = document.createElement('span'); nameLabel.className = 'camera-name';
-    var nameText = document.createElement('span'); nameText.textContent = camera.replace(/[-_]/g, ' ');
+    var nameText = document.createElement('span'); nameText.className = 'camera-name-text'; nameText.textContent = camera.replace(/[-_]/g, ' ');
     nameLabel.appendChild(nameText); caption.appendChild(nameLabel);
     face.appendChild(video); face.appendChild(caption);
     connectCamera(video, camera);
