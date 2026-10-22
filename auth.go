@@ -443,7 +443,7 @@ func securityHeaders(w http.ResponseWriter) {
 	h.Set("Referrer-Policy", "same-origin")
 	h.Set("X-Content-Type-Options", "nosniff")
 	h.Set("X-Frame-Options", "DENY")
-	h.Set("Content-Security-Policy", "default-src 'none'; manifest-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data: https://notify.wayl.one; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'")
+	h.Set("Content-Security-Policy", "default-src 'none'; manifest-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data: https://notify.wayl.one; media-src 'self' blob:; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'")
 }
 func (a *app) sameOrigin(r *http.Request) bool {
 	if !a.auth.enabled {
