@@ -12,8 +12,8 @@
   <link rel="icon" href="/favicon.ico" sizes="32x32" type="image/x-icon">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/icons/family-hq-192.png">
-  <link rel="stylesheet" href="/style.css?v=26">
-  <script src="/app.js?v=18" defer></script>
+  <link rel="stylesheet" href="/style.css?v=27">
+  <script src="/app.js?v=19" defer></script>
   {{if .DevMode}}<script src="/dev-reload.js" defer></script>{{end}}
   <noscript><style>
     .feature-pane[hidden]{display:flex!important}
@@ -38,7 +38,7 @@
     <symbol id="i-rain" viewBox="0 0 24 24"><path d="M7 16a5 5 0 1 1 1-9.9A7 7 0 0 1 21 9a4 4 0 0 1-3 7zM8 19l-1 2m6-2-1 2m6-2-1 2"/></symbol>
     <symbol id="i-snow" viewBox="0 0 24 24"><path d="M7 15a5 5 0 1 1 1-9.9A7 7 0 0 1 21 8a4 4 0 0 1-3 7zM9 18v4m-2-2h4m6-2v4m-2-2h4"/></symbol>
     <symbol id="i-storm" viewBox="0 0 24 24"><path d="M7 15a5 5 0 1 1 1-9.9A7 7 0 0 1 21 8a4 4 0 0 1-3 7zM13 15l-3 4h3l-2 4"/></symbol>
-    <symbol id="i-haze" viewBox="0 0 24 24"><path d="M3 8h18M3 12h18M3 16h18M7 4h10M7 20h10"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 7h3l1.5-2h7L17 7h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13" r="3.5"/></symbol>
     <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
     <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 2 2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z"/></symbol>
     <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m3 0-1 14H7L6 7m4 4v6m4-6v6"/></symbol>
@@ -85,7 +85,7 @@
         <div class="feature-tabs" role="tablist" aria-label="Dashboard panels">
           <button role="tab" type="button" id="tab-weather" aria-controls="pane-weather" aria-selected="true" class="feature-tab is-active"><svg class="icon"><use href="#i-sun" xlink:href="#i-sun"/></svg> Weather</button>
           <button role="tab" type="button" id="tab-tasks" aria-controls="pane-tasks" aria-selected="false" tabindex="-1" class="feature-tab"><svg class="icon"><use href="#i-list" xlink:href="#i-list"/></svg> Tasks <span class="pill-count">{{.Count}}</span></button>
-          <button role="tab" type="button" id="tab-sensors" aria-controls="pane-sensors" aria-selected="false" tabindex="-1" class="feature-tab"><svg class="icon"><use href="#i-haze" xlink:href="#i-haze"/></svg> Sensors</button>
+          <button role="tab" type="button" id="tab-cameras" aria-controls="pane-cameras" aria-selected="false" tabindex="-1" class="feature-tab"><svg class="icon"><use href="#i-camera" xlink:href="#i-camera"/></svg> Cameras</button>
         </div>
         <div class="feature-window" id="feature-window">
           <section class="feature-pane sensor-pane" id="pane-sensor-alert" hidden aria-live="assertive">
@@ -112,10 +112,8 @@
             <div class="task-list">{{range .Tasks}}<div class="task-row {{if .Done}}completed{{end}}"><form method="post" action="{{$.TaskAction}}"><input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="action" value="toggle"><input type="hidden" name="id" value="{{.ID}}"><button class="task-toggle" type="submit" aria-label="Toggle {{.Title}}">{{if .Done}}<svg class="icon"><use href="#i-check" xlink:href="#i-check"/></svg>{{else}}<span class="task-circle" aria-hidden="true"></span>{{end}}</button></form><span class="task-name">{{.Title}}</span>{{if not $.KioskMode}}<form method="post" action="{{$.TaskAction}}"><input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="{{.ID}}"><button class="remove icon-button" type="submit" aria-label="Delete {{.Title}}"><svg class="icon"><use href="#i-trash" xlink:href="#i-trash"/></svg></button></form>{{end}}</div>{{else}}<p class="empty">Nothing on the list. Enjoy the calm!</p>{{end}}</div>
             {{if not .KioskMode}}<form class="add-task" method="post" action="{{$.TaskAction}}"><input type="hidden" name="csrf" value="{{.CSRF}}"><input type="hidden" name="action" value="add"><label class="visually-hidden" for="new-task">New family task</label><input id="new-task" type="text" name="title" maxlength="120" placeholder="Add a family task…" required><button type="submit">Add</button></form>{{end}}
           </section>
-          <section class="feature-pane sensors-overview" id="pane-sensors" role="tabpanel" aria-labelledby="tab-sensors" hidden>
-            <span id="sensors-updated" class="visually-hidden" aria-live="polite">Connecting…</span>
-            <div class="sensor-reading-list" id="sensor-reading-list" aria-live="polite"><p class="sensor-view-message">Loading sensor readings…</p></div>
-            <div class="camera-grid" id="camera-grid" aria-label="Rotating camera snapshots"><p class="sensor-view-message">Loading cameras…</p></div>
+          <section class="feature-pane cameras-overview" id="pane-cameras" role="tabpanel" aria-labelledby="tab-cameras" hidden>
+            <div class="camera-grid" id="camera-grid" aria-label="Camera snapshots"><p class="camera-view-message">Loading cameras…</p></div>
           </section>
         </div>
         <div class="feature-bottom"><span id="rotation-hint">Auto-switches every 30s · swipe to explore</span><div class="pager" aria-label="Panel position"><span class="pager-dot active"></span><span class="pager-dot"></span><span class="pager-dot"></span></div><span id="rotation-progress" class="switch-progress" role="progressbar" aria-label="Time until next panel" aria-valuemin="0" aria-valuemax="30" aria-valuenow="0" aria-valuetext="Auto-switch paused" hidden></span></div>

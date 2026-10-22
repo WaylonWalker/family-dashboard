@@ -4,9 +4,9 @@
   var root = document.documentElement;
   var body = document.body;
   var panel = document.getElementById('feature-window');
-  var panes = [document.getElementById('pane-weather'), document.getElementById('pane-tasks'), document.getElementById('pane-sensors')];
-  var tabs = [document.getElementById('tab-weather'), document.getElementById('tab-tasks'), document.getElementById('tab-sensors')];
-  var paneBaseClasses = ['feature-pane','feature-pane','feature-pane sensors-overview'];
+  var panes = [document.getElementById('pane-weather'), document.getElementById('pane-tasks'), document.getElementById('pane-cameras')];
+  var tabs = [document.getElementById('tab-weather'), document.getElementById('tab-tasks'), document.getElementById('tab-cameras')];
+  var paneBaseClasses = ['feature-pane','feature-pane','feature-pane cameras-overview'];
   var pager = document.querySelectorAll('.pager-dot');
   var rotationProgress = document.getElementById('rotation-progress');
   var name = document.getElementById('feature-title');
@@ -26,7 +26,7 @@
   var cameraCycleTimer = null;
   var cameraList = [];
   var cameraIndex = 0;
-  var sensorRefreshGeneration = 0;
+  var cameraRefreshGeneration = 0;
   var wakeLockSentinel = null;
   var wakeLockRequestId = 0;
   var wakeLockPending = false;
@@ -270,6 +270,10 @@
     rotationProgress.setAttribute('aria-valuetext', 'Auto-switch paused');
   }
   function pause() { holdUntil = Date.now() + 120000; resetRotationProgress(); refreshHint(); }
+  function panelRotationDuration() {
+    if (active !== 2 || !wideDisplay || cameraList.length <= 4) return 30000;
+    return Math.ceil(cameraList.length / 4) * 30000;
+  }
   function requestJSON(path, done) {
     var request = new XMLHttpRequest();
     request.open('GET', path, true);
@@ -281,11 +285,6 @@
     };
     request.onerror = function () { done(new Error('Network error')); };
     request.send();
-  }
-  function sensorLabel(reading) {
-    if (reading.kind === 'temperature') return 'Freezer';
-    if (reading.kind === 'water') return 'Basement water';
-    return (reading.name || 'Sensor').replace(/[-_]/g, ' ');
   }
   function updateHeaderSensors(error, readings) {
     var freezer = document.getElementById('header-freezer');
@@ -334,101 +333,53 @@
       updateHeaderSensors(error, data && data.readings);
     });
   }
-  function renderSensorReadings(readings) {
-    var list = document.getElementById('sensor-reading-list');
-    list.textContent = '';
-    readings = readings.filter(function (reading) {
-      if (reading.kind !== 'device') return true;
-      var device = (reading.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-      return device !== 'standupfreezer' && device !== 'doorbell';
-    });
-    if (!readings.length) {
-      var empty = document.createElement('p');
-      empty.className = 'sensor-view-message';
-      empty.textContent = 'No sensor readings have arrived yet.';
-      list.appendChild(empty);
-      return;
-    }
-    readings.forEach(function (reading) {
-      var card = document.createElement('article');
-      card.className = 'sensor-reading-card' + ((reading.kind === 'water' && reading.detected) || (reading.kind === 'device' && reading.battery_low) ? ' is-alert' : '');
-      var label = document.createElement('span');
-      label.className = 'sensor-reading-label';
-      label.textContent = sensorLabel(reading);
-      var value = document.createElement('strong');
-      value.className = 'sensor-reading-value';
-      var detail = document.createElement('small');
-      if (reading.kind === 'temperature') {
-        value.textContent = Number(reading.temperature_f).toFixed(1) + ' °F';
-        detail.textContent = [reading.humidity == null ? '' : 'Humidity ' + Math.round(reading.humidity) + '%', reading.battery == null ? '' : 'Battery ' + Math.round(reading.battery) + '%'].filter(Boolean).join(' · ') || 'Freezer temperature';
-      } else if (reading.kind === 'water') {
-        value.textContent = reading.detected ? 'WATER DETECTED' : 'Dry';
-        detail.textContent = [reading.battery == null ? '' : 'Battery ' + Math.round(reading.battery) + '%', reading.linkquality == null ? '' : 'Signal ' + reading.linkquality].filter(Boolean).join(' · ') || 'Basement leak sensor';
-      } else {
-        value.textContent = reading.battery == null ? 'Online' : Math.round(reading.battery) + '%';
-        detail.textContent = [reading.battery_low ? 'Low battery' : '', reading.linkquality == null ? '' : 'Signal ' + reading.linkquality].filter(Boolean).join(' · ') || 'Battery';
-      }
-      if (reading.updated_at) detail.textContent += ' · seen ' + new Date(reading.updated_at).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
-      card.appendChild(label); card.appendChild(value); card.appendChild(detail); list.appendChild(card);
-    });
-  }
   function stopCameraRotation() {
     if (cameraCycleTimer !== null) window.clearInterval(cameraCycleTimer);
     cameraCycleTimer = null;
   }
-  function showCamera(index) {
+  function showCameraGrid(index) {
     var grid = document.getElementById('camera-grid');
     if (!cameraList.length) return;
     cameraIndex = (index + cameraList.length) % cameraList.length;
-    var camera = cameraList[cameraIndex];
-    var label = camera.replace(/[-_]/g, ' ');
-    var figure = document.createElement('figure'); figure.className = 'camera-tile';
-    var image = document.createElement('img');
-    image.src = (isKiosk ? '/kiosk/api/essentials' : '/api/essentials') + '/cameras/' + encodeURIComponent(camera) + '/snapshot?refresh=' + Date.now();
-    image.alt = label + ' camera snapshot';
-    var caption = document.createElement('figcaption'); caption.textContent = label;
-    var position = document.createElement('span'); position.className = 'camera-position';
-    var progress = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    progress.setAttribute('class', 'camera-position-progress'); progress.setAttribute('viewBox', '0 0 44 44'); progress.setAttribute('aria-hidden', 'true');
-    var track = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); track.setAttribute('class', 'camera-position-track'); track.setAttribute('cx', '22'); track.setAttribute('cy', '22'); track.setAttribute('r', '19');
-    var arc = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); arc.setAttribute('class', 'camera-position-arc'); arc.setAttribute('cx', '22'); arc.setAttribute('cy', '22'); arc.setAttribute('r', '19');
-    progress.appendChild(track); progress.appendChild(arc);
-    var count = document.createElement('span'); count.textContent = (cameraIndex + 1) + ' / ' + cameraList.length;
-    position.appendChild(progress); position.appendChild(count);
-    figure.appendChild(image); figure.appendChild(caption); figure.appendChild(position);
     grid.textContent = '';
-    grid.appendChild(figure);
+    for (var slot = 0; slot < Math.min(4, cameraList.length); slot++) {
+      var camera = cameraList[(cameraIndex + slot) % cameraList.length];
+      var label = camera.replace(/[-_]/g, ' ');
+      var figure = document.createElement('figure'); figure.className = 'camera-tile';
+      var image = document.createElement('img');
+      image.src = (isKiosk ? '/kiosk/api/essentials' : '/api/essentials') + '/cameras/' + encodeURIComponent(camera) + '/snapshot?refresh=' + Date.now();
+      image.setAttribute('data-camera', camera);
+      image.alt = label + ' camera snapshot';
+      var caption = document.createElement('figcaption'); caption.textContent = label;
+      figure.appendChild(image); figure.appendChild(caption); grid.appendChild(figure);
+    }
   }
-  function refreshSensorOverview() {
-    var refreshGeneration = ++sensorRefreshGeneration;
+  function refreshCameraOverview() {
+    var refreshGeneration = ++cameraRefreshGeneration;
     var essentialsBase = isKiosk ? '/kiosk/api/essentials' : '/api/essentials';
-    requestJSON(essentialsBase + '/sensors', function (error, data) {
-      if (refreshGeneration !== sensorRefreshGeneration || active !== 2) return;
-      var updated = document.getElementById('sensors-updated');
-      if (error) {
-        updated.textContent = 'Sensor service unavailable';
-        var list = document.getElementById('sensor-reading-list');
-        list.textContent = '';
-        var unavailable = document.createElement('p'); unavailable.className = 'sensor-view-message'; unavailable.textContent = 'Sensor readings are unavailable.'; list.appendChild(unavailable);
-        return;
-      }
-      renderSensorReadings(data.readings || []);
-      updated.textContent = 'Updated ' + new Date(data.updated_at).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
-    });
     requestJSON(essentialsBase + '/cameras', function (error, data) {
-      if (refreshGeneration !== sensorRefreshGeneration || active !== 2) return;
+      if (refreshGeneration !== cameraRefreshGeneration || active !== 2) return;
       var grid = document.getElementById('camera-grid');
       stopCameraRotation();
       if (error) { cameraList = []; grid.textContent = 'Camera views are unavailable.'; return; }
       var cameras = data.cameras || [];
       cameraList = cameras;
       grid.textContent = '';
+      grid.setAttribute('data-visible-cameras', String(Math.min(4, cameras.length)));
       if (!cameras.length) {
-        var none = document.createElement('p'); none.className = 'sensor-view-message'; none.textContent = 'No cameras are configured in Frigate.'; grid.appendChild(none); return;
+        var none = document.createElement('p'); none.className = 'camera-view-message'; none.textContent = 'No cameras are configured.'; grid.appendChild(none); return;
       }
       if (wideDisplay) {
-        showCamera(cameraIndex);
-        if (cameras.length > 1) cameraCycleTimer = window.setInterval(function () { showCamera(cameraIndex + 1); }, 30000);
+        showCameraGrid(cameraIndex);
+        cameraCycleTimer = window.setInterval(function () {
+          if (cameraList.length > 4) showCameraGrid(cameraIndex + 4);
+          else {
+            var images = document.querySelectorAll('#camera-grid .camera-tile img');
+            for (var i = 0; i < images.length; i++) {
+              images[i].src = essentialsBase + '/cameras/' + encodeURIComponent(images[i].getAttribute('data-camera')) + '/snapshot?refresh=' + Date.now();
+            }
+          }
+        }, 30000);
         return;
       }
       cameras.forEach(function (camera) {
@@ -448,13 +399,14 @@
     else if (!drawer.hidden) hint.textContent = 'Settings open · auto-switch paused';
     else if (remaining > 0) hint.textContent = 'Your choice held for ' + (remaining > 60 ? Math.ceil(remaining / 60) + ' min' : remaining + ' sec');
     else if (panel.contains(document.activeElement) && document.activeElement !== body) hint.textContent = 'Finish interacting to resume auto-switch';
+    else if (active === 2 && wideDisplay && cameraList.length > 4) hint.textContent = 'Camera groups rotate every 30s';
     else hint.textContent = 'Auto-switches every 30s · swipe to explore';
   }
   function show(index, manual) {
     active = (index + panes.length) % panes.length;
-    document.getElementById('feature-panel').classList.toggle('sensors-focus',wideDisplay && active===2);
-    document.querySelector('.dashboard').classList.toggle('sensors-selected',wideDisplay && active===2);
-    if (active !== 2) { sensorRefreshGeneration++; stopCameraRotation(); }
+    document.getElementById('feature-panel').classList.toggle('cameras-focus',wideDisplay && active===2);
+    document.querySelector('.dashboard').classList.toggle('cameras-selected',wideDisplay && active===2);
+    if (active !== 2) { cameraRefreshGeneration++; stopCameraRotation(); }
     for (var i=0;i<panes.length;i++) {
       var visible=i===active;
       panes[i].hidden=!visible;
@@ -464,8 +416,8 @@
       tabs[i].className='feature-tab'+(visible?' is-active':'');
       if (pager[i]) pager[i].className='pager-dot'+(visible?' active':'');
     }
-    name.textContent=['Outside today','Family tasks','Sensors'][active];
-    if (active === 2) refreshSensorOverview();
+    name.textContent=['Outside today','Family tasks','Cameras'][active];
+    if (active === 2) refreshCameraOverview();
     if (manual) pause();
   }
   for (var i=0;i<tabs.length;i++) (function (n) {
@@ -492,13 +444,15 @@
     if (blocked) { resetRotationProgress(); return; }
     if (!rotationStartedAt) rotationStartedAt = now;
     var elapsed = now - rotationStartedAt;
-    var progress = Math.min(1, elapsed / 30000);
-    var secondsLeft = Math.max(0, Math.ceil((30000 - elapsed) / 1000));
+    var duration = panelRotationDuration();
+    var progress = Math.min(1, elapsed / duration);
+    var secondsLeft = Math.max(0, Math.ceil((duration - elapsed) / 1000));
     rotationProgress.hidden = false;
     rotationProgress.style.transform = 'scaleX(' + progress + ')';
-    rotationProgress.setAttribute('aria-valuenow', String(Math.floor(progress * 30)));
+    rotationProgress.setAttribute('aria-valuemax', String(Math.ceil(duration / 1000)));
+    rotationProgress.setAttribute('aria-valuenow', String(Math.floor(progress * duration / 1000)));
     rotationProgress.setAttribute('aria-valuetext', secondsLeft + ' seconds until next panel');
-    if (elapsed >= 30000) {
+    if (elapsed >= duration) {
       show(active + 1, false);
       rotationStartedAt = Date.now();
       rotationProgress.style.transform = 'scaleX(0)';

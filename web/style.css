@@ -93,26 +93,13 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
 
 @media(max-width:360px){.header{grid-template-columns:minmax(0,1fr) auto auto}.header .date-block{display:none}.brand h1{font-size:17px}.brand-icon{width:31px;height:31px}}
 
-.sensors-overview{gap:9px;overflow:hidden}
-.sensors-overview-head,.camera-section-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.sensors-overview-head strong{font-size:18px;letter-spacing:-.3px}
-.sensors-overview-head .eyebrow{margin-bottom:2px}
-.sensors-overview-head>span,.camera-section-head>span{color:var(--muted);font-size:11px;white-space:nowrap}
-.sensor-reading-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
-.sensor-reading-card{display:flex;min-width:0;flex-direction:column;gap:2px;padding:8px 10px;border-left:3px solid var(--accent);border-radius:8px;background:var(--soft)}
-.sensor-reading-card.is-alert{border-left-color:#b43d32}
-.sensor-reading-label{overflow:hidden;color:var(--muted);font-size:10px;font-weight:750;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}
-.sensor-reading-value{overflow:hidden;font-size:17px;font-variant-numeric:tabular-nums;text-overflow:ellipsis;white-space:nowrap}
-.sensor-reading-card.is-alert .sensor-reading-value{color:#b43d32;font-size:13px}
-.sensor-reading-card small{overflow:hidden;color:var(--muted);font-size:10px;text-overflow:ellipsis;white-space:nowrap}
-.camera-section-head{padding-top:3px;border-top:1px solid var(--line)}
-.camera-section-head strong{font-size:12px;letter-spacing:.03em;text-transform:uppercase}
-.camera-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;max-height:240px;min-height:0;overflow:auto;overscroll-behavior:contain}
+.cameras-overview{gap:9px;overflow:hidden}
+.camera-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:minmax(0,1fr);gap:7px;max-height:240px;min-height:0;overflow:auto;overscroll-behavior:contain}
 .camera-tile{position:relative;min-width:0;min-height:70px;margin:0;overflow:hidden;border-radius:9px;background:#17201d}
 .camera-tile img{display:block;width:100%;height:clamp(72px,11vh,112px);object-fit:cover}
 .camera-tile figcaption{position:absolute;right:5px;bottom:5px;left:5px;overflow:hidden;padding:3px 6px;border-radius:5px;background:#101510bf;color:#fff;font-size:10px;font-weight:750;text-overflow:ellipsis;text-transform:capitalize;white-space:nowrap}
-.sensor-view-message{grid-column:1/-1;margin:3px 0;color:var(--muted);font-size:12px}
-@media(max-width:520px){.sensor-reading-list{grid-template-columns:repeat(2,minmax(0,1fr))}.camera-grid{gap:5px;max-height:none;overflow:visible}.camera-tile img{height:100px}}
+.camera-view-message{grid-column:1/-1;margin:3px 0;color:var(--muted);font-size:12px}
+@media(max-width:520px){.camera-grid{gap:5px;max-height:none;overflow:visible}.camera-tile img{height:100px}}
 /* A short panel slide; disabled automatically when reduced motion is requested. */
 @keyframes panel-arrive{from{opacity:.75;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
 @media(prefers-reduced-motion:no-preference){.feature-pane.is-active{animation:panel-arrive .24s ease-out both}}
@@ -160,44 +147,27 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
   .weather-slot{min-height:0;padding:1vh 3px;grid-template-columns:60px 70px minmax(0,1fr);gap:8px}
 }
 
-/* On a wall display, Sensors becomes the main event: readings stay legible
-   above one large camera frame instead of competing in a tiny thumbnail grid. */
-.feature.sensors-focus{min-height:0;padding:clamp(10px,1.1vw,18px)}
-.feature.sensors-focus .feature-header{display:none}
-.feature.sensors-focus .feature-tabs{gap:6px;margin:0 0 clamp(5px,.8vh,10px);padding:0;border:0}
-.feature.sensors-focus .feature-tab{min-height:38px;padding:5px 12px;font-size:12px}
-.feature.sensors-focus .feature-window{flex:1;min-height:0}
-.feature.sensors-focus .sensors-overview{gap:clamp(5px,.8vh,10px)}
-.feature.sensors-focus .sensor-reading-list{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;flex:none}
-.feature.sensors-focus .sensor-reading-card{gap:3px;padding:6px 12px;border-left-width:4px}
-.feature.sensors-focus .sensor-reading-label{font-size:12px}
-.feature.sensors-focus .sensor-reading-value{font-size:clamp(20px,2.2vw,30px);line-height:1.05}
-.feature.sensors-focus .sensor-reading-card.is-alert .sensor-reading-value{font-size:clamp(16px,1.6vw,22px)}
-.feature.sensors-focus .sensor-reading-card small{font-size:11px}
-.feature.sensors-focus .camera-grid{display:block;flex:1;min-height:0;max-height:none;overflow:hidden;border-radius:14px;background:#101510}
-.feature.sensors-focus .camera-tile{display:block;width:100%;height:100%;min-height:0;border-radius:14px}
-.feature.sensors-focus .camera-tile img{width:100%;height:100%;object-fit:contain}
-.feature.sensors-focus .camera-tile figcaption{right:auto;bottom:12px;left:12px;max-width:70%;padding:7px 11px;border-radius:7px;font-size:clamp(13px,1.2vw,18px);letter-spacing:.04em}
-.feature.sensors-focus .camera-position{position:absolute;right:12px;bottom:12px;display:grid;place-items:center;width:50px;height:50px;border-radius:50%;background:#101510bf;color:#fff;font-size:11px;font-variant-numeric:tabular-nums}
-.feature.sensors-focus .camera-position>span{grid-area:1/1;white-space:nowrap}
-.feature.sensors-focus .camera-position-progress{grid-area:1/1;width:100%;height:100%;transform:rotate(-90deg)}
-.feature.sensors-focus .camera-position-track,.feature.sensors-focus .camera-position-arc{fill:none;stroke-width:2.5}
-.feature.sensors-focus .camera-position-track{stroke:#ffffff55}
-.feature.sensors-focus .camera-position-arc{stroke:#d9e866;stroke-dasharray:119.38;stroke-dashoffset:119.38;animation:camera-cycle-progress 30s linear forwards}
-@keyframes camera-cycle-progress{to{stroke-dashoffset:0}}
-@media(prefers-reduced-motion:reduce){.feature.sensors-focus .camera-position-arc{animation:none;stroke-dashoffset:0}}
-.feature.sensors-focus .feature-bottom{min-height:3px;padding:0;border:0;font-size:0}
-.feature.sensors-focus .feature-bottom #rotation-hint,.feature.sensors-focus .feature-bottom .pager{display:none}
-@media (orientation:landscape) and (min-width:900px){.dashboard.sensors-selected{grid-template-columns:minmax(0,.9fr) minmax(0,1.2fr)}}
-@media (max-width:600px){.feature.sensors-focus .feature-tab{min-height:34px;font-size:11px}.feature.sensors-focus .sensor-reading-card small{display:none}}
+/* Wall displays use a live four camera view that fills the available panel. */
+.feature.cameras-focus{min-height:0;padding:clamp(10px,1.1vw,18px)}
+.feature.cameras-focus .feature-header{display:none}
+.feature.cameras-focus .feature-tabs{gap:6px;margin:0 0 clamp(5px,.8vh,10px);padding:0;border:0}
+.feature.cameras-focus .feature-tab{min-height:38px;padding:5px 12px;font-size:12px}
+.feature.cameras-focus .feature-window{flex:1;min-height:0}
+.feature.cameras-focus .camera-grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));grid-auto-rows:minmax(0,1fr);flex:1;min-height:0;max-height:none;overflow:hidden;gap:clamp(6px,.7vw,12px);border-radius:14px;background:#101510}
+.feature.cameras-focus .camera-grid[data-visible-cameras="1"]{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
+.feature.cameras-focus .camera-grid[data-visible-cameras="2"]{grid-template-rows:minmax(0,1fr)}
+.feature.cameras-focus .camera-grid[data-visible-cameras="3"] .camera-tile:last-child{grid-column:1/-1;width:50%;justify-self:center}
+.feature.cameras-focus .camera-tile{height:100%;min-height:0;border-radius:10px}
+.feature.cameras-focus .camera-tile img{width:100%;height:100%;object-fit:cover}
+.feature.cameras-focus .camera-tile figcaption{right:auto;bottom:10px;left:10px;max-width:80%;padding:6px 9px;border-radius:6px;font-size:clamp(12px,1vw,16px);letter-spacing:.03em}
+.feature.cameras-focus .feature-bottom{min-height:3px;padding:0;border:0;font-size:0}
+.feature.cameras-focus .feature-bottom #rotation-hint,.feature.cameras-focus .feature-bottom .pager{display:none}
+@media (orientation:landscape) and (min-width:900px){.dashboard.cameras-selected{grid-template-columns:minmax(0,.9fr) minmax(0,1.2fr)}}
+@media (max-width:600px){.feature.cameras-focus .feature-tab{min-height:34px;font-size:11px}}
 @media (orientation:landscape) and (max-width:899px){
-  .feature.sensors-focus .feature-tabs{margin-bottom:5px}
-  .feature.sensors-focus .feature-tab{min-height:31px;padding:3px 6px}
-  .feature.sensors-focus .sensor-reading-list{gap:5px}
-  .feature.sensors-focus .sensor-reading-card{padding:4px 7px}
-  .feature.sensors-focus .sensor-reading-label{font-size:10px}
-  .feature.sensors-focus .sensor-reading-value{font-size:20px}
-  .feature.sensors-focus .camera-grid{border-radius:9px}
+  .feature.cameras-focus .feature-tabs{margin-bottom:5px}
+  .feature.cameras-focus .feature-tab{min-height:31px;padding:3px 6px}
+  .feature.cameras-focus .camera-grid{border-radius:9px}
 }
 
 /* Pairing runs under a strict CSP, so its layout belongs in this stylesheet. */
