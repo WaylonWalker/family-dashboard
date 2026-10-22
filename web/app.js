@@ -112,6 +112,9 @@
       description = 'Auto · ' + (hour < 6 || hour >= 20 ? 'night' : hour < 9 || hour >= 17 ? 'golden hours' : 'daylight') + (rainy ? ' + wet weather' : '') + ' → ' + selected.replace(/-/g,' ');
     }
     root.setAttribute('data-theme', selected);
+    var themeColor = getComputedStyle(root).getPropertyValue('--bg').trim();
+    var themeColorMeta = document.querySelector('meta[name="theme-color"]');
+    if (themeColorMeta && themeColor) themeColorMeta.setAttribute('content', themeColor);
     root.setAttribute('data-texture', texture.value);
     root.setAttribute('data-font', font.value);
     root.setAttribute('data-style', style.value);
