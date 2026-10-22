@@ -305,23 +305,23 @@
     var freezerSignal = freezer.querySelector('.sensor-signal');
     var basementSignal = basement.querySelector('.sensor-signal');
     function setConnection(node, signal, reading) {
-      var online = false;
+      var online = null;
       if (reading && typeof reading.online === 'boolean') online = reading.online;
       else if (reading && reading.updated_at) {
         var lastSeen = new Date(reading.updated_at).getTime();
-        online = !isNaN(lastSeen) && Date.now() - lastSeen < 30 * 60 * 1000;
+        if (!isNaN(lastSeen) && Date.now() - lastSeen < 30 * 60 * 1000) online = true;
       }
-      node.classList.toggle('is-online', online);
-      node.classList.toggle('is-offline', !online);
-      signal.setAttribute('aria-label', online ? 'Online' : 'Offline');
-      node.title = node.textContent.trim() + ' sensor ' + (online ? 'online' : 'offline');
+      node.classList.toggle('is-online', online === true);
+      node.classList.toggle('is-offline', online === false);
+      signal.setAttribute('aria-label', online === true ? 'Online' : online === false ? 'Offline' : 'Last reported; current status unknown');
+      node.title = node.textContent.trim() + ' sensor ' + (online === true ? 'online' : online === false ? 'offline' : 'last reported; current status unknown');
       return online;
     }
     freezer.classList.remove('is-alert');
     basement.classList.remove('is-alert');
     if (error) {
-      freezerValue.textContent = 'Offline';
-      basementValue.textContent = 'Offline';
+      freezerValue.textContent = 'Unknown';
+      basementValue.textContent = 'Unknown';
       setConnection(freezer, freezerSignal, null);
       setConnection(basement, basementSignal, null);
       if (activeSensorAlerts.temperature) freezer.classList.add('is-alert');
@@ -336,8 +336,8 @@
     });
     var freezerOnline = setConnection(freezer, freezerSignal, temperature);
     var basementOnline = setConnection(basement, basementSignal, water);
-    freezerValue.textContent = temperature && freezerOnline && typeof temperature.temperature_f === 'number' ? temperature.temperature_f.toFixed(1) + '°F' : 'Offline';
-    basementValue.textContent = water && basementOnline ? (water.detected ? 'Wet' : 'Dry') : 'Offline';
+    freezerValue.textContent = !temperature ? 'Unknown' : freezerOnline === false ? 'Offline' : typeof temperature.temperature_f === 'number' ? temperature.temperature_f.toFixed(1) + '°F' : 'Unknown';
+    basementValue.textContent = !water ? 'Unknown' : basementOnline === false ? 'Offline' : water.detected ? 'Wet' : 'Dry';
     if (water && water.detected) basement.classList.add('is-alert');
     if (activeSensorAlerts.temperature) freezer.classList.add('is-alert');
     if (activeSensorAlerts.water) basement.classList.add('is-alert');
