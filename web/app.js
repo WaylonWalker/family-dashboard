@@ -330,7 +330,14 @@
     image.src = (isKiosk ? '/kiosk/api/essentials' : '/api/essentials') + '/cameras/' + encodeURIComponent(camera) + '/snapshot?refresh=' + Date.now();
     image.alt = label + ' camera snapshot';
     var caption = document.createElement('figcaption'); caption.textContent = label;
-    var position = document.createElement('span'); position.className = 'camera-position'; position.textContent = (cameraIndex + 1) + ' / ' + cameraList.length;
+    var position = document.createElement('span'); position.className = 'camera-position';
+    var progress = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    progress.setAttribute('class', 'camera-position-progress'); progress.setAttribute('viewBox', '0 0 44 44'); progress.setAttribute('aria-hidden', 'true');
+    var track = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); track.setAttribute('class', 'camera-position-track'); track.setAttribute('cx', '22'); track.setAttribute('cy', '22'); track.setAttribute('r', '19');
+    var arc = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); arc.setAttribute('class', 'camera-position-arc'); arc.setAttribute('cx', '22'); arc.setAttribute('cy', '22'); arc.setAttribute('r', '19');
+    progress.appendChild(track); progress.appendChild(arc);
+    var count = document.createElement('span'); count.textContent = (cameraIndex + 1) + ' / ' + cameraList.length;
+    position.appendChild(progress); position.appendChild(count);
     figure.appendChild(image); figure.appendChild(caption); figure.appendChild(position);
     grid.textContent = '';
     grid.appendChild(figure);
