@@ -13,7 +13,7 @@
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/icons/family-hq-192.png">
   <link rel="stylesheet" href="/style.css?v=16">
-  <script src="/app.js?v=11" defer></script>
+  <script src="/app.js?v=12" defer></script>
   {{if .DevMode}}<script src="/dev-reload.js" defer></script>{{end}}
   <noscript><style>
     .feature-pane[hidden]{display:flex!important}
@@ -117,6 +117,8 @@
       <label class="setting-label" for="style-select">Layout aesthetic</label><select id="style-select"><option value="balanced">Balanced · soft cards</option><option value="precision">Precision · crisp lines</option><option value="elevated">Elevated · layered cards</option><option value="brutal">Brutal · poster blocks</option><option value="minimal">Minimal · quiet layout</option></select>
       <label class="setting-label" for="font-select">Typography</label><select id="font-select"><option value="system">System · clear</option><option value="editorial">Editorial · warm serif</option><option value="modern">Modern · geometric</option><option value="mono">Mono · utility</option></select>
       <div class="setting-row"><label for="rotate-toggle">Auto-rotate panels <small>Every 30 seconds. Your touch pauses it for 2 minutes.</small></label><input id="rotate-toggle" type="checkbox" checked></div>
+      <div class="setting-row"><label for="wake-lock-toggle">Keep screen awake <small>Ask this browser to prevent the display from sleeping.</small></label><input id="wake-lock-toggle" type="checkbox"></div>
+      <p id="wake-lock-status" class="setting-helper" role="status" aria-live="polite">Off · screen sleep follows Fire TV settings.</p>
       <button type="button" class="reset-button" id="reset-settings">Reset display defaults</button>
       {{if not .KioskMode}}<p class="setting-helper"><a href="/devices">Manage paired photo frames</a></p>{{end}}
     </div>

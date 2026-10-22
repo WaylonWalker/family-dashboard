@@ -18,6 +18,10 @@
   var font = document.getElementById('font-select');
   var style = document.getElementById('style-select');
   var rotate = document.getElementById('rotate-toggle');
+  var wakeLockToggle = document.getElementById('wake-lock-toggle');
+  var wakeLockStatus = document.getElementById('wake-lock-status');
+  var wakeLockSentinel = null;
+  var wakeLockRequestId = 0;
   var active = 0;
   var holdUntil = 0;
   var rotationStartedAt = 0;
@@ -38,6 +42,62 @@
   font.value = allowed(read('font', 'system'), ['system','editorial','modern','mono'], 'system');
   style.value = allowed(read('style', 'balanced'), ['balanced','precision','elevated','brutal','minimal'], 'balanced');
   rotate.checked = read('rotate', 'true') !== 'false';
+  wakeLockToggle.checked = read('keep-awake', 'false') === 'true';
+
+  function requestWakeLock() {
+    if (!wakeLockToggle.checked) return;
+    if (!('wakeLock' in navigator)) {
+      wakeLockStatus.textContent = 'Unavailable · this browser does not support screen wake lock.';
+      return;
+    }
+    if (document.hidden) {
+      wakeLockStatus.textContent = 'Waiting · the page must be visible to keep the screen awake.';
+      return;
+    }
+    var requestId = ++wakeLockRequestId;
+    wakeLockStatus.textContent = 'Requesting screen wake lock…';
+    navigator.wakeLock.request('screen').then(function (sentinel) {
+      if (requestId !== wakeLockRequestId || !wakeLockToggle.checked) {
+        sentinel.release();
+        return;
+      }
+      wakeLockSentinel = sentinel;
+      wakeLockStatus.textContent = 'On · this browser is keeping the screen awake.';
+      sentinel.addEventListener('release', function () {
+        var wasCurrent = wakeLockSentinel === sentinel;
+        if (wasCurrent) wakeLockSentinel = null;
+        if (wasCurrent && wakeLockToggle.checked && !document.hidden) {
+          wakeLockStatus.textContent = 'Wake lock released · trying again…';
+          window.setTimeout(requestWakeLock, 1000);
+        }
+      });
+    }).catch(function () {
+      if (requestId !== wakeLockRequestId || !wakeLockToggle.checked) return;
+      wakeLockStatus.textContent = 'Not granted · check browser support and Fire TV sleep settings.';
+    });
+  }
+
+  function releaseWakeLock() {
+    wakeLockRequestId++;
+    if (wakeLockSentinel) {
+      var sentinel = wakeLockSentinel;
+      wakeLockSentinel = null;
+      sentinel.release();
+    }
+  }
+
+  wakeLockToggle.addEventListener('change', function () {
+    save('keep-awake', String(wakeLockToggle.checked));
+    if (wakeLockToggle.checked) requestWakeLock();
+    else {
+      releaseWakeLock();
+      wakeLockStatus.textContent = 'Off · screen sleep follows Fire TV settings.';
+    }
+  });
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) releaseWakeLock();
+    else if (wakeLockToggle.checked) requestWakeLock();
+  });
 
   function applyTheme() {
     var selected = theme.value;
@@ -63,10 +123,11 @@
   style.addEventListener('change', function () { save('style',style.value); applyTheme(); });
   rotate.addEventListener('change', function () { save('rotate',String(rotate.checked)); refreshHint(); });
   document.getElementById('reset-settings').addEventListener('click', function () {
-    theme.value='auto'; texture.value='paper'; font.value='system'; style.value='balanced'; rotate.checked=true;
-    save('theme','auto');save('texture','paper');save('font','system');save('style','balanced');save('rotate','true');applyTheme();refreshHint();
+    theme.value='auto'; texture.value='paper'; font.value='system'; style.value='balanced'; rotate.checked=true; wakeLockToggle.checked=false;
+    save('theme','auto');save('texture','paper');save('font','system');save('style','balanced');save('rotate','true');save('keep-awake','false');releaseWakeLock();wakeLockStatus.textContent='Off · screen sleep follows Fire TV settings.';applyTheme();refreshHint();
   });
   applyTheme();
+  if (wakeLockToggle.checked) requestWakeLock();
   function updateClock() {
     try {
       var formattedTime = new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',hour:'numeric',minute:'2-digit'}).format(new Date());
