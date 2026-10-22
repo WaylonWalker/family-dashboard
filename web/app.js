@@ -371,9 +371,9 @@
     panes.forEach(function (pane) { pane.hidden = true; });
     sensorPane.hidden = false;
     name.textContent = event.kind === 'water' ? 'Water detected' : 'Freezer temperature';
-    document.getElementById('sensor-alert-kicker').textContent = event.kind === 'water' ? 'WATER SENSOR · ALERT' : 'FREEZER · ' + (event.severity || 'ALERT').toUpperCase();
+    document.getElementById('sensor-alert-kicker').textContent = event.severity === 'test' ? 'DASHBOARD · TEST PREVIEW' : event.kind === 'water' ? 'WATER SENSOR · ALERT' : 'FREEZER · ' + (event.severity || 'ALERT').toUpperCase();
     document.getElementById('sensor-alert-title').textContent = event.kind === 'water' ? 'Water detected in the basement' : 'Freezer temperature alert';
-    document.getElementById('sensor-alert-summary').textContent = event.kind === 'water' ? (event.sensor || 'Water sensor') + ' is detecting water.' : (event.sensor || 'Freezer') + ' is out of range.';
+    document.getElementById('sensor-alert-summary').textContent = event.severity === 'test' ? 'Preview only · no sensor reading or ntfy alert was changed.' : event.kind === 'water' ? (event.sensor || 'Water sensor') + ' is detecting water.' : (event.sensor || 'Freezer') + ' is out of range.';
     document.getElementById('sensor-alert-reading').textContent = event.kind === 'temperature' && typeof event.temperature_f === 'number' ? event.temperature_f.toFixed(1) + ' °F' : 'WATER';
     sensorImageURL = event.snapshot_url || '';
     if (event.snapshot) document.getElementById('sensor-alert-image').src = event.snapshot;
