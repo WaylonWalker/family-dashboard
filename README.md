@@ -141,10 +141,12 @@ the progress-to-panel-switch delay, camera-panel animation time, live-stream
 socket and first-frame time, fallback use, snapshot load/failure time and image
 transfer dimensions, plus aggregated browser main-thread long tasks when the
 browser supports the Long Tasks API. The server exports Go runtime and process
-CPU/memory metrics alongside HTTP request metrics. Snapshot traces include
-the proxied byte count, so slow browser loads can be compared with dashboard
-and Frigate timings. Events omit camera names and image URLs. Faro navigation
-events also identify page loads and reloads (`event_name="faro.performance.navigation"` and
+CPU/memory metrics alongside HTTP request metrics, including Prometheus metrics
+`process_cpu_seconds_total`, `process_resident_memory_bytes`, and `go_goroutines`.
+Snapshot traces include the proxied byte count, so slow browser loads can be
+compared with dashboard and Frigate timings. Events omit camera names and image
+URLs. Faro navigation events also identify page loads and reloads
+(`event_name="faro.performance.navigation"` and
 `event_data_type="reload"`). In Loki, search for
 `{source="browser"} | json | app_name="family-dashboard"` and filter on
 `event_name="feature_panel_switch"`, `event_name="camera_stream_first_frame"`,
