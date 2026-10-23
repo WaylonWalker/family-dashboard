@@ -59,6 +59,54 @@
     } catch (error) { /* Browser telemetry must never interrupt the camera UI. */ }
   }
 
+  function snapshotTransferStats(image) {
+    var stats = { natural_width: image.naturalWidth || 0, natural_height: image.naturalHeight || 0 };
+    try {
+      var url = image.currentSrc || image.src;
+      var entries = window.performance && window.performance.getEntriesByName(url);
+      if (entries && entries.length) {
+        var entry = entries[entries.length - 1];
+        stats.transfer_size = entry.transferSize || 0;
+        stats.encoded_body_size = entry.encodedBodySize || 0;
+        stats.decoded_body_size = entry.decodedBodySize || 0;
+      }
+    } catch (error) { /* Resource timing may be unavailable in older browsers. */ }
+    return stats;
+  }
+
+  function observeMainThreadStalls() {
+    if (!window.PerformanceObserver) return;
+    try {
+      var count = 0;
+      var totalMs = 0;
+      var maxMs = 0;
+      var lastSentAt = 0;
+      var observer = new PerformanceObserver(function (list) {
+        var entries = list.getEntries();
+        for (var i = 0; i < entries.length; i++) {
+          count++;
+          totalMs += entries[i].duration;
+          maxMs = Math.max(maxMs, entries[i].duration);
+        }
+        var now = window.performance.now();
+        if (!count || (lastSentAt && now - lastSentAt < 15000)) return;
+        recordCameraTelemetry('browser_main_thread_stalls', {
+          interval_ms: Math.round(lastSentAt ? now - lastSentAt : now),
+          count: count,
+          total_duration_ms: Math.round(totalMs),
+          max_duration_ms: Math.round(maxMs),
+          visibility_state: document.visibilityState || 'unknown'
+        });
+        lastSentAt = now;
+        count = 0;
+        totalMs = 0;
+        maxMs = 0;
+      });
+      observer.observe({ entryTypes: ['longtask'] });
+    } catch (error) { /* Long-task entries are not supported on every kiosk. */ }
+  }
+  observeMainThreadStalls();
+
   function read(key, fallback) {
     try { return window.localStorage.getItem('familyhq.' + key) || fallback; }
     catch (e) { return fallback; }
@@ -627,9 +675,15 @@
           if (fallback._cameraLoadingTimer !== null && fallback._cameraLoadingTimer !== undefined) window.clearTimeout(fallback._cameraLoadingTimer);
           refreshIndicator.classList.remove('is-active');
           if (fallback._cameraLoadStartedAt) {
+            var transfer = snapshotTransferStats(fallback);
             recordCameraTelemetry('camera_snapshot_loaded', {
               duration_ms: Date.now() - fallback._cameraLoadStartedAt,
-              face: fallback._cameraLoadFace || 'unknown'
+              face: fallback._cameraLoadFace || 'unknown',
+              natural_width: transfer.natural_width,
+              natural_height: transfer.natural_height,
+              transfer_size: transfer.transfer_size,
+              encoded_body_size: transfer.encoded_body_size,
+              decoded_body_size: transfer.decoded_body_size
             });
           }
           fallback._cameraLoadStartedAt = 0;

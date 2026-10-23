@@ -42,6 +42,10 @@ func setupTelemetry(ctx context.Context) (*telemetry, error) {
 	}
 
 	registry := promclient.NewRegistry()
+	// The OTel HTTP instruments show request load and latency; these collectors
+	// let us tell whether slow requests coincide with process or Go runtime
+	// pressure on this small service.
+	registry.MustRegister(promclient.NewGoCollector(), promclient.NewProcessCollector(promclient.ProcessCollectorOpts{}))
 	metricExporter, err := otelprom.New(
 		otelprom.WithRegisterer(registry),
 		otelprom.WithResourceAsConstantLabels(attribute.NewAllowKeysFilter("service.name")),

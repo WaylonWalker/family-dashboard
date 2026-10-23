@@ -28,6 +28,8 @@ import (
 	"unicode"
 
 	"github.com/gorilla/websocket"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 //go:embed web/*
@@ -336,28 +338,28 @@ type Day struct {
 	Today  bool
 }
 type Page struct {
-	WeatherKind           string
-	Hour24                int
-	CalendarBadge         string
-	CalendarNote          string
-	CalendarMessage       string
-	Weather               weatherView
-	Today                 string
-	Clock                 string
-	Period                string
-	Days                  []Day
-	Events                []Event
-	TravelReview          []Event
-	CanManageTravel       bool
-	NextUp                *Event
-	SchoolCards           []SchoolCard
-	SchoolAfternoon       bool
-	Tasks                 []Task
-	Count                 int
-	CSRF                  string
-	KioskMode             bool
-	DevMode               bool
-	TaskAction            string
+	WeatherKind     string
+	Hour24          int
+	CalendarBadge   string
+	CalendarNote    string
+	CalendarMessage string
+	Weather         weatherView
+	Today           string
+	Clock           string
+	Period          string
+	Days            []Day
+	Events          []Event
+	TravelReview    []Event
+	CanManageTravel bool
+	NextUp          *Event
+	SchoolCards     []SchoolCard
+	SchoolAfternoon bool
+	Tasks           []Task
+	Count           int
+	CSRF            string
+	KioskMode       bool
+	DevMode         bool
+	TaskAction      string
 }
 
 type app struct {
@@ -972,8 +974,12 @@ func (a *app) essentialsCameraSnapshot(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "image/jpeg")
 	w.Header().Set("Cache-Control", "private, no-store, no-cache, must-revalidate, max-age=0")
 	w.Header().Set("X-Content-Type-Options", "nosniff")
-	if _, err := io.Copy(w, io.LimitReader(response.Body, 8<<20)); err != nil {
-		log.Printf("copy Frigate snapshot camera=%s: %v", camera, err)
+	bytesCopied, copyErr := io.Copy(w, io.LimitReader(response.Body, 8<<20))
+	if span := trace.SpanFromContext(r.Context()); span.IsRecording() {
+		span.SetAttributes(attribute.Int64("camera.snapshot.response_bytes", bytesCopied))
+	}
+	if copyErr != nil {
+		log.Printf("copy Frigate snapshot camera=%s: %v", camera, copyErr)
 	}
 }
 
