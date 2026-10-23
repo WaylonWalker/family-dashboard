@@ -45,6 +45,8 @@
   var active = 0;
   var holdUntil = 0;
   var rotationStartedAt = 0;
+  var rotationProgressCompletedAt = 0;
+  var cameraPanelShownAt = 0;
   var lastFocus = null;
   var settingsCloseTimer = null;
 
@@ -498,6 +500,13 @@
   function showCameraSnapshotFallback(video, camera) {
     if (!video || !video.parentNode || video._cameraFallback) return;
     video._cameraFallback = true;
+    if (video._cameraConnectStartedAt && !video._cameraFallbackReported) {
+      video._cameraFallbackReported = true;
+      recordCameraTelemetry('camera_stream_fallback', {
+        duration_ms: Date.now() - video._cameraConnectStartedAt,
+        face: video._cameraFace || 'unknown'
+      });
+    }
     stopCameraPlayer(video);
     var image = document.createElement('img');
     image.setAttribute('data-camera', camera);
@@ -509,6 +518,9 @@
   }
   function connectCamera(video, camera) {
     if (!window.MediaSource || !window.WebSocket) return;
+    video._cameraConnectStartedAt = Date.now();
+    video._cameraFace = video.parentNode && video.parentNode.className.indexOf('camera-face-back') !== -1 ? 'back' : 'front';
+    recordCameraTelemetry('camera_stream_connect_started', { face: video._cameraFace });
     var base = (isKiosk ? '/kiosk/api/essentials' : '/api/essentials') + '/cameras/' + encodeURIComponent(camera) + '/live';
     var socketURL = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + base;
     var socket = new WebSocket(socketURL);
@@ -530,6 +542,12 @@
     video.addEventListener('loadeddata', function () {
       if (video._cameraStartupTimer !== null) window.clearTimeout(video._cameraStartupTimer);
       video._cameraStartupTimer = null;
+      recordCameraTelemetry('camera_stream_first_frame', {
+        duration_ms: Date.now() - video._cameraConnectStartedAt,
+        face: video._cameraFace,
+        width: video.videoWidth || 0,
+        height: video.videoHeight || 0
+      });
     }, {once:true});
     video.addEventListener('error', function () { showCameraSnapshotFallback(video, camera); }, {once:true});
     function appendNext() {
@@ -538,6 +556,10 @@
       catch (error) { showCameraSnapshotFallback(video, camera); }
     }
     socket.onopen = function () {
+      recordCameraTelemetry('camera_stream_socket_open', {
+        duration_ms: Date.now() - video._cameraConnectStartedAt,
+        face: video._cameraFace
+      });
       if (!supportedCodecs.length) { showCameraSnapshotFallback(video, camera); return; }
       socket.send(JSON.stringify({type:'mse',value:supportedCodecs.join(',')}));
     };
@@ -604,8 +626,11 @@
           fallback._cameraRefreshPending = false;
           if (fallback._cameraLoadingTimer !== null && fallback._cameraLoadingTimer !== undefined) window.clearTimeout(fallback._cameraLoadingTimer);
           refreshIndicator.classList.remove('is-active');
-          if (fallback._cameraLoadStartedAt && fallback._cameraLoadFace === 'back') {
-            recordCameraTelemetry('camera_snapshot_loaded', { duration_ms: Date.now() - fallback._cameraLoadStartedAt });
+          if (fallback._cameraLoadStartedAt) {
+            recordCameraTelemetry('camera_snapshot_loaded', {
+              duration_ms: Date.now() - fallback._cameraLoadStartedAt,
+              face: fallback._cameraLoadFace || 'unknown'
+            });
           }
           fallback._cameraLoadStartedAt = 0;
         });
@@ -613,8 +638,11 @@
           fallback._cameraRefreshPending = false;
           if (fallback._cameraLoadingTimer !== null && fallback._cameraLoadingTimer !== undefined) window.clearTimeout(fallback._cameraLoadingTimer);
           refreshIndicator.classList.remove('is-active');
-          if (fallback._cameraLoadStartedAt && fallback._cameraLoadFace === 'back') {
-            recordCameraTelemetry('camera_snapshot_failed', { duration_ms: Date.now() - fallback._cameraLoadStartedAt });
+          if (fallback._cameraLoadStartedAt) {
+            recordCameraTelemetry('camera_snapshot_failed', {
+              duration_ms: Date.now() - fallback._cameraLoadStartedAt,
+              face: fallback._cameraLoadFace || 'unknown'
+            });
           }
           fallback._cameraLoadStartedAt = 0;
         });
@@ -831,7 +859,18 @@
     else hint.textContent = 'Auto-switches every 30s · swipe to explore';
   }
   function show(index, manual) {
+    var previous = active;
     active = (index + panes.length) % panes.length;
+    var switchAt = Date.now();
+    var completedAt = rotationProgressCompletedAt;
+    recordCameraTelemetry('feature_panel_switch', {
+      from_panel: ['weather','tasks','cameras'][previous],
+      to_panel: ['weather','tasks','cameras'][active],
+      trigger: manual ? 'manual' : 'automatic',
+      progress_to_switch_ms: completedAt ? Math.max(0, switchAt - completedAt) : -1
+    });
+    rotationProgressCompletedAt = 0;
+    cameraPanelShownAt = active === 2 ? switchAt : 0;
     document.getElementById('feature-panel').classList.toggle('cameras-focus',wideDisplay && active===2);
     document.querySelector('.dashboard').classList.toggle('cameras-selected',wideDisplay && active===2);
     if (active !== 2) { cameraRefreshGeneration++; stopCameraRotation(); stopCameraStreams(); }
@@ -852,6 +891,11 @@
     tabs[n].addEventListener('click',function () { show(n,true); });
     tabs[n].addEventListener('keydown',function (event) { if(event.key==='ArrowRight'||event.key==='ArrowLeft'){event.preventDefault();show(n+(event.key==='ArrowRight'?1:-1),true);tabs[active].focus();} });
   })(i);
+  panes[2].addEventListener('animationend', function (event) {
+    if (event.target !== panes[2] || event.animationName !== 'panel-arrive' || !cameraPanelShownAt) return;
+    recordCameraTelemetry('camera_panel_visible', { duration_ms: Date.now() - cameraPanelShownAt });
+    cameraPanelShownAt = 0;
+  });
   document.getElementById('feature-prev').addEventListener('click', function () { show(active-1,true); });
   document.getElementById('feature-next').addEventListener('click', function () { show(active+1,true); });
   var startX=0,startY=0,tracking=false;
@@ -881,6 +925,8 @@
     rotationProgress.setAttribute('aria-valuenow', String(Math.floor(progress * duration / 1000)));
     rotationProgress.setAttribute('aria-valuetext', secondsLeft + ' seconds until next panel');
     if (elapsed >= duration) {
+      recordCameraTelemetry('feature_rotation_progress_complete', { duration_ms: elapsed });
+      rotationProgressCompletedAt = Date.now();
       show(active + 1, false);
       rotationStartedAt = Date.now();
       rotationProgress.style.transform = 'scaleX(0)';

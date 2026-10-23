@@ -136,14 +136,16 @@ response status. Request URLs, calendar credentials, and the weather API key
 are not recorded.
 
 The browser loads the shared Faro bootstrap for browser errors, performance,
-web vitals, and fetch/XHR tracing. Camera rotation also emits
-`camera_rotation_progress_complete`, `camera_rotation_switch_started`, and
-`camera_rotation_switch_finished` events with elapsed times, plus back-face
-snapshot load/failure events. These events help separate timer scheduling,
-camera transition time, and snapshot load time; they do not include camera
-names or image URLs. Search Loki for `{source="browser"} | json | app_name="family-dashboard"`
-and filter the event name for `camera_rotation_` or `camera_snapshot_`. Server
-snapshot and Frigate spans remain available in Tempo under `family-dashboard`.
+web vitals, page navigation, and fetch/XHR tracing. Camera diagnostics report
+the progress-to-panel-switch delay, camera-panel animation time, live-stream
+socket and first-frame time, fallback use, and snapshot load/failure time.
+Events omit camera names and image URLs. Faro navigation events also identify
+page loads and reloads (`event_name="faro.performance.navigation"` and
+`event_data_type="reload"`). In Loki, search for
+`{source="browser"} | json | app_name="family-dashboard"` and filter on
+`event_name="feature_panel_switch"`, `event_name="camera_stream_first_frame"`,
+or `event_data_type="reload"`. Server snapshot and Frigate spans remain
+available in Tempo under `family-dashboard`.
 
 OpenTelemetry HTTP metrics are exposed at `/metrics` for Prometheus. The
 `family-dashboard` ServiceMonitor scrapes this endpoint every 30 seconds, and
