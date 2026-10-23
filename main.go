@@ -738,6 +738,7 @@ func allDayDays(start, end time.Time, loc *time.Location) int {
 }
 
 func nextEvent(events []Event, now time.Time) (*Event, []Event) {
+	const nextUpWindow = 3 * time.Hour
 	for i, event := range events {
 		if event.TravelMinutes == 0 {
 			continue
@@ -754,7 +755,7 @@ func nextEvent(events []Event, now time.Time) (*Event, []Event) {
 	for i, event := range events {
 		start, startErr := time.Parse(time.RFC3339, event.Start)
 		end, endErr := time.Parse(time.RFC3339, event.End)
-		if startErr != nil || endErr != nil || !start.After(now) || !end.After(now) {
+		if startErr != nil || endErr != nil || !start.After(now) || start.After(now.Add(nextUpWindow)) || !end.After(now) {
 			continue
 		}
 		event.Status = "NEXT UP"
