@@ -48,6 +48,15 @@
   var lastFocus = null;
   var settingsCloseTimer = null;
 
+  function recordCameraTelemetry(eventName, attributes) {
+    try {
+      var faro = window.__waylonFaro;
+      if (faro && faro.api && typeof faro.api.pushEvent === 'function') {
+        faro.api.pushEvent(eventName, attributes || {});
+      }
+    } catch (error) { /* Browser telemetry must never interrupt the camera UI. */ }
+  }
+
   function read(key, fallback) {
     try { return window.localStorage.getItem('familyhq.' + key) || fallback; }
     catch (e) { return fallback; }
@@ -464,6 +473,8 @@
   }
   function loadCameraSnapshot(image) {
     if (!image || !image.getAttribute('data-camera')) return;
+    image._cameraLoadStartedAt = Date.now();
+    image._cameraLoadFace = image.parentNode && image.parentNode.className.indexOf('camera-face-back') !== -1 ? 'back' : 'front';
     image.src = snapshotURL(image.getAttribute('data-camera'), image);
   }
   function refreshCameraSnapshots() {
@@ -593,11 +604,19 @@
           fallback._cameraRefreshPending = false;
           if (fallback._cameraLoadingTimer !== null && fallback._cameraLoadingTimer !== undefined) window.clearTimeout(fallback._cameraLoadingTimer);
           refreshIndicator.classList.remove('is-active');
+          if (fallback._cameraLoadStartedAt && fallback._cameraLoadFace === 'back') {
+            recordCameraTelemetry('camera_snapshot_loaded', { duration_ms: Date.now() - fallback._cameraLoadStartedAt });
+          }
+          fallback._cameraLoadStartedAt = 0;
         });
         fallback.addEventListener('error', function () {
           fallback._cameraRefreshPending = false;
           if (fallback._cameraLoadingTimer !== null && fallback._cameraLoadingTimer !== undefined) window.clearTimeout(fallback._cameraLoadingTimer);
           refreshIndicator.classList.remove('is-active');
+          if (fallback._cameraLoadStartedAt && fallback._cameraLoadFace === 'back') {
+            recordCameraTelemetry('camera_snapshot_failed', { duration_ms: Date.now() - fallback._cameraLoadStartedAt });
+          }
+          fallback._cameraLoadStartedAt = 0;
         });
       }
       fallback.setAttribute('data-camera', camera);
@@ -630,10 +649,15 @@
   }
   function startCameraProgress() {
     cameraCycleStartedAt = Date.now();
+    var completeReported = false;
     if (cameraProgressTimer !== null) window.clearInterval(cameraProgressTimer);
     cameraProgressTimer = window.setInterval(function () {
       var elapsed = Math.min(30000, Date.now() - cameraCycleStartedAt);
       var progress = elapsed / 30000;
+      if (progress >= 1 && !completeReported) {
+        completeReported = true;
+        recordCameraTelemetry('camera_rotation_progress_complete', { duration_ms: elapsed });
+      }
       var rails = document.querySelectorAll('#camera-grid .camera-cycle-progress');
       for (var i = 0; i < rails.length; i++) {
         rails[i].style.setProperty('--camera-progress', String(progress));
@@ -695,11 +719,20 @@
   }
   function flipCameraGroup(generation) {
     if (generation !== cameraSessionGeneration || active !== 2 || cameraList.length <= 4 || !cameraTiles.length) return;
+    var switchStartedAt = Date.now();
+    recordCameraTelemetry('camera_rotation_switch_started', {
+      progress_elapsed_ms: cameraCycleStartedAt ? switchStartedAt - cameraCycleStartedAt : -1,
+      tile_count: cameraTiles.length
+    });
     var finished = 0;
     cameraTiles.forEach(function (tile) {
       flipCameraTile(tile, function () {
         finished++;
         if (generation === cameraSessionGeneration && active === 2 && finished === cameraTiles.length) {
+          recordCameraTelemetry('camera_rotation_switch_finished', {
+            duration_ms: Date.now() - switchStartedAt,
+            tile_count: cameraTiles.length
+          });
           cameraIndex = (cameraIndex + 4) % cameraList.length;
           startCameraProgress();
           cameraWarmTimer = window.setTimeout(function () { prepareNextCameraGroup(generation); }, 27000);

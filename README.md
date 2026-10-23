@@ -130,10 +130,20 @@ frame will only receive rendered event titles/times, not Google credentials.
 ## Server observability
 
 The deployed server exports HTTP request traces over OTLP/HTTP to the cluster's
-OpenTelemetry Collector. Server spans include the matched HTTP route; calendar
-and weather calls appear as child spans with the destination host and response
-status. Request URLs, calendar credentials, and the weather API key are not
-recorded.
+OpenTelemetry Collector. Server spans include the matched HTTP route; calendar,
+weather, and Frigate calls appear as child spans with the destination host and
+response status. Request URLs, calendar credentials, and the weather API key
+are not recorded.
+
+The browser loads the shared Faro bootstrap for browser errors, performance,
+web vitals, and fetch/XHR tracing. Camera rotation also emits
+`camera_rotation_progress_complete`, `camera_rotation_switch_started`, and
+`camera_rotation_switch_finished` events with elapsed times, plus back-face
+snapshot load/failure events. These events help separate timer scheduling,
+camera transition time, and snapshot load time; they do not include camera
+names or image URLs. Search Loki for `{source="browser"} | json | app_name="family-dashboard"`
+and filter the event name for `camera_rotation_` or `camera_snapshot_`. Server
+snapshot and Frigate spans remain available in Tempo under `family-dashboard`.
 
 OpenTelemetry HTTP metrics are exposed at `/metrics` for Prometheus. The
 `family-dashboard` ServiceMonitor scrapes this endpoint every 30 seconds, and

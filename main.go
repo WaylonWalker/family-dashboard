@@ -889,7 +889,7 @@ func (a *app) frigateRequest(r *http.Request, endpoint string) (*http.Response, 
 	if err != nil {
 		return nil, err
 	}
-	return (&http.Client{Timeout: 8 * time.Second}).Do(request)
+	return tracedRequest(r.Context(), "frigate.request", &http.Client{Timeout: 8 * time.Second}, request)
 }
 
 func (a *app) essentialsCameras(w http.ResponseWriter, r *http.Request) {

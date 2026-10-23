@@ -14,7 +14,12 @@
   <link rel="apple-touch-icon" href="/icons/family-hq-192.png">
   <link rel="stylesheet" href="/style.css?v=31">
   <script src="/theme.js?v=1"></script>
-  <script src="/app.js?v=28" defer></script>
+  <script defer referrerpolicy="no-referrer"
+    src="https://telemetry.wayl.one/assets/faro-bootstrap.js"
+    data-faro-app="family-dashboard"
+    data-faro-version="camera-timing-1"
+    data-faro-environment="production"></script>
+  <script src="/app.js?v=29" defer></script>
   {{if .DevMode}}<script src="/dev-reload.js" defer></script>{{end}}
   <noscript><style>
     .feature-pane[hidden]{display:flex!important}
