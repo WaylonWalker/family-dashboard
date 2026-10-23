@@ -936,7 +936,30 @@ func (a *app) essentialsCameraSnapshot(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid camera", http.StatusBadRequest)
 		return
 	}
-	response, err := a.frigateRequest(r, "/api/"+url.PathEscape(camera)+"/latest.jpg")
+	endpoint := "/api/" + url.PathEscape(camera) + "/latest.jpg"
+	query := url.Values{}
+	if height, err := strconv.Atoi(r.URL.Query().Get("height")); err == nil && height > 0 {
+		if height < 120 {
+			height = 120
+		} else if height > 1080 {
+			height = 1080
+		}
+		query.Set("height", strconv.Itoa(height))
+		quality := 70
+		if requested, err := strconv.Atoi(r.URL.Query().Get("quality")); err == nil {
+			quality = requested
+		}
+		if quality < 40 {
+			quality = 40
+		} else if quality > 90 {
+			quality = 90
+		}
+		query.Set("quality", strconv.Itoa(quality))
+	}
+	if len(query) > 0 {
+		endpoint += "?" + query.Encode()
+	}
+	response, err := a.frigateRequest(r, endpoint)
 	if err != nil {
 		http.Error(w, "camera snapshot is unavailable", http.StatusBadGateway)
 		return

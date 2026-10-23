@@ -456,9 +456,19 @@
     stopCameraPlayer(face.querySelector('video'));
     face.textContent = '';
   }
+  function snapshotURL(camera, image) {
+    var height = image.getBoundingClientRect().height || 360;
+    height = Math.ceil(height);
+    height = Math.max(120, Math.min(1080, height));
+    return (isKiosk ? '/kiosk/api/essentials' : '/api/essentials') + '/cameras/' + encodeURIComponent(camera) + '/snapshot?height=' + height + '&quality=70&refresh=' + Date.now();
+  }
+  function loadCameraSnapshot(image) {
+    if (!image || !image.getAttribute('data-camera')) return;
+    image.src = snapshotURL(image.getAttribute('data-camera'), image);
+  }
   function refreshCameraSnapshots() {
     if (active !== 2 || document.hidden) return;
-    var images = document.querySelectorAll('#camera-grid .camera-snapshot-live');
+    var images = document.querySelectorAll('#camera-grid .camera-face-front .camera-snapshot-live');
     for (var i = 0; i < images.length; i++) {
       var camera = images[i].getAttribute('data-camera');
       if (!camera) continue;
@@ -471,7 +481,7 @@
           if (image._cameraRefreshRequest === id && image._cameraRefreshPending && image._cameraRefreshIndicator) image._cameraRefreshIndicator.classList.add('is-active');
         };
       }(images[i], requestId), 120);
-      images[i].src = (isKiosk ? '/kiosk/api/essentials' : '/api/essentials') + '/cameras/' + encodeURIComponent(camera) + '/snapshot?refresh=' + Date.now();
+      images[i].src = snapshotURL(camera, images[i]);
     }
   }
   function showCameraSnapshotFallback(video, camera) {
@@ -479,9 +489,10 @@
     video._cameraFallback = true;
     stopCameraPlayer(video);
     var image = document.createElement('img');
-    image.src = (isKiosk ? '/kiosk/api/essentials' : '/api/essentials') + '/cameras/' + encodeURIComponent(camera) + '/snapshot?refresh=' + Date.now();
+    image.setAttribute('data-camera', camera);
     image.alt = camera.replace(/[-_]/g, ' ') + ' camera snapshot; live stream unavailable';
     video.parentNode.replaceChild(image, video);
+    loadCameraSnapshot(image);
     var caption = video.parentNode.querySelector('figcaption');
     if (caption) caption.textContent = camera.replace(/[-_]/g, ' ') + ' · snapshot';
   }
@@ -589,7 +600,7 @@
           refreshIndicator.classList.remove('is-active');
         });
       }
-      fallback.src = (isKiosk ? '/kiosk/api/essentials' : '/api/essentials') + '/cameras/' + encodeURIComponent(camera) + '/snapshot?refresh=' + Date.now();
+      fallback.setAttribute('data-camera', camera);
       fallback.alt = camera.replace(/[-_]/g, ' ') + ' camera snapshot';
       face.appendChild(fallback);
       var fallbackCaption = document.createElement('figcaption');
@@ -668,6 +679,7 @@
       cycleProgress.setAttribute('aria-hidden', 'true');
       tile.appendChild(cycleProgress);
       grid.appendChild(tile); cameraTiles.push(tile);
+      loadCameraSnapshot(tile.querySelector('.camera-face-front .camera-snapshot-live'));
     }
   }
   function prepareNextCameraGroup(generation) {
@@ -701,6 +713,7 @@
     var front = flipper && flipper.querySelector('.camera-face-front');
     var back = flipper && flipper.querySelector('.camera-face-back');
     if (!flipper || !front || !back || back._cameraIndex < 0) return;
+    loadCameraSnapshot(back.querySelector('.camera-snapshot-live'));
     tile._flipping = true;
     tile.classList.add('is-flipping');
     var completed = false;
@@ -766,11 +779,12 @@
       cameras.forEach(function (camera) {
         var figure = document.createElement('figure'); figure.className = 'camera-tile';
         var image = document.createElement('img');
-        image.src = essentialsBase + '/cameras/' + encodeURIComponent(camera) + '/snapshot?refresh=' + Date.now();
+        image.setAttribute('data-camera', camera);
         image.alt = camera.replace(/[-_]/g, ' ') + ' camera snapshot';
         image.loading = 'lazy';
         var caption = document.createElement('figcaption'); caption.textContent = camera.replace(/[-_]/g, ' ');
         figure.appendChild(image); figure.appendChild(caption); grid.appendChild(figure);
+        loadCameraSnapshot(image);
       });
     });
   }
