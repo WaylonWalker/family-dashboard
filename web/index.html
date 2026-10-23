@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en" data-theme="everforest-light" data-texture="paper" data-font="system" data-style="balanced" data-weather="{{.WeatherKind}}">
+<html lang="en" data-theme="everforest-dark" data-texture="paper" data-font="system" data-style="balanced" data-weather="{{.WeatherKind}}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta http-equiv="refresh" content="900">
-  <meta name="theme-color" content="#fdf6e3">
+  <meta name="theme-color" content="#2d353b">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -12,14 +12,14 @@
   <link rel="icon" href="/favicon.ico" sizes="32x32" type="image/x-icon">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/icons/family-hq-192.png">
-  <script src="/theme.js?v=2"></script>
-  <link rel="stylesheet" href="/style.css?v=32">
+  <script src="/theme.js?v=4"></script>
+  <link rel="stylesheet" href="/style.css?v=35">
   <script defer referrerpolicy="no-referrer"
     src="https://telemetry.wayl.one/assets/faro-bootstrap.js"
     data-faro-app="family-dashboard"
     data-faro-version="performance-signals-1"
     data-faro-environment="production"></script>
-  <script src="/app.js?v=32" defer></script>
+  <script src="/app.js?v=34" defer></script>
   {{if .DevMode}}<script src="/dev-reload.js" defer></script>{{end}}
   <noscript><style>
     .feature-pane[hidden]{display:flex!important}
@@ -145,7 +145,275 @@
   <aside class="settings-drawer" id="settings" aria-labelledby="settings-title" aria-modal="true" role="dialog" hidden>
     <div class="settings-head"><div><p class="eyebrow">MAKE IT YOURS</p><h2 id="settings-title">Display settings</h2></div><button type="button" id="close-settings" class="icon-button" aria-label="Close settings">×</button></div>
     <div class="settings-inner">
-      <label class="setting-label" for="theme-select">Palette</label><select id="theme-select"><option value="auto">Automatic · light / dark / weather</option><option value="everforest-light">Everforest Light</option><option value="everforest-dark">Everforest Dark</option><option value="catppuccin-latte">Catppuccin Latte</option><option value="catppuccin-mocha">Catppuccin Mocha</option><option value="gruvbox-light">Gruvbox Light</option><option value="gruvbox-dark">Gruvbox Dark</option><option value="kanagawa-lotus">Kanagawa Lotus</option><option value="kanagawa-wave">Kanagawa Wave</option></select>
+      <label class="setting-label" for="theme-select">Palette</label><select id="theme-select"><option value="auto">Automatic · dark / weather / holidays</option>
+        <optgroup label="2bit-demichrome">
+        <option value="2bit-demichrome">Dark · 2bit Demichrome</option>
+        <option value="2bit-demichrome-light">Light · 2bit Demichrome Light</option>
+        </optgroup>
+        <optgroup label="ash">
+        <option value="ash">Dark · Ash</option>
+        <option value="ash-light">Light · Ash Light</option>
+        </optgroup>
+        <optgroup label="autumn">
+        <option value="autumn">Dark · Autumn</option>
+        <option value="autumn-light">Light · Autumn Light</option>
+        </optgroup>
+        <optgroup label="ayu">
+        <option value="ayu-dark">Dark · Ayu Dark</option>
+        <option value="ayu-light">Light · Ayu Light</option>
+        </optgroup>
+        <optgroup label="ayu-mirage">
+        <option value="ayu-mirage">Dark · Ayu Mirage</option>
+        <option value="ayu-mirage-light">Light · Ayu Mirage Light</option>
+        </optgroup>
+        <optgroup label="berry-nebula">
+        <option value="berry-nebula">Dark · Berry Nebula</option>
+        <option value="berry-nebula-light">Light · Berry Nebula Light</option>
+        </optgroup>
+        <optgroup label="black-gold">
+        <option value="black-gold">Dark · Black Gold</option>
+        <option value="black-gold-light">Light · Black Gold Light</option>
+        </optgroup>
+        <optgroup label="blessing">
+        <option value="blessing-dark">Dark · Blessing Dark</option>
+        <option value="blessing">Light · Blessing</option>
+        </optgroup>
+        <optgroup label="catppuccin-frappe">
+        <option value="catppuccin-frappe">Dark · Catppuccin Frappe</option>
+        <option value="catppuccin-frappe-light">Light · Catppuccin Frappe Light</option>
+        </optgroup>
+        <optgroup label="catppuccin-latte">
+        <option value="catppuccin-latte-dark">Dark · Catppuccin Latte Dark</option>
+        <option value="catppuccin-latte">Light · Catppuccin Latte</option>
+        </optgroup>
+        <optgroup label="catppuccin-macchiato">
+        <option value="catppuccin-macchiato">Dark · Catppuccin Macchiato</option>
+        <option value="catppuccin-macchiato-light">Light · Catppuccin Macchiato Light</option>
+        </optgroup>
+        <optgroup label="catppuccin-mocha">
+        <option value="catppuccin-mocha">Dark · Catppuccin Mocha</option>
+        <option value="catppuccin-mocha-light">Light · Catppuccin Mocha Light</option>
+        </optgroup>
+        <optgroup label="christmas">
+        <option value="christmas">Dark · Christmas</option>
+        <option value="christmas-light">Light · Christmas Light</option>
+        </optgroup>
+        <optgroup label="default">
+        <option value="default-dark">Dark · Default Dark</option>
+        <option value="default-light">Light · Default Light</option>
+        </optgroup>
+        <optgroup label="diwali">
+        <option value="diwali">Dark · Diwali</option>
+        <option value="diwali-light">Light · Diwali Light</option>
+        </optgroup>
+        <optgroup label="dracula">
+        <option value="dracula">Dark · Dracula</option>
+        <option value="dracula-light">Light · Dracula Light</option>
+        </optgroup>
+        <optgroup label="everforest">
+        <option value="everforest-dark">Dark · Everforest Dark</option>
+        <option value="everforest-light">Light · Everforest Light</option>
+        </optgroup>
+        <optgroup label="graphite">
+        <option value="graphite-dark">Dark · Graphite Dark</option>
+        <option value="graphite-light">Light · Graphite Light</option>
+        </optgroup>
+        <optgroup label="gruvbox">
+        <option value="gruvbox-dark">Dark · Gruvbox Dark</option>
+        <option value="gruvbox-light">Light · Gruvbox Light</option>
+        </optgroup>
+        <optgroup label="halloween">
+        <option value="halloween">Dark · Halloween</option>
+        <option value="halloween-light">Light · Halloween Light</option>
+        </optgroup>
+        <optgroup label="hanukkah">
+        <option value="hanukkah">Dark · Hanukkah</option>
+        <option value="hanukkah-light">Light · Hanukkah Light</option>
+        </optgroup>
+        <optgroup label="ink">
+        <option value="ink">Dark · Ink</option>
+        <option value="ink-light">Light · Ink Light</option>
+        </optgroup>
+        <optgroup label="inkpink">
+        <option value="inkpink">Dark · INKPINK</option>
+        <option value="inkpink-light">Light · INKPINK Light</option>
+        </optgroup>
+        <optgroup label="kanagawa-dragon">
+        <option value="kanagawa-dragon">Dark · Kanagawa Dragon</option>
+        <option value="kanagawa-dragon-light">Light · Kanagawa Dragon Light</option>
+        </optgroup>
+        <optgroup label="kanagawa-lotus">
+        <option value="kanagawa-lotus-dark">Dark · Kanagawa Lotus Dark</option>
+        <option value="kanagawa-lotus">Light · Kanagawa Lotus</option>
+        </optgroup>
+        <optgroup label="kanagawa-wave">
+        <option value="kanagawa-wave">Dark · Kanagawa Wave</option>
+        <option value="kanagawa-wave-light">Light · Kanagawa Wave Light</option>
+        </optgroup>
+        <optgroup label="lava-gb">
+        <option value="lava-gb">Dark · Lava-GB</option>
+        <option value="lava-gb-light">Light · Lava-GB Light</option>
+        </optgroup>
+        <optgroup label="lunar-new-year">
+        <option value="lunar-new-year">Dark · Lunar New Year</option>
+        <option value="lunar-new-year-light">Light · Lunar New Year Light</option>
+        </optgroup>
+        <optgroup label="matte-black">
+        <option value="matte-black">Dark · Matte Black</option>
+        <option value="matte-black-light">Light · Matte Black Light</option>
+        </optgroup>
+        <optgroup label="midnight-ablaze">
+        <option value="midnight-ablaze">Dark · Midnight Ablaze</option>
+        <option value="midnight-ablaze-light">Light · Midnight Ablaze Light</option>
+        </optgroup>
+        <optgroup label="mist-gb">
+        <option value="mist-gb">Dark · Mist GB</option>
+        <option value="mist-gb-light">Light · Mist GB Light</option>
+        </optgroup>
+        <optgroup label="modus-operandi">
+        <option value="modus-operandi-dark">Dark · Modus Operandi Dark</option>
+        <option value="modus-operandi">Light · Modus Operandi</option>
+        </optgroup>
+        <optgroup label="modus-vivendi">
+        <option value="modus-vivendi">Dark · Modus Vivendi</option>
+        <option value="modus-vivendi-light">Light · Modus Vivendi Light</option>
+        </optgroup>
+        <optgroup label="monokai">
+        <option value="monokai">Dark · Monokai</option>
+        <option value="monokai-light">Light · Monokai Light</option>
+        </optgroup>
+        <optgroup label="night-owl">
+        <option value="night-owl">Dark · Night Owl</option>
+        <option value="night-owl-light">Light · Night Owl Light</option>
+        </optgroup>
+        <optgroup label="nintendo-gameboy">
+        <option value="nintendo-gameboy">Dark · Nintendo Gameboy</option>
+        <option value="nintendo-gameboy-light">Light · Nintendo Gameboy Light</option>
+        </optgroup>
+        <optgroup label="nord">
+        <option value="nord-dark">Dark · Nord</option>
+        <option value="nord-light">Light · Nord Light</option>
+        </optgroup>
+        <optgroup label="oil-6">
+        <option value="oil-6-dark">Dark · Oil 6 Dark</option>
+        <option value="oil-6">Light · Oil 6</option>
+        </optgroup>
+        <optgroup label="one">
+        <option value="one-dark">Dark · One Dark</option>
+        <option value="one-light">Light · One Light</option>
+        </optgroup>
+        <optgroup label="pico-8">
+        <option value="pico-8">Dark · PICO-8</option>
+        <option value="pico-8-light">Light · PICO-8 Light</option>
+        </optgroup>
+        <optgroup label="pitch-black">
+        <option value="pitch-black">Dark · Pitch Black</option>
+        <option value="pitch-black-light">Light · Pitch Black Light</option>
+        </optgroup>
+        <optgroup label="pollen8">
+        <option value="pollen8-dark">Dark · Pollen8 Dark</option>
+        <option value="pollen8">Light · Pollen8</option>
+        </optgroup>
+        <optgroup label="rose-pine-dawn">
+        <option value="rose-pine-dawn-dark">Dark · Rose Pine Dawn Dark</option>
+        <option value="rose-pine-dawn">Light · Rosé Pine Dawn</option>
+        </optgroup>
+        <optgroup label="rose-pine-moon">
+        <option value="rose-pine-moon">Dark · Rosé Pine Moon</option>
+        <option value="rose-pine-moon-light">Light · Rose Pine Moon Light</option>
+        </optgroup>
+        <optgroup label="rose-pine">
+        <option value="rose-pine">Dark · Rosé Pine</option>
+        <option value="rose-pine-light">Light · Rose Pine Light</option>
+        </optgroup>
+        <optgroup label="rust-gold-8">
+        <option value="rust-gold-8">Dark · Rust Gold 8</option>
+        <option value="rust-gold-8-light">Light · Rust Gold 8 Light</option>
+        </optgroup>
+        <optgroup label="slso8">
+        <option value="slso8">Dark · SLSO8</option>
+        <option value="slso8-light">Light · SLSO8 Light</option>
+        </optgroup>
+        <optgroup label="solarized">
+        <option value="solarized-dark">Dark · Solarized Dark</option>
+        <option value="solarized-light">Light · Solarized Light</option>
+        </optgroup>
+        <optgroup label="st.-patrick&#x27;s-day">
+        <option value="st.-patrick&#x27;s-day">Dark · St. Patrick&#x27;s Day</option>
+        <option value="st.-patrick&#x27;s-day-light">Light · St. Patrick&#x27;s Day Light</option>
+        </optgroup>
+        <optgroup label="summer-beach">
+        <option value="summer-beach-dark">Dark · Summer Beach Dark</option>
+        <option value="summer-beach">Light · Summer Beach</option>
+        </optgroup>
+        <optgroup label="sweet">
+        <option value="sweet">Dark · Sweet</option>
+        <option value="sweet-light">Light · Sweet Light</option>
+        </optgroup>
+        <optgroup label="tokyo-night-day">
+        <option value="tokyo-night-day-dark">Dark · Tokyo Night Day Dark</option>
+        <option value="tokyo-night-day">Light · Tokyo Night Day</option>
+        </optgroup>
+        <optgroup label="tokyo-night-storm">
+        <option value="tokyo-night-storm">Dark · Tokyo Night Storm</option>
+        <option value="tokyo-night-storm-light">Light · Tokyo Night Storm Light</option>
+        </optgroup>
+        <optgroup label="tokyo-night">
+        <option value="tokyo-night">Dark · Tokyo Night</option>
+        <option value="tokyo-night-light">Light · Tokyo Night Light</option>
+        </optgroup>
+        <optgroup label="twilight-5">
+        <option value="twilight-5">Dark · Twilight 5</option>
+        <option value="twilight-5-light">Light · Twilight 5 Light</option>
+        </optgroup>
+        <optgroup label="valentine">
+        <option value="valentine">Dark · Valentine</option>
+        <option value="valentine-light">Light · Valentine Light</option>
+        </optgroup>
+        <optgroup label="vinik24">
+        <option value="vinik24">Dark · Vinik24</option>
+        <option value="vinik24-light">Light · Vinik24 Light</option>
+        </optgroup>
+        <optgroup label="white-gold">
+        <option value="white-gold-dark">Dark · White Gold Dark</option>
+        <option value="white-gold">Light · White Gold</option>
+        </optgroup>
+        <optgroup label="whitesur">
+        <option value="whitesur-dark">Dark · WhiteSur Dark</option>
+        <option value="whitesur-light">Light · WhiteSur Light</option>
+        </optgroup>
+        <optgroup label="winter-frost">
+        <option value="winter-frost">Dark · Winter Frost</option>
+        <option value="winter-frost-light">Light · Winter Frost Light</option>
+        </optgroup>
+        <optgroup label="8008">
+        <option value="8008">Dark · 8008</option>
+        <option value="8008-light">Light · 8008 Light</option>
+        </optgroup>
+        <optgroup label="aether">
+        <option value="aether">Dark · Aether</option>
+        <option value="aether-light">Light · Aether Light</option>
+        </optgroup>
+        <optgroup label="bento">
+        <option value="bento">Dark · Bento</option>
+        <option value="bento-light">Light · Bento Light</option>
+        </optgroup>
+        <optgroup label="olivia">
+        <option value="olivia">Dark · Olivia</option>
+        <option value="olivia-light">Light · Olivia Light</option>
+        </optgroup>
+        <optgroup label="serika">
+        <option value="serika-dark">Dark · Serika Dark</option>
+        <option value="serika-light">Light · Serika Light</option>
+        </optgroup>
+        <optgroup label="system">
+        <option value="system-dark">Dark · System Paper Dark</option>
+        <option value="system">Light · System Paper</option>
+        </optgroup>
+        <optgroup label="paper">
+        <option value="paper-dark">Dark · Warm Paper Dark</option>
+        <option value="paper">Light · Warm Paper</option>
+        </optgroup></select>
       <p id="auto-description" class="setting-helper">Automatic follows time of day and current conditions.</p>
       <label class="setting-label" for="texture-select">Surface texture</label><select id="texture-select"><option value="paper">Paper grain</option><option value="screenprint">Screenprint</option><option value="halftone">Halftone</option><option value="none">Clean / none</option></select>
       <label class="setting-label" for="style-select">Layout aesthetic</label><select id="style-select"><option value="balanced">Balanced · soft cards</option><option value="precision">Precision · crisp lines</option><option value="elevated">Elevated · layered cards</option><option value="brutal">Brutal · poster blocks</option><option value="minimal">Minimal · quiet layout</option></select>

@@ -352,23 +352,28 @@ when browser storage is available.
 
 Tap the gear for display settings:
 
-- **Palette:** automatic (default) or Everforest, Catppuccin, Gruvbox, Kanagawa
-  light/dark variants.
-- **Automatic:** normal daylight uses Everforest Light, early/late hours use
-  darker palettes, and rain/snow/storm choose wet-weather variants; the frame
-  uses its local clock for theme changes while the displayed clock follows
-  America/Chicago. The latest cached weather reading supplies conditions.
+- **Palette:** automatic (default) or any of the 67 theme-gallery families,
+  each with its matching light and dark variant (134 palettes total).
+- **Automatic:** stays on dark palettes. Snow uses Pitch Black with a white
+  accent; rain or storms use Kanagawa Wave; clear or other conditions use
+  Everforest Dark. Holiday palettes take priority
+  from three days before through the holiday: New Year, Valentine's Day, St.
+  Patrick's Day, Easter, Earth Day, Thanksgiving, Halloween, and Christmas.
+  Fixed holidays and date ranges are resolved using the frame's local clock;
+  the displayed clock follows America/Chicago. Weather comes from the latest
+  cached reading. This follows Markata Go's seasonal theme-calendar approach,
+  adapted to the dark palettes available in Family HQ.
 - **Surface texture:** paper, screenprint, halftone, or none.
 - **Aesthetic:** balanced, precision, elevated, brutal, or minimal.
 - **Typography:** system, editorial, modern, mono (all local browser fallbacks;
   no externally loaded font dependencies).
 - **Auto-rotate:** may be disabled entirely for an interactive station.
 
-Theme IDs, palette base colors and aesthetic names are adapted from Markata's
-`spec/rendering-contract/contract-v1.json`, the source behind
-`themes.waylonwalker.com`. Family HQ is not itself a Markata-rendered site:
-CSS textures and layout presets are lightweight implementations inspired by
-those dials, not copies of the theme gallery's complete source assets.
+Theme IDs and matching light/dark palette colors are adapted from the local
+`themes.waylonwalker.com` palette catalog, generated from Markata Go's rendering
+contract. Family HQ is not itself a Markata-rendered site: CSS textures and
+layout presets are lightweight implementations inspired by those dials, not
+copies of the theme gallery's complete source assets.
 Settings live in browser `localStorage`, **per display**, not in the task data
 file. No Google or weather secrets go to the browser. Weather icons are inline
 SVG instead of emoji to avoid missing-glyph squares on Android photo frames.
