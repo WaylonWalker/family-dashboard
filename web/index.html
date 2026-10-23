@@ -12,14 +12,14 @@
   <link rel="icon" href="/favicon.ico" sizes="32x32" type="image/x-icon">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/icons/family-hq-192.png">
-  <link rel="stylesheet" href="/style.css?v=31">
-  <script src="/theme.js?v=1"></script>
+  <script src="/theme.js?v=2"></script>
+  <link rel="stylesheet" href="/style.css?v=32">
   <script defer referrerpolicy="no-referrer"
     src="https://telemetry.wayl.one/assets/faro-bootstrap.js"
     data-faro-app="family-dashboard"
     data-faro-version="performance-signals-1"
     data-faro-environment="production"></script>
-  <script src="/app.js?v=31" defer></script>
+  <script src="/app.js?v=32" defer></script>
   {{if .DevMode}}<script src="/dev-reload.js" defer></script>{{end}}
   <noscript><style>
     .feature-pane[hidden]{display:flex!important}
@@ -136,9 +136,8 @@
       <img id="door-alert-snapshot" alt="Frigate person detection snapshot">
       <footer class="door-alert-actions">
         <a id="door-alert-clip" href="#" target="_blank" rel="noopener">View video clip</a>
-        <span class="door-alert-remaining" id="door-alert-remaining" aria-live="off">Closing in 30 seconds</span>
+        <span class="door-alert-remaining">This alert stays open until dismissed.</span>
       </footer>
-      <div class="door-alert-progress" id="door-alert-progress" role="progressbar" aria-label="Time until door alert closes" aria-valuemin="0" aria-valuemax="30" aria-valuenow="30"><span></span></div>
     </div>
   </section>
 
