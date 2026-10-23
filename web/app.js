@@ -392,7 +392,8 @@
     var basementSignal = basement.querySelector('.sensor-signal');
     function setConnection(node, signal, reading) {
       var online = null;
-      if (reading && typeof reading.online === 'boolean') online = reading.online;
+      if (reading && reading.stale === true) online = false;
+      else if (reading && typeof reading.online === 'boolean') online = reading.online;
       else if (reading && reading.updated_at) {
         var lastSeen = new Date(reading.updated_at).getTime();
         if (!isNaN(lastSeen) && Date.now() - lastSeen < 30 * 60 * 1000) online = true;
@@ -422,8 +423,13 @@
     });
     var freezerOnline = setConnection(freezer, freezerSignal, temperature);
     var basementOnline = setConnection(basement, basementSignal, water);
-    freezerValue.textContent = !temperature ? 'Unknown' : freezerOnline === false ? 'Offline' : typeof temperature.temperature_f === 'number' ? temperature.temperature_f.toFixed(1) + '°F' : 'Unknown';
-    basementValue.textContent = !water ? 'Unknown' : basementOnline === false ? 'Offline' : water.detected ? 'Wet' : 'Dry';
+    freezerValue.textContent = !temperature ? 'Unknown' : temperature.stale ? 'Stale' : freezerOnline === false ? 'Offline' : typeof temperature.temperature_f === 'number' ? temperature.temperature_f.toFixed(1) + '°F' : 'Unknown';
+    basementValue.textContent = !water ? 'Unknown' : water.stale ? 'Stale' : basementOnline === false ? 'Offline' : water.detected ? 'Wet' : 'Dry';
+    if (temperature && temperature.stale) {
+      var lastFreezerValue = typeof temperature.temperature_f === 'number' ? temperature.temperature_f.toFixed(1) + '°F' : 'unknown';
+      freezer.title = 'Freezer sensor stale · Last reading ' + lastFreezerValue + ' at ' + new Date(temperature.last_seen_at || temperature.updated_at).toLocaleString();
+    }
+    if (water && water.stale) basement.title = 'Water sensor stale · Last report at ' + new Date(water.last_seen_at || water.updated_at).toLocaleString();
     if (water && water.detected) basement.classList.add('is-alert');
     if (activeSensorAlerts.temperature) freezer.classList.add('is-alert');
     if (activeSensorAlerts.water) basement.classList.add('is-alert');
