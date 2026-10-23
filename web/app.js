@@ -1025,9 +1025,12 @@
   document.addEventListener('keydown',function (event) {
     if (event.key==='Escape'&&!drawer.hidden) closeSettings();
     if(event.key==='Tab'&&!drawer.hidden) {
-      var choices=drawer.querySelectorAll('button,select,input'); var first=choices[0],last=choices[choices.length-1];
-      if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
-      else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
+      var choices=drawer.querySelectorAll('a[href],button,select,input,textarea,[tabindex]');
+      var focusable=[];
+      for(var i=0;i<choices.length;i++) if(!choices[i].disabled&&choices[i].tabIndex!==-1&&choices[i].getClientRects().length) focusable.push(choices[i]);
+      var first=focusable[0],last=focusable[focusable.length-1];
+      if(first&&last&&event.shiftKey&&(document.activeElement===first||!drawer.contains(document.activeElement))){event.preventDefault();last.focus();}
+      else if(first&&last&&!event.shiftKey&&(document.activeElement===last||!drawer.contains(document.activeElement))){event.preventDefault();first.focus();}
     }
   });
   var doorAlert = document.getElementById('door-alert');
@@ -1079,38 +1082,22 @@
   });
   if (doorAlert && window.EventSource) {
     var seenDoorEvents = {};
-    var doorAlertDuration = 30000;
-    var doorAlertDeadline = 0;
-    var doorAlertTimer = null;
-    var doorAlertProgressTimer = null;
     var doorAlertHistoryEntry = false;
+    var doorAlertReturnFocus = null;
     var doorAlertClose = document.getElementById('door-alert-close');
     var doorAlertImage = document.getElementById('door-alert-snapshot');
     var doorAlertClip = document.getElementById('door-alert-clip');
-    var doorAlertProgress = document.getElementById('door-alert-progress');
-    var doorAlertRemaining = document.getElementById('door-alert-remaining');
 
     function dismissDoorAlert(fromHistory) {
       if (doorAlert.hidden) return;
       doorAlert.hidden = true;
       doorAlertImage.removeAttribute('src');
-      window.clearTimeout(doorAlertTimer);
-      window.clearInterval(doorAlertProgressTimer);
-      doorAlertTimer = null;
-      doorAlertProgressTimer = null;
+      if (doorAlertReturnFocus && doorAlertReturnFocus.focus && document.documentElement.contains(doorAlertReturnFocus)) doorAlertReturnFocus.focus({ preventScroll: true });
+      doorAlertReturnFocus = null;
       if (!fromHistory && doorAlertHistoryEntry) {
         doorAlertHistoryEntry = false;
         window.history.back();
       }
-    }
-
-    function updateDoorAlertProgress() {
-      var remaining = Math.max(0, doorAlertDeadline - Date.now());
-      var seconds = Math.ceil(remaining / 1000);
-      doorAlertProgress.setAttribute('aria-valuenow', String(seconds));
-      doorAlertProgress.firstElementChild.style.width = (remaining / doorAlertDuration * 100) + '%';
-      doorAlertRemaining.textContent = 'Closing in ' + seconds + (seconds === 1 ? ' second' : ' seconds');
-      if (remaining <= 0) dismissDoorAlert(false);
     }
 
     var doorStream = new EventSource(isKiosk ? '/kiosk/frigate/events/stream' : '/api/frigate/events/stream');
@@ -1133,18 +1120,13 @@
         doorAlertImage.src = event.snapshot || '';
         doorAlertClip.href = event.clip_url || '#';
         if (doorAlert.hidden) {
+          doorAlertReturnFocus = document.activeElement === document.body ? document.getElementById('open-settings') : document.activeElement;
           doorAlert.hidden = false;
           try {
             window.history.pushState({ doorAlert: true }, '', window.location.href);
             doorAlertHistoryEntry = true;
           } catch (_) {}
         }
-        window.clearTimeout(doorAlertTimer);
-        window.clearInterval(doorAlertProgressTimer);
-        doorAlertDeadline = Date.now() + doorAlertDuration;
-        updateDoorAlertProgress();
-        doorAlertProgressTimer = window.setInterval(updateDoorAlertProgress, 200);
-        doorAlertTimer = window.setTimeout(function () { dismissDoorAlert(false); }, doorAlertDuration);
         doorAlertClose.focus({ preventScroll: true });
       } catch (_) {}
     });
@@ -1156,6 +1138,12 @@
       }
     });
     document.addEventListener('keydown', function (event) {
+      if (!doorAlert.hidden && event.key === 'Tab') {
+        var focusable = doorAlert.querySelectorAll('a[href],button:not([disabled]),[tabindex]:not([tabindex="-1"])');
+        var first = focusable[0], last = focusable[focusable.length - 1];
+        if (first && last && event.shiftKey && (document.activeElement === first || !doorAlert.contains(document.activeElement))) { event.preventDefault(); last.focus(); }
+        else if (first && last && !event.shiftKey && (document.activeElement === last || !doorAlert.contains(document.activeElement))) { event.preventDefault(); first.focus(); }
+      }
       if (!doorAlert.hidden && ['Escape', 'Backspace', 'BrowserBack', 'GoBack', 'Back'].includes(event.key)) {
         event.preventDefault();
         event.stopPropagation();
