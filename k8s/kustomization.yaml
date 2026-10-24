@@ -13,4 +13,3 @@ resources:
   - family-dashboard-calendar.sealed.yaml
   - family-dashboard-travel.sealed.yaml
   - family-dashboard-frigate.sealed.yaml
-  - cluster-regcred.sealed.yaml
