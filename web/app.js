@@ -181,15 +181,54 @@
     fitAnnouncementMessage();
   }
 
+  function announcementMessageFits() {
+    var bounds = announcementScreenMessage.getBoundingClientRect();
+    var range = document.createRange();
+    range.selectNodeContents(announcementScreenMessage);
+    var fragments = range.getClientRects();
+    var verticalFit = fragments.length > 0;
+    for (var i = 0; i < fragments.length; i += 1) {
+      if (fragments[i].top < bounds.top - 1 || fragments[i].bottom > bounds.bottom + 1) {
+        verticalFit = false;
+        break;
+      }
+    }
+    if (!fragments.length) verticalFit = announcementScreenMessage.scrollHeight <= announcementScreenMessage.clientHeight + 1;
+    return verticalFit && announcementScreenMessage.scrollWidth <= announcementScreenMessage.clientWidth + 1;
+  }
+
   function fitAnnouncementMessage() {
     if (!announcementScreenMessage || announcementScreen.hidden) return;
     for (var size = 1; size <= 15; size += 1) announcementScreenMessage.classList.remove('fit-' + size);
+    var onlyParagraph = announcementScreenMessage.children.length === 1 && announcementScreenMessage.firstElementChild.tagName === 'P' && announcementScreenMessage.firstElementChild.childNodes.length === 1 && announcementScreenMessage.firstElementChild.firstChild.nodeType === 3;
+    var plainText = onlyParagraph ? announcementScreenMessage.textContent.trim() : '';
+    var canvas = plainText ? document.createElement('canvas') : null;
+    var measure = canvas && canvas.getContext ? canvas.getContext('2d') : null;
+    var largestFit = 0;
+    var largestSingleLine = 0;
+    var largestSingleLineSize = 0;
     for (var candidate = 1; candidate <= 15; candidate += 1) {
       announcementScreenMessage.classList.add('fit-' + candidate);
-      if (announcementScreenMessage.scrollHeight <= announcementScreenMessage.clientHeight + 1 && announcementScreenMessage.scrollWidth <= announcementScreenMessage.clientWidth + 1) return;
+      var fits = announcementMessageFits();
+      if (fits && !largestFit) largestFit = candidate;
+      if (fits && !plainText) return;
+      if (fits && measure) {
+        var computed = window.getComputedStyle(announcementScreenMessage);
+        measure.font = computed.fontWeight + ' ' + computed.fontSize + ' ' + computed.fontFamily;
+        var letterSpacing = parseFloat(computed.letterSpacing);
+        var textWidth = measure.measureText(plainText).width + (isFinite(letterSpacing) ? letterSpacing * Math.max(0, plainText.length - 1) : 0);
+        if (textWidth <= announcementScreenMessage.clientWidth + 1) {
+          largestSingleLine = candidate;
+          largestSingleLineSize = parseFloat(computed.fontSize);
+          announcementScreenMessage.classList.remove('fit-' + candidate);
+          break;
+        }
+      }
       announcementScreenMessage.classList.remove('fit-' + candidate);
     }
-    announcementScreenMessage.classList.add('fit-15');
+    var chosen = largestFit;
+    if (largestSingleLine && largestSingleLineSize >= Math.min(window.innerWidth, window.innerHeight) * 0.13) chosen = largestSingleLine;
+    announcementScreenMessage.classList.add('fit-' + (chosen || 15));
   }
 
   function applyAnnouncement(message) {

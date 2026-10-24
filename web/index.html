@@ -13,13 +13,13 @@
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/icons/family-hq-192.png">
   <script src="/theme.js?v=4"></script>
-  <link rel="stylesheet" href="/style.css?v=42">
+  <link rel="stylesheet" href="/style.css?v=43">
   <script defer referrerpolicy="no-referrer"
     src="https://telemetry.wayl.one/assets/faro-bootstrap.js"
     data-faro-app="family-dashboard"
     data-faro-version="performance-signals-1"
     data-faro-environment="production"></script>
-  <script src="/app.js?v=42" defer></script>
+  <script src="/app.js?v=43" defer></script>
   {{if .DevMode}}<script src="/dev-reload.js" defer></script>{{end}}
   <noscript><style>
     .feature-pane[hidden]{display:flex!important}
@@ -83,6 +83,7 @@
           {{if .TomorrowWeather.Available}}
           <div class="overnight-weather-main"><svg class="icon"><use href="#i-{{.TomorrowWeather.Icon}}" xlink:href="#i-{{.TomorrowWeather.Icon}}"/></svg><strong>{{.TomorrowWeather.High}}</strong><span>high</span><strong>{{.TomorrowWeather.Low}}</strong><span>low</span></div>
           <p class="overnight-weather-condition">{{.TomorrowWeather.Condition}} <span>·</span> {{.TomorrowWeather.Rain}}</p>
+          <p class="overnight-wear"><strong>What to wear</strong><span>{{.TomorrowWeather.Wear}}</span></p>
           {{else}}<p class="overnight-empty">Tomorrow’s forecast isn’t available.</p>{{end}}
         </section>
       </div>

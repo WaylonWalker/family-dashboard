@@ -38,6 +38,7 @@ type tomorrowWeather struct {
 	Low       string
 	Condition string
 	Rain      string
+	Wear      string
 	Icon      string
 }
 type weatherFeed struct {
@@ -206,7 +207,8 @@ func weatherForTomorrow(weather weatherView, tomorrow time.Time, loc *time.Locat
 	if len(slots) == 0 {
 		return tomorrowWeather{}
 	}
-	high, low, rain := slots[0].TempValue, slots[0].TempValue, 0.0
+	high, low := slots[0].TempValue, slots[0].TempValue
+	feelsLow, strongestWind, rainChance, rainAmount, snowAmount := slots[0].FeelsValue, 0.0, 0.0, 0.0, 0.0
 	condition := slots[0]
 	conditionDistance := 24 * time.Hour
 	for _, slot := range slots {
@@ -216,9 +218,11 @@ func weatherForTomorrow(weather weatherView, tomorrow time.Time, loc *time.Locat
 		if slot.TempValue < low {
 			low = slot.TempValue
 		}
-		if slot.PopValue > rain {
-			rain = slot.PopValue
-		}
+		feelsLow = math.Min(feelsLow, slot.FeelsValue)
+		strongestWind = math.Max(strongestWind, slot.WindValue)
+		rainChance = math.Max(rainChance, slot.PopValue)
+		rainAmount = math.Max(rainAmount, slot.RainValue)
+		snowAmount = math.Max(snowAmount, slot.SnowValue)
 		daytimeDistance := time.Duration(math.Abs(float64(slot.At.In(loc).Hour()-15))) * time.Hour
 		if daytimeDistance < conditionDistance {
 			condition, conditionDistance = slot, daytimeDistance
@@ -229,7 +233,8 @@ func weatherForTomorrow(weather weatherView, tomorrow time.Time, loc *time.Locat
 		High:      fmt.Sprintf("%.0f°", high),
 		Low:       fmt.Sprintf("%.0f°", low),
 		Condition: condition.Condition,
-		Rain:      fmt.Sprintf("%d%% rain", int(math.Round(math.Min(1, math.Max(0, rain))*100))),
+		Rain:      fmt.Sprintf("%d%% rain", int(math.Round(math.Min(1, math.Max(0, rainChance))*100))),
+		Wear:      clothing(feelsLow, strongestWind, rainChance, rainAmount, snowAmount),
 		Icon:      condition.Icon,
 	}
 }

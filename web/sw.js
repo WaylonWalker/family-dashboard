@@ -1,12 +1,12 @@
 /* Cache versioned public assets locally for kiosk displays; never cache private HTML or API data. */
 (function () {
   'use strict';
-  var CACHE_NAME = 'family-hq-static-v11';
+  var CACHE_NAME = 'family-hq-static-v12';
   var CACHE_PREFIX = 'family-hq-static-';
   var ASSETS = [
-    '/style.css?v=42',
+    '/style.css?v=43',
     '/theme.js?v=2',
-    '/app.js?v=42',
+    '/app.js?v=43',
     '/icons/family-hq.svg',
     '/icons/family-hq-192.png',
     '/icons/family-hq-512.png',
