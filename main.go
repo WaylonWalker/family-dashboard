@@ -30,6 +30,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -591,7 +592,7 @@ func (a *app) updateAnnouncement(message string) error {
 	return nil
 }
 
-func (a *app) updateKioskDisplay(action string) error {
+func (a *app) updateKioskDisplay(action string) (string, int, error) {
 	a.frigateMu.Lock()
 	defer a.frigateMu.Unlock()
 	previousPanel, previousLive, previousCamera := a.viewPanel, a.liveCamera, a.cameraIndex
@@ -636,12 +637,13 @@ func (a *app) updateKioskDisplay(action string) error {
 		event.Action = "live-close"
 		event.Panel = a.viewPanel
 	default:
-		return errors.New("unsupported kiosk display action")
+		return "", 0, errors.New("unsupported kiosk display action")
 	}
 	if err := a.saveAnnouncementLocked(a.announcement); err != nil {
 		a.viewPanel, a.liveCamera, a.cameraIndex = previousPanel, previousLive, previousCamera
-		return err
+		return "", 0, err
 	}
+	queued := 0
 	for client := range a.frigateClients {
 		select {
 		case client <- event:
@@ -655,8 +657,9 @@ func (a *app) updateKioskDisplay(action string) error {
 			default:
 			}
 		}
+		queued++
 	}
-	return nil
+	return event.ID, queued, nil
 }
 
 func (a *app) page(now time.Time) Page {
@@ -1215,12 +1218,25 @@ func (a *app) setKioskDisplay(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "unsupported kiosk display action", http.StatusBadRequest)
 		return
 	}
-	if err := a.updateKioskDisplay(action); err != nil {
+	commandID, connectedKiosks, err := a.updateKioskDisplay(action)
+	span := trace.SpanFromContext(r.Context())
+	span.SetAttributes(
+		attribute.String("kiosk.command.id", commandID),
+		attribute.String("kiosk.command.action", action),
+		attribute.Int("kiosk.connected_streams", connectedKiosks),
+		attribute.Int("kiosk.commands_queued", connectedKiosks),
+	)
+	if err != nil {
+		span.SetStatus(codes.Error, "could not save kiosk display state")
 		http.Error(w, "could not save kiosk display state", http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	_, _ = fmt.Fprint(w, `{"ok":true}`)
+	_ = json.NewEncoder(w).Encode(struct {
+		OK              bool   `json:"ok"`
+		CommandID       string `json:"command_id"`
+		ConnectedKiosks int    `json:"connected_kiosks"`
+	}{OK: true, CommandID: commandID, ConnectedKiosks: connectedKiosks})
 }
 
 func (a *app) publishDashboardRefresh() {

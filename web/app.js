@@ -92,7 +92,20 @@
         if (!response.ok) throw new Error(response.status === 403 ? 'Management or kiosk access expired.' : 'Could not control the displays. Try again.');
         return response.json();
       })
-      .then(function (data) { if (status) status.textContent = 'Command sent to every kiosk.'; return data; })
+      .then(function (data) {
+        recordTelemetry('kiosk_control_queued', {
+          action: action,
+          command_id: data.command_id || '',
+          connected_kiosks: Number(data.connected_kiosks || 0)
+        });
+        if (status) {
+          var connected = Number(data.connected_kiosks || 0);
+          status.textContent = connected > 0
+            ? 'Queued for ' + connected + ' connected kiosk' + (connected === 1 ? '' : 's') + '.'
+            : 'No kiosk is connected right now. Saved to sync when kiosks reconnect.';
+        }
+        return data;
+      })
       .catch(function (error) { if (status) status.textContent = error.message; return null; });
   }
   applyAnnouncement(body.getAttribute('data-announcement') || '');
