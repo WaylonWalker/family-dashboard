@@ -586,10 +586,39 @@ func (a *app) approvePost(w http.ResponseWriter, r *http.Request) {
 func (a *app) devicesPage(w http.ResponseWriter, r *http.Request) {
 	securityHeaders(w)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	type deviceView struct {
+		deviceRecord
+		Status    string
+		CanRevoke bool
+	}
+	devices := a.devices.list()
+	viewDevices := make([]deviceView, 0, len(devices))
+	activeCount, revokedCount, expiredCount := 0, 0, 0
+	now := a.now()
+	for _, device := range devices {
+		status := "active"
+		canRevoke := true
+		if device.Revoked {
+			status = "revoked"
+			canRevoke = false
+			revokedCount++
+		} else if !now.Before(device.ExpiresAt) {
+			status = "expired"
+			canRevoke = false
+			expiredCount++
+		} else {
+			activeCount++
+		}
+		viewDevices = append(viewDevices, deviceView{deviceRecord: device, Status: status, CanRevoke: canRevoke})
+	}
 	_ = a.devicesTpl.Execute(w, struct {
-		Devices []deviceRecord
-		CSRF    string
-	}{a.devices.list(), a.csrf})
+		Devices       []deviceView
+		ActiveCount   int
+		RevokedCount  int
+		ExpiredCount  int
+		InactiveCount int
+		CSRF          string
+	}{viewDevices, activeCount, revokedCount, expiredCount, revokedCount + expiredCount, a.csrf})
 }
 func (a *app) revokeDevice(w http.ResponseWriter, r *http.Request) {
 	if !a.sameOrigin(r) {

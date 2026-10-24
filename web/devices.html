@@ -7,91 +7,76 @@
   <title>Paired displays · Family HQ</title>
   <link rel="icon" href="/favicon.ico" sizes="32x32" type="image/x-icon">
   <script src="/theme.js?v=4"></script>
-  <link rel="stylesheet" href="/style.css?v=37">
-  <style>
-    .devices-shell{position:relative;z-index:1;width:min(900px,100%);margin:0 auto;padding:clamp(18px,5vw,54px) clamp(14px,4vw,28px) 40px}
-    .devices-nav{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:clamp(28px,6vw,56px)}
-    .devices-brand{display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;font-size:14px;font-weight:800;letter-spacing:-.2px}
-    .devices-brand-mark{display:grid;width:36px;height:36px;place-items:center;border-radius:11px;background:var(--accent);color:var(--surface)}
-    .devices-brand-mark .icon{width:22px;height:22px}
-    .back-link{display:inline-flex;align-items:center;gap:7px;min-height:42px;padding:7px 11px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font-size:12px;font-weight:700;text-decoration:none}
-    .back-link:hover{border-color:var(--accent)}
-    .devices-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:22px}
-    .devices-heading .eyebrow{margin-bottom:9px}
-    .devices-heading h1{margin:0;font-family:var(--heading);font-size:clamp(34px,7vw,58px);line-height:.98;letter-spacing:-.055em}
-    .devices-heading-copy{max-width:480px;margin:12px 0 0;color:var(--muted);font-size:14px;line-height:1.55}
-    .device-count{display:grid;flex:none;min-width:82px;min-height:82px;place-content:center;border:1px solid var(--line);border-radius:50%;background:var(--surface);text-align:center}
-    .device-count strong{font-size:24px;line-height:1;font-variant-numeric:tabular-nums}
-    .device-count span{margin-top:5px;color:var(--muted);font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
-    .device-list{display:grid;gap:10px}
-    .device-card{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:16px;padding:17px;border:1px solid var(--line);border-radius:var(--radius);background-color:var(--surface);background-image:var(--grain-image);background-size:384px 384px;background-blend-mode:multiply;box-shadow:var(--shadow)}
-    html[data-texture="none"] .device-card{background-image:none}
-    .device-icon{display:grid;width:48px;height:48px;place-items:center;border:1px solid var(--line);border-radius:14px;background:var(--soft);color:var(--accent)}
-    .device-icon .icon{width:24px;height:24px}
-    .device-main{min-width:0}
-    .device-title-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px}
-    .device-title-row h2{margin:0;overflow-wrap:anywhere;font-family:var(--heading);font-size:18px;line-height:1.2;letter-spacing:-.3px}
-    .device-state{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
-    .device-state::before{width:6px;height:6px;border-radius:50%;background:currentColor;content:""}
-    .device-state.active{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));color:var(--accent)}
-    .device-state.revoked{color:var(--muted)}
-    .device-meta{display:flex;flex-wrap:wrap;gap:5px 14px;margin:7px 0 0;color:var(--muted);font-size:11px;line-height:1.4}
-    .device-meta span{display:inline-flex;align-items:center;gap:5px}
-    .device-meta .icon{width:14px;height:14px}
-    .device-action{display:flex;justify-content:flex-end}
-    .revoke-button{min-height:42px;padding:9px 13px;border:1px solid #b85a4d;border-radius:10px;background:transparent;color:#a34237;font-size:12px;font-weight:800;transition:background-color .15s,color .15s,border-color .15s}
-    .revoke-button:hover{border-color:#a34237;background:#a34237;color:#fff}
-    .device-empty{display:grid;justify-items:center;gap:12px;padding:clamp(28px,7vw,58px) 20px;border:1px dashed var(--line);border-radius:var(--radius);background:color-mix(in srgb,var(--surface) 70%,transparent);text-align:center}
-    .device-empty .device-icon{width:58px;height:58px}
-    .device-empty h2{margin:0;font-family:var(--heading);font-size:20px;letter-spacing:-.3px}
-    .device-empty p{max-width:360px;margin:0;color:var(--muted);font-size:13px;line-height:1.5}
-    .devices-note{display:flex;align-items:flex-start;gap:10px;margin-top:18px;padding:13px 15px;border-left:3px solid var(--accent);border-radius:0 10px 10px 0;background:var(--soft);color:var(--muted);font-size:11px;line-height:1.5}
-    .devices-note .icon{width:17px;height:17px;flex:none;color:var(--accent)}
-    @media(max-width:560px){.devices-shell{padding-top:16px}.devices-nav{margin-bottom:36px}.devices-heading{align-items:flex-start}.device-count{min-width:65px;min-height:65px}.device-count strong{font-size:20px}.device-card{grid-template-columns:auto minmax(0,1fr);gap:12px;padding:13px}.device-icon{width:42px;height:42px;border-radius:12px}.device-main{align-self:center}.device-title-row h2{font-size:16px}.device-action{grid-column:1/-1;justify-content:stretch}.device-action form{width:100%}.revoke-button{width:100%}}
-    @media(prefers-reduced-motion:reduce){.revoke-button{transition:none}}
-  </style>
+  <link rel="stylesheet" href="/style.css?v=40">
+  <link rel="stylesheet" href="/devices.css?v=3">
+  <script src="/devices.js?v=3" defer></script>
 </head>
 <body>
   <main class="devices-shell">
     <nav class="devices-nav" aria-label="Family HQ navigation">
-      <a class="devices-brand" href="/" aria-label="Family HQ dashboard"><span class="devices-brand-mark"><svg class="icon" aria-hidden="true"><use href="#i-home"/></svg></span>Family HQ</a>
-      <a class="back-link" href="/"><svg class="icon" aria-hidden="true"><use href="#i-chevron-left"/></svg> Dashboard</a>
+      <a class="devices-brand" href="/dashboard" aria-label="Family HQ dashboard"><span class="devices-brand-mark"><svg class="icon" aria-hidden="true"><use href="#i-home"/></svg></span><span><strong>Family HQ<span class="brand-period">.</span></strong><small>Your family, in sync</small></span></a>
+      <button class="appearance-toggle" id="open-appearance" type="button" aria-controls="appearance-panel" aria-expanded="false"><svg class="icon" aria-hidden="true"><use href="#i-settings"/></svg><span>Display settings</span></button>
     </nav>
     <section aria-labelledby="page-title">
       <header class="devices-heading">
         <div>
-          <p class="eyebrow">DISPLAY ACCESS</p>
-          <h1 id="page-title">Paired photo frames</h1>
-          <p class="devices-heading-copy">Manage the displays that can open your family dashboard. Revoking access takes effect immediately.</p>
+          <p class="eyebrow">YOUR FAMILY DISPLAYS</p>
+          <h1 id="page-title">Screens around home.</h1>
+          <p class="devices-heading-copy">See what’s connected and manage which displays can open your family dashboard.</p>
         </div>
-        <div class="device-count" aria-label="{{len .Devices}} paired displays"><strong>{{len .Devices}}</strong><span>Displays</span></div>
+        <div class="device-count" aria-label="{{.ActiveCount}} active displays"><strong>{{.ActiveCount}}</strong><span>Active</span></div>
       </header>
 
+      <div class="device-summary" aria-label="Display access summary">
+        <div><span class="summary-dot active-dot"></span><strong>{{.ActiveCount}}</strong><span>Active</span></div>
+        <div><span class="summary-dot revoked-dot"></span><strong>{{.RevokedCount}}</strong><span>Revoked</span></div>
+        <div><span class="summary-dot expired-dot"></span><strong>{{.ExpiredCount}}</strong><span>Expired</span></div>
+      </div>
+
+      {{if .Devices}}<div class="device-toolbar"><div class="device-filters" role="group" aria-label="Filter displays"><button type="button" data-filter="all" aria-pressed="true">All <span>{{len .Devices}}</span></button><button type="button" data-filter="active" aria-pressed="false">Active <span>{{.ActiveCount}}</span></button><button type="button" data-filter="inactive" aria-pressed="false">Inactive <span>{{.InactiveCount}}</span></button></div><label class="device-search"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg><span class="visually-hidden">Search displays</span><input id="device-search" type="search" placeholder="Find a display" autocomplete="off"></label></div>{{end}}
+
       {{if .Devices}}
-      <div class="device-list" aria-label="Paired displays">
+      <div class="device-list" aria-label="Paired displays" id="device-list">
         {{range .Devices}}
-        <article class="device-card">
+        <article class="device-card" data-state="{{.Status}}" data-search="{{.Name}} {{.ApprovedBy}}">
           <div class="device-icon" aria-hidden="true"><svg class="icon"><use href="#i-camera"/></svg></div>
           <div class="device-main">
-            <div class="device-title-row"><h2>{{.Name}}</h2>{{if .Revoked}}<span class="device-state revoked">Revoked</span>{{else}}<span class="device-state active">Active</span>{{end}}</div>
-            <p class="device-meta"><span>Approved by {{.ApprovedBy}}</span><span><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg>{{if .Revoked}}Access ended{{else}}Expires {{.ExpiresAt.Format "Jan 2, 2006"}}{{end}}</span></p>
+            <div class="device-title-row"><h2>{{.Name}}</h2><span class="device-state {{.Status}}">{{.Status}}</span></div>
+            <p class="device-meta"><span>Added by {{.ApprovedBy}}</span><span><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg>{{if eq .Status "revoked"}}Access revoked{{else if eq .Status "expired"}}Expired {{.ExpiresAt.Format "Jan 2, 2006"}}{{else}}Expires {{.ExpiresAt.Format "Jan 2, 2006"}}{{end}}</span></p>
           </div>
-          <div class="device-action">{{if not .Revoked}}<form method="post" action="/devices/revoke"><input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="id" value="{{.ID}}"><button class="revoke-button" type="submit">Revoke access</button></form>{{end}}</div>
+          <div class="device-action">{{if .CanRevoke}}<details class="revoke-confirm"><summary>Revoke access</summary><div class="revoke-confirm-panel"><strong>Remove this display?</strong><p>It will stop loading the dashboard immediately.</p><form method="post" action="/devices/revoke"><input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="id" value="{{.ID}}"><button class="revoke-submit" type="submit">Yes, revoke</button></form></div></details>{{else}}<span class="no-action">No action needed</span>{{end}}</div>
         </article>
         {{end}}
       </div>
+      <p class="no-results" id="no-results" hidden>No displays match this view. Try another filter or search.</p>
       {{else}}
       <div class="device-empty"><div class="device-icon" aria-hidden="true"><svg class="icon"><use href="#i-camera"/></svg></div><h2>No photo frames paired</h2><p>When you pair a display with Family HQ, it will appear here so you can manage its access.</p></div>
       {{end}}
 
-      <aside class="devices-note"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg><span>Frame sessions expire automatically after 90 days. Revoking a display stops it from loading the dashboard or changing tasks.</span></aside>
+      <aside class="devices-note"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg><span>Displays expire after 90 days. Revoking access immediately blocks dashboard and task changes from that screen.</span></aside>
     </section>
   </main>
+
+  <div class="appearance-backdrop" id="appearance-backdrop" hidden></div>
+  <aside class="appearance-panel" id="appearance-panel" aria-labelledby="appearance-title" aria-modal="true" role="dialog" hidden>
+    <div class="appearance-head"><div><p class="eyebrow">MAKE IT YOURS</p><h2 id="appearance-title">Display settings</h2></div><button type="button" id="close-appearance" class="icon-button" aria-label="Close display settings">×</button></div>
+    <div class="appearance-controls">
+      <label for="theme-select">Palette</label><select id="theme-select"><option value="auto">Automatic</option><option value="everforest-dark">Everforest dark</option><option value="everforest-light">Everforest light</option><option value="kanagawa-wave">Kanagawa wave</option><option value="kanagawa-lotus">Kanagawa lotus</option><option value="catppuccin-mocha">Catppuccin mocha</option><option value="catppuccin-latte">Catppuccin latte</option><option value="gruvbox-dark">Gruvbox dark</option><option value="gruvbox-light">Gruvbox light</option><option value="nord-dark">Nord dark</option><option value="nord-light">Nord light</option></select>
+      <label for="texture-select">Surface texture</label><select id="texture-select"><option value="paper">Paper grain</option><option value="screenprint">Screenprint</option><option value="halftone">Halftone</option><option value="none">Clean / none</option></select>
+      <label for="style-select">Layout aesthetic</label><select id="style-select"><option value="balanced">Balanced · soft cards</option><option value="precision">Precision · crisp lines</option><option value="elevated">Elevated · layered cards</option><option value="brutal">Brutal · poster blocks</option><option value="minimal">Minimal · quiet layout</option></select>
+      <label for="font-select">Typography</label><select id="font-select"><option value="system">System · clear</option><option value="editorial">Editorial · warm serif</option><option value="modern">Modern · geometric</option><option value="mono">Mono · utility</option></select>
+      <button type="button" id="reset-appearance" class="reset-appearance">Reset display defaults</button>
+      <a class="dashboard-settings-link" href="/dashboard">More dashboard settings <span aria-hidden="true">↗</span></a>
+    </div>
+  </aside>
   <svg class="svg-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
     <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1zM9 21v-7h6v7"/></symbol>
     <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
     <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 7h3l1.5-2h7L17 7h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13" r="3.5"/></symbol>
     <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M10 2.8h4l.7 2.5 2 .8 2.4-1 2 3.5-1.8 1.9v2.4l1.8 1.9-2 3.5-2.4-1-.7.8-.7 2.5h-4l-.7-2.5-2-.8-2.4 1-2-3.5 1.8-1.9v-2.4L2.9 8.6l2-3.5 2.4 1 2-.8z"/><circle cx="12" cy="11.7" r="3.1"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></symbol>
   </svg>
 </body>
 </html>

@@ -27,9 +27,20 @@
   var texture = document.getElementById('texture-select');
   var font = document.getElementById('font-select');
   var style = document.getElementById('style-select');
+  var lowPowerSelect = document.getElementById('low-power-mode');
+  var lowPowerStatus = document.getElementById('low-power-status');
+  var displayPowerStatus = document.getElementById('display-power-status');
   var rotate = document.getElementById('rotate-toggle');
   var wakeLockToggle = document.getElementById('wake-lock-toggle');
   var wakeLockStatus = document.getElementById('wake-lock-status');
+  var remotePowerMode = body.getAttribute('data-remote-power-mode') || 'auto';
+  var isLowPowerMode = false;
+  var powerModeInitialized = false;
+  var eventTimesTimer = null;
+  var sensorPollTimer = null;
+  var rotationTimer = null;
+  var hintTimer = null;
+  var powerScheduleTimer = null;
   var isKiosk = body.getAttribute('data-kiosk') === 'true';
   var wideDisplay = isKiosk || (window.matchMedia ? window.matchMedia('(min-width:1200px) and (orientation:landscape)').matches : window.innerWidth >= 1200);
   var cameraCycleTimer = null;
@@ -69,19 +80,128 @@
   var announcementClear = document.getElementById('announcement-clear');
   var announcementActive = false;
 
+  function appendMarkdownInline(parent, source) {
+    var token = /(\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|\*\*([^*]+)\*\*|__([^_]+)__|~~([^~]+)~~|\*([^*\n]+)\*|_([^_\n]+)_|`([^`]+)`)/g;
+    var cursor = 0;
+    var match;
+    while ((match = token.exec(source))) {
+      if (match.index > cursor) parent.appendChild(document.createTextNode(source.slice(cursor, match.index)));
+      var element;
+      var text;
+      if (match[2] !== undefined) {
+        element = document.createElement('a');
+        element.href = match[3];
+        element.rel = 'noopener noreferrer';
+        text = match[2];
+      } else if (match[4] !== undefined || match[5] !== undefined) {
+        element = document.createElement('strong');
+        text = match[4] !== undefined ? match[4] : match[5];
+      } else if (match[6] !== undefined) {
+        element = document.createElement('del');
+        text = match[6];
+      } else if (match[7] !== undefined || match[8] !== undefined) {
+        element = document.createElement('em');
+        text = match[7] !== undefined ? match[7] : match[8];
+      } else {
+        element = document.createElement('code');
+        text = match[9];
+      }
+      element.textContent = text;
+      parent.appendChild(element);
+      cursor = token.lastIndex;
+    }
+    if (cursor < source.length) parent.appendChild(document.createTextNode(source.slice(cursor)));
+  }
+
+  function renderAnnouncementMarkdown(message) {
+    if (!announcementScreenMessage) return;
+    while (announcementScreenMessage.firstChild) announcementScreenMessage.removeChild(announcementScreenMessage.firstChild);
+    var lines = String(message || '').replace(/\r\n?/g, '\n').split('\n');
+    var paragraph = [];
+    var fencedCode = false;
+    var codeLines = [];
+    function flushCode() {
+      var pre = document.createElement('pre');
+      var code = document.createElement('code');
+      code.textContent = codeLines.join('\n');
+      pre.appendChild(code);
+      announcementScreenMessage.appendChild(pre);
+      codeLines = [];
+    }
+    function flushParagraph() {
+      if (!paragraph.length) return;
+      var block = document.createElement('p');
+      appendMarkdownInline(block, paragraph.join(' '));
+      announcementScreenMessage.appendChild(block);
+      paragraph = [];
+    }
+    lines.forEach(function (line) {
+      if (/^\s*```/.test(line)) {
+        flushParagraph();
+        if (fencedCode) flushCode();
+        fencedCode = !fencedCode;
+        return;
+      }
+      if (fencedCode) { codeLines.push(line); return; }
+      var heading = line.match(/^(#{1,3})\s+(.+)$/);
+      var bullet = line.match(/^\s*[-*+]\s+(.+)$/);
+      var ordered = line.match(/^\s*\d+[.)]\s+(.+)$/);
+      var quote = line.match(/^\s*&gt;\s?(.*)$/) || line.match(/^\s*>\s?(.*)$/);
+      if (!line.trim()) { flushParagraph(); return; }
+      if (/^\s*(---+|___+|\*\*\*+)\s*$/.test(line)) {
+        flushParagraph();
+        announcementScreenMessage.appendChild(document.createElement('hr'));
+      } else if (heading) {
+        flushParagraph();
+        var title = document.createElement(heading[1].length === 1 ? 'h2' : 'h3');
+        appendMarkdownInline(title, heading[2]);
+        announcementScreenMessage.appendChild(title);
+      } else if (bullet || ordered) {
+        flushParagraph();
+        var list = document.createElement(bullet ? 'ul' : 'ol');
+        var item = document.createElement('li');
+        appendMarkdownInline(item, (bullet || ordered)[1]);
+        list.appendChild(item);
+        announcementScreenMessage.appendChild(list);
+      } else if (quote) {
+        flushParagraph();
+        var blockquote = document.createElement('blockquote');
+        appendMarkdownInline(blockquote, quote[1]);
+        announcementScreenMessage.appendChild(blockquote);
+      } else {
+        paragraph.push(line.trim());
+      }
+    });
+    flushParagraph();
+    if (fencedCode) flushCode();
+    fitAnnouncementMessage();
+  }
+
+  function fitAnnouncementMessage() {
+    if (!announcementScreenMessage || announcementScreen.hidden) return;
+    for (var size = 1; size <= 8; size += 1) announcementScreenMessage.classList.remove('fit-' + size);
+    for (var candidate = 1; candidate <= 8; candidate += 1) {
+      announcementScreenMessage.classList.add('fit-' + candidate);
+      if (announcementScreenMessage.scrollHeight <= announcementScreenMessage.clientHeight + 1 && announcementScreenMessage.scrollWidth <= announcementScreenMessage.clientWidth + 1) return;
+      announcementScreenMessage.classList.remove('fit-' + candidate);
+    }
+    announcementScreenMessage.classList.add('fit-8');
+  }
+
   function applyAnnouncement(message) {
     announcementActive = !!message;
     var messageInput = document.getElementById('announcement-message');
     if (messageInput && document.activeElement !== messageInput) messageInput.value = message || '';
     if (isKiosk && announcementScreen) {
-      announcementScreenMessage.textContent = message || '';
       announcementScreen.hidden = !message;
+      renderAnnouncementMarkdown(message || '');
     }
     if (announcementStatus) {
       announcementStatus.textContent = message ? 'Showing on all kiosks: “' + message + '”' : 'No active announcement';
       announcementClear.hidden = !message;
     }
   }
+  window.addEventListener('resize', fitAnnouncementMessage);
   function sendKioskDisplayAction(action, status) {
     var fields = new URLSearchParams();
     fields.set('csrf', body.getAttribute('data-csrf') || '');
@@ -98,9 +218,15 @@
           command_id: data.command_id || '',
           connected_kiosks: Number(data.connected_kiosks || 0)
         });
+        if (data.power_mode) {
+          remotePowerMode = data.power_mode;
+          if (isKiosk) applyLowPowerMode();
+        }
         if (status) {
           var connected = Number(data.connected_kiosks || 0);
-          status.textContent = connected > 0
+          status.textContent = data.power_mode
+            ? (data.power_mode === 'low-power' ? 'Dimmed by phone control' : data.power_mode === 'awake' ? 'Kept bright by phone control' : 'Schedule · 10:00 p.m.–6:30 a.m.') + (connected > 0 ? ' · queued for ' + connected + ' display' + (connected === 1 ? '' : 's') + '.' : ' · saved for reconnecting displays.')
+            : connected > 0
             ? 'Queued for ' + connected + ' connected kiosk' + (connected === 1 ? '' : 's') + '.'
             : 'No kiosk is connected right now. Saved to sync when kiosks reconnect.';
         }
@@ -181,6 +307,7 @@
   texture.value = allowed(read('texture', 'paper'), ['paper','screenprint','halftone','none'], 'paper');
   font.value = allowed(read('font', 'system'), ['system','editorial','modern','mono'], 'system');
   style.value = allowed(read('style', 'balanced'), ['balanced','precision','elevated','brutal','minimal'], 'balanced');
+  if (lowPowerSelect) lowPowerSelect.value = allowed(read('low-power', 'auto'), ['auto','always','never'], 'auto');
   rotate.checked = read('rotate', 'true') !== 'false';
   wakeLockToggle.checked = read('keep-awake', isKiosk ? 'true' : 'false') === 'true';
 
@@ -249,6 +376,7 @@
     }
   });
   document.addEventListener('visibilitychange', function () {
+    applyLowPowerMode();
     if (document.hidden) {
       if (wakeLockRetryTimer !== null) window.clearTimeout(wakeLockRetryTimer);
       wakeLockRetryTimer = null;
@@ -314,9 +442,11 @@
   texture.addEventListener('change', function () { save('texture',texture.value); applyTheme(); });
   font.addEventListener('change', function () { save('font',font.value); applyTheme(); });
   style.addEventListener('change', function () { save('style',style.value); applyTheme(); });
+  if (lowPowerSelect) lowPowerSelect.addEventListener('change', function () { save('low-power', lowPowerSelect.value); applyLowPowerMode(); });
   rotate.addEventListener('change', function () { save('rotate',String(rotate.checked)); refreshHint(); });
   document.getElementById('reset-settings').addEventListener('click', function () {
     theme.value='auto'; texture.value='paper'; font.value='system'; style.value='balanced'; rotate.checked=true; wakeLockToggle.checked=isKiosk;
+    if (lowPowerSelect) { lowPowerSelect.value='auto'; save('low-power','auto'); applyLowPowerMode(); }
     save('theme','auto');save('texture','paper');save('font','system');save('style','balanced');save('rotate','true');save('keep-awake',String(isKiosk));releaseWakeLock();wakeLockStatus.textContent=isKiosk?'Requesting screen wake lock…':'Off · screen sleep follows Fire TV settings.';if(isKiosk)requestWakeLock();applyTheme();refreshHint();
   });
   applyTheme();
@@ -415,9 +545,63 @@
   updateClock();
   refreshHeaderSensors();
   updateEventTimes();
-  window.setInterval(updateEventTimes, 1000);
+  applyLowPowerMode();
+  powerScheduleTimer = window.setInterval(applyLowPowerMode, 60000);
   window.setInterval(function () { if (theme.value === 'auto') applyTheme(); updateClock(); }, 60000);
-  window.setInterval(refreshHeaderSensors, 60000);
+
+  function configurePowerTimers() {
+    if (eventTimesTimer !== null) window.clearInterval(eventTimesTimer);
+    if (sensorPollTimer !== null) window.clearInterval(sensorPollTimer);
+    if (rotationTimer !== null) window.clearInterval(rotationTimer);
+    if (hintTimer !== null) window.clearInterval(hintTimer);
+    eventTimesTimer = window.setInterval(updateEventTimes, isLowPowerMode ? 60000 : 1000);
+    sensorPollTimer = window.setInterval(refreshHeaderSensors, isLowPowerMode ? 300000 : 60000);
+    if (!isLowPowerMode) rotationTimer = window.setInterval(rotationTick, 1000);
+    hintTimer = window.setInterval(refreshHint, isLowPowerMode ? 10000 : 1000);
+  }
+
+  function applyLowPowerMode() {
+    var now = new Date();
+    var minutes = now.getHours() * 60 + now.getMinutes();
+    var inSchedule = minutes >= 22 * 60 || minutes < 6 * 60 + 30;
+    var localMode = lowPowerSelect ? lowPowerSelect.value : 'auto';
+    var next = isKiosk && (remotePowerMode === 'low-power' || (remotePowerMode !== 'awake' && (localMode === 'always' || (localMode === 'auto' && inSchedule))));
+    var changed = next !== isLowPowerMode;
+    if (!changed && powerModeInitialized) return;
+    powerModeInitialized = true;
+    isLowPowerMode = next;
+    root.setAttribute('data-low-power', next ? 'true' : 'false');
+    body.classList.toggle('low-power-mode', next);
+    if (changed) {
+      resetRotationProgress();
+      if (next) {
+        if (active === 2) show(0, true);
+        if (!remoteCameraOverlay.hidden) closeRemoteCamera();
+      }
+    }
+    configurePowerTimers();
+    if (lowPowerStatus) {
+      lowPowerStatus.textContent = remotePowerMode === 'low-power'
+        ? 'Phone control is dimming this display. Messages and alerts stay bright.'
+        : remotePowerMode === 'awake'
+          ? 'Phone control is keeping this display bright.'
+          : next
+            ? 'Low power is active. Messages and alerts stay bright.'
+            : 'Automatic mode dims this display from 10:00 p.m. to 6:30 a.m.';
+    }
+    if (displayPowerStatus) {
+      displayPowerStatus.textContent = remotePowerMode === 'low-power'
+        ? 'Dimmed by phone control'
+        : remotePowerMode === 'awake'
+          ? 'Kept bright by phone control'
+          : 'Schedule · 10:00 p.m.–6:30 a.m.';
+    }
+  }
+
+  function updateUrgentBrightness() {
+    var door = document.getElementById('door-alert');
+    body.classList.toggle('alert-bright', (!sensorPane.hidden) || (door && !door.hidden));
+  }
 
   function resetRotationProgress() {
     rotationStartedAt = 0;
@@ -976,8 +1160,8 @@
         grid.setAttribute('data-live-cameras', 'true');
         showCameraGrid(cameraIndex);
         startCameraProgress();
-        cameraSnapshotTimer = window.setInterval(refreshCameraSnapshots, 2000);
-        if (cameraList.length > 4) {
+        cameraSnapshotTimer = window.setInterval(refreshCameraSnapshots, isLowPowerMode ? 30000 : 2000);
+        if (cameraList.length > 4 && !isLowPowerMode) {
           grid.setAttribute('data-camera-cycle', 'true');
           var generation = cameraSessionGeneration;
           cameraWarmTimer = window.setTimeout(function () { prepareNextCameraGroup(generation); }, 27000);
@@ -1136,9 +1320,9 @@
   /* Do not yank a form away while the user is typing or checking tasks. */
   panel.addEventListener('focusin',function () { pause(); });
   panel.addEventListener('click',function () { pause(); });
-  window.setInterval(function () {
+  function rotationTick() {
     var now = Date.now();
-    var blocked = !rotate.checked || now < holdUntil || document.hidden || !drawer.hidden || !remoteCameraOverlay.hidden || document.getElementById('feature-panel').classList.contains('sensor-alert-active');
+    var blocked = isLowPowerMode || !rotate.checked || now < holdUntil || document.hidden || !drawer.hidden || !remoteCameraOverlay.hidden || document.getElementById('feature-panel').classList.contains('sensor-alert-active');
     if (!blocked && panel.contains(document.activeElement) && document.activeElement !== body) blocked = true;
     if (blocked) { resetRotationProgress(); return; }
     if (!rotationStartedAt) rotationStartedAt = now;
@@ -1160,8 +1344,7 @@
       rotationProgress.setAttribute('aria-valuenow', '0');
       rotationProgress.setAttribute('aria-valuetext', '30 seconds until next panel');
     }
-  },100);
-  window.setInterval(refreshHint,1000);
+  }
   /* Retain the currently selected tasks pane after a task form POST / redirect. */
   panel.addEventListener('submit',function (event) {
     var target = event.target;
@@ -1218,6 +1401,7 @@
     sensorRefreshTimer = null;
     sensorImageURL = '';
     sensorPane.hidden = true;
+    updateUrgentBrightness();
     document.querySelector('.feature-tabs').hidden = false;
     document.getElementById('feature-prev').hidden = false;
     document.getElementById('feature-next').hidden = false;
@@ -1236,6 +1420,7 @@
     document.getElementById('feature-next').hidden = true;
     panes.forEach(function (pane) { pane.hidden = true; });
     sensorPane.hidden = false;
+    updateUrgentBrightness();
     name.textContent = event.kind === 'water' ? 'Water detected' : 'Freezer temperature';
     document.getElementById('sensor-alert-kicker').textContent = event.severity === 'test' ? 'DASHBOARD · TEST PREVIEW' : event.kind === 'water' ? 'WATER SENSOR · ALERT' : 'FREEZER · ' + (event.severity || 'ALERT').toUpperCase();
     document.getElementById('sensor-alert-title').textContent = event.kind === 'water' ? 'Water detected in the basement' : 'Freezer temperature alert';
@@ -1264,6 +1449,7 @@
     function dismissDoorAlert(fromHistory) {
       if (doorAlert.hidden) return;
       doorAlert.hidden = true;
+      updateUrgentBrightness();
       doorAlertImage.removeAttribute('src');
       if (doorAlertReturnFocus && doorAlertReturnFocus.focus && document.documentElement.contains(doorAlertReturnFocus)) doorAlertReturnFocus.focus({ preventScroll: true });
       doorAlertReturnFocus = null;
@@ -1274,8 +1460,13 @@
     }
 
     function handleRemoteControl(action, event) {
-      if (!isKiosk) return;
       event = event || {};
+      if (event.power_mode === 'auto' || event.power_mode === 'low-power' || event.power_mode === 'awake') {
+        remotePowerMode = event.power_mode;
+        if (isKiosk) applyLowPowerMode();
+        if (displayPowerStatus) displayPowerStatus.textContent = remotePowerMode === 'low-power' ? 'Dimmed by phone control' : remotePowerMode === 'awake' ? 'Kept bright by phone control' : 'Schedule · 10:00 p.m.–6:30 a.m.';
+      }
+      if (!isKiosk) return;
       var commandId = event.command_id || event.id || '';
       var receivedAt = window.performance && window.performance.now ? window.performance.now() : Date.now();
       var receiveTelemetry = { action: action, command_id: commandId };
@@ -1284,6 +1475,16 @@
       if (bridgeReceivedAt > 0) receiveTelemetry.bridge_to_browser_ms = Date.now() - bridgeReceivedAt;
       if (serverReceivedAt > 0) receiveTelemetry.server_to_browser_ms = Date.now() - serverReceivedAt;
       recordTelemetry('remote_control_received', receiveTelemetry);
+      if (action === 'low-power-set') {
+        if (remotePowerMode === 'low-power') {
+          if (!remoteCameraOverlay.hidden) closeRemoteCamera();
+          var staticPanelIndex = ['weather','tasks','cameras'].indexOf(event.panel || 'weather');
+          if (staticPanelIndex === 2) staticPanelIndex = 0;
+          if (active !== staticPanelIndex) show(staticPanelIndex < 0 ? 0 : staticPanelIndex, true);
+        }
+        recordApplied();
+        return;
+      }
       function recordApplied() {
         var afterFrame = function () {
           var appliedAt = window.performance && window.performance.now ? window.performance.now() : Date.now();
@@ -1401,6 +1602,7 @@
         if (doorAlert.hidden) {
           doorAlertReturnFocus = document.activeElement === document.body ? document.getElementById('open-settings') : document.activeElement;
           doorAlert.hidden = false;
+          updateUrgentBrightness();
           try {
             window.history.pushState({ doorAlert: true }, '', window.location.href);
             doorAlertHistoryEntry = true;
@@ -1455,8 +1657,9 @@
   }
   document.querySelectorAll('[data-kiosk-action]').forEach(function (button) {
     button.addEventListener('click', function () {
-      var status = document.getElementById('display-control-status');
-      sendKioskDisplayAction(button.getAttribute('data-kiosk-action'), status).catch(function () {});
+      var action = button.getAttribute('data-kiosk-action');
+      var status = action.indexOf('low-power-') === 0 ? document.getElementById('display-power-status') : document.getElementById('display-control-status');
+      sendKioskDisplayAction(action, status).catch(function () {});
     });
   });
   refreshHint();

@@ -355,6 +355,7 @@ type Page struct {
 	CanManageTravel bool
 	CanManage       bool
 	Announcement    string
+	LowPowerMode    string
 	ViewPanel       string
 	LiveCamera      bool
 	CameraIndex     int
@@ -397,6 +398,7 @@ type app struct {
 	frigateActive    map[string]frigateEvent
 	announcement     string
 	announcementFile string
+	lowPowerMode     string
 	viewPanel        string
 	liveCamera       bool
 	cameraIndex      int
@@ -422,6 +424,7 @@ type frigateEvent struct {
 	Message            string  `json:"message,omitempty"`
 	Panel              string  `json:"panel,omitempty"`
 	CameraIndex        int     `json:"camera_index,omitempty"`
+	PowerMode          string  `json:"power_mode,omitempty"`
 }
 
 type frigateConfig struct {
@@ -489,7 +492,7 @@ func newApp(path string) (*app, error) {
 	if announcementFile == "" {
 		announcementFile = filepath.Join(filepath.Dir(path), "announcement.json")
 	}
-	a := &app{store: store, tmpl: tpl, csrf: newID(), tz: tz, now: time.Now, calendar: feed, schoolCalendar: schoolCalendar, weather: weather, travelRules: travelRules, travelReviews: travelReviews, devMode: os.Getenv("FAMILY_DASHBOARD_DEV_MODE") == "1", devVersion: newID(), frigateClients: make(map[chan frigateEvent]struct{}), frigateToken: strings.TrimSpace(os.Getenv("FRIGATE_EVENT_TOKEN")), frigateActive: make(map[string]frigateEvent), announcementFile: announcementFile, viewPanel: "weather"}
+	a := &app{store: store, tmpl: tpl, csrf: newID(), tz: tz, now: time.Now, calendar: feed, schoolCalendar: schoolCalendar, weather: weather, travelRules: travelRules, travelReviews: travelReviews, devMode: os.Getenv("FAMILY_DASHBOARD_DEV_MODE") == "1", devVersion: newID(), frigateClients: make(map[chan frigateEvent]struct{}), frigateToken: strings.TrimSpace(os.Getenv("FRIGATE_EVENT_TOKEN")), frigateActive: make(map[string]frigateEvent), announcementFile: announcementFile, lowPowerMode: "auto", viewPanel: "weather"}
 	if err := a.loadAnnouncement(); err != nil {
 		return nil, err
 	}
@@ -512,10 +515,11 @@ func (a *app) loadAnnouncement() error {
 		return fmt.Errorf("read announcement: %w", err)
 	}
 	var state struct {
-		Message     string `json:"message"`
-		Panel       string `json:"panel"`
-		LiveCamera  bool   `json:"live_camera"`
-		CameraIndex int    `json:"camera_index"`
+		Message      string `json:"message"`
+		Panel        string `json:"panel"`
+		LiveCamera   bool   `json:"live_camera"`
+		CameraIndex  int    `json:"camera_index"`
+		LowPowerMode string `json:"low_power_mode"`
 	}
 	if err := json.Unmarshal(data, &state); err != nil {
 		return fmt.Errorf("decode announcement: %w", err)
@@ -528,6 +532,9 @@ func (a *app) loadAnnouncement() error {
 	if state.CameraIndex >= 0 && state.CameraIndex < 10000 {
 		a.cameraIndex = state.CameraIndex
 	}
+	if state.LowPowerMode == "auto" || state.LowPowerMode == "low-power" || state.LowPowerMode == "awake" {
+		a.lowPowerMode = state.LowPowerMode
+	}
 	return nil
 }
 
@@ -536,11 +543,12 @@ func (a *app) saveAnnouncementLocked(message string) error {
 		return err
 	}
 	data, err := json.Marshal(struct {
-		Message     string `json:"message"`
-		Panel       string `json:"panel"`
-		LiveCamera  bool   `json:"live_camera"`
-		CameraIndex int    `json:"camera_index"`
-	}{Message: message, Panel: a.viewPanel, LiveCamera: a.liveCamera, CameraIndex: a.cameraIndex})
+		Message      string `json:"message"`
+		Panel        string `json:"panel"`
+		LiveCamera   bool   `json:"live_camera"`
+		CameraIndex  int    `json:"camera_index"`
+		LowPowerMode string `json:"low_power_mode"`
+	}{Message: message, Panel: a.viewPanel, LiveCamera: a.liveCamera, CameraIndex: a.cameraIndex, LowPowerMode: a.lowPowerMode})
 	if err != nil {
 		return err
 	}
@@ -595,7 +603,7 @@ func (a *app) updateAnnouncement(message string) error {
 func (a *app) updateKioskDisplay(action string) (string, int, error) {
 	a.frigateMu.Lock()
 	defer a.frigateMu.Unlock()
-	previousPanel, previousLive, previousCamera := a.viewPanel, a.liveCamera, a.cameraIndex
+	previousPanel, previousLive, previousCamera, previousPower := a.viewPanel, a.liveCamera, a.cameraIndex, a.lowPowerMode
 	event := frigateEvent{ID: "display-" + newID(), Kind: "remote-control"}
 	switch action {
 	case "panel-weather", "panel-tasks", "panel-cameras":
@@ -636,11 +644,29 @@ func (a *app) updateKioskDisplay(action string) (string, int, error) {
 		a.liveCamera = false
 		event.Action = "live-close"
 		event.Panel = a.viewPanel
+	case "low-power-on":
+		a.lowPowerMode = "low-power"
+		a.liveCamera = false
+		if a.viewPanel == "cameras" {
+			a.viewPanel = "weather"
+		}
+		event.Action = "low-power-set"
+		event.PowerMode = a.lowPowerMode
+		event.Panel = a.viewPanel
+	case "low-power-off":
+		a.lowPowerMode = "awake"
+		event.Action = "low-power-set"
+		event.PowerMode = a.lowPowerMode
+	case "low-power-auto":
+		a.lowPowerMode = "auto"
+		event.Action = "low-power-set"
+		event.PowerMode = a.lowPowerMode
 	default:
 		return "", 0, errors.New("unsupported kiosk display action")
 	}
 	if err := a.saveAnnouncementLocked(a.announcement); err != nil {
 		a.viewPanel, a.liveCamera, a.cameraIndex = previousPanel, previousLive, previousCamera
+		a.lowPowerMode = previousPower
 		return "", 0, err
 	}
 	queued := 0
@@ -973,6 +999,7 @@ func (a *app) renderPage(w http.ResponseWriter, r *http.Request, kiosk bool) {
 	pg.ViewPanel = a.viewPanel
 	pg.LiveCamera = a.liveCamera
 	pg.CameraIndex = a.cameraIndex
+	pg.LowPowerMode = a.lowPowerMode
 	a.frigateMu.Unlock()
 	if kiosk {
 		pg.TaskAction = "/kiosk/tasks"
@@ -1213,7 +1240,7 @@ func (a *app) setKioskDisplay(w http.ResponseWriter, r *http.Request) {
 	}
 	action := strings.TrimSpace(r.PostForm.Get("action"))
 	switch action {
-	case "panel-weather", "panel-tasks", "panel-cameras", "panel-next", "panel-previous", "live-open", "live-next", "live-close":
+	case "panel-weather", "panel-tasks", "panel-cameras", "panel-next", "panel-previous", "live-open", "live-next", "live-close", "low-power-on", "low-power-off", "low-power-auto":
 	default:
 		http.Error(w, "unsupported kiosk display action", http.StatusBadRequest)
 		return
@@ -1232,11 +1259,15 @@ func (a *app) setKioskDisplay(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
+	a.frigateMu.Lock()
+	powerMode := a.lowPowerMode
+	a.frigateMu.Unlock()
 	_ = json.NewEncoder(w).Encode(struct {
 		OK              bool   `json:"ok"`
 		CommandID       string `json:"command_id"`
 		ConnectedKiosks int    `json:"connected_kiosks"`
-	}{OK: true, CommandID: commandID, ConnectedKiosks: connectedKiosks})
+		PowerMode       string `json:"power_mode"`
+	}{OK: true, CommandID: commandID, ConnectedKiosks: connectedKiosks, PowerMode: powerMode})
 }
 
 func (a *app) publishDashboardRefresh() {
@@ -1535,12 +1566,12 @@ func (a *app) streamFrigateEvents(w http.ResponseWriter, r *http.Request) {
 	}
 	if a.liveCamera {
 		select {
-		case client <- frigateEvent{ID: "display-current", Kind: "remote-control", Action: "live-open", CameraIndex: a.cameraIndex, Panel: a.viewPanel}:
+		case client <- frigateEvent{ID: "display-current", Kind: "remote-control", Action: "live-open", CameraIndex: a.cameraIndex, Panel: a.viewPanel, PowerMode: a.lowPowerMode}:
 		default:
 		}
 	} else {
 		select {
-		case client <- frigateEvent{ID: "display-current", Kind: "remote-control", Action: "panel-set", Panel: a.viewPanel}:
+		case client <- frigateEvent{ID: "display-current", Kind: "remote-control", Action: "panel-set", Panel: a.viewPanel, PowerMode: a.lowPowerMode}:
 		default:
 		}
 	}
@@ -1759,6 +1790,28 @@ func (a *app) routes() http.Handler {
 		}
 		w.Header().Set("Content-Type", "text/css; charset=utf-8")
 		w.Header().Set("Cache-Control", "public, max-age=600")
+		w.Write(b)
+	})
+	mux.HandleFunc("GET /devices.css", func(w http.ResponseWriter, r *http.Request) {
+		b, err := webFS.ReadFile("web/devices.css")
+		if err != nil {
+			http.Error(w, "unavailable", 500)
+			return
+		}
+		w.Header().Set("Content-Type", "text/css; charset=utf-8")
+		w.Header().Set("Cache-Control", "public, max-age=600")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Write(b)
+	})
+	mux.HandleFunc("GET /devices.js", func(w http.ResponseWriter, r *http.Request) {
+		b, err := webFS.ReadFile("web/devices.js")
+		if err != nil {
+			http.Error(w, "unavailable", 500)
+			return
+		}
+		w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+		w.Header().Set("Cache-Control", "public, max-age=600")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Write(b)
 	})
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {

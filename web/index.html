@@ -13,13 +13,13 @@
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/icons/family-hq-192.png">
   <script src="/theme.js?v=4"></script>
-  <link rel="stylesheet" href="/style.css?v=37">
+  <link rel="stylesheet" href="/style.css?v=40">
   <script defer referrerpolicy="no-referrer"
     src="https://telemetry.wayl.one/assets/faro-bootstrap.js"
     data-faro-app="family-dashboard"
     data-faro-version="performance-signals-1"
     data-faro-environment="production"></script>
-  <script src="/app.js?v=37" defer></script>
+  <script src="/app.js?v=40" defer></script>
   {{if .DevMode}}<script src="/dev-reload.js" defer></script>{{end}}
   <noscript><style>
     .feature-pane[hidden]{display:flex!important}
@@ -29,7 +29,7 @@
     .feature-pane + .feature-pane{border-top:2px solid var(--line);margin-top:15px;padding-top:15px}
   </style></noscript>
 </head>
-<body data-weather="{{.WeatherKind}}" data-hour="{{.Hour24}}" data-kiosk="{{.KioskMode}}" data-csrf="{{.CSRF}}" data-announcement="{{.Announcement}}" data-view-panel="{{.ViewPanel}}" data-live-camera="{{.LiveCamera}}" data-camera-index="{{.CameraIndex}}">
+<body data-weather="{{.WeatherKind}}" data-hour="{{.Hour24}}" data-kiosk="{{.KioskMode}}" data-csrf="{{.CSRF}}" data-announcement="{{.Announcement}}" data-view-panel="{{.ViewPanel}}" data-live-camera="{{.LiveCamera}}" data-camera-index="{{.CameraIndex}}" data-remote-power-mode="{{.LowPowerMode}}">
   <!-- SVG symbols are embedded: no emoji fonts, CDN, or external requests required. -->
   <svg class="svg-sprite" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" focusable="false">
     <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1zM9 21v-7h6v7"/></symbol>
@@ -128,6 +128,7 @@
               <input type="hidden" name="csrf" value="{{.CSRF}}">
               <label class="visually-hidden" for="announcement-message">Announcement message</label>
               <textarea id="announcement-message" name="message" maxlength="500" placeholder="Dinner is ready…" rows="4"></textarea>
+              <p class="announcement-markdown-help">Markdown works here: **bold**, *italic*, headings, lists, and links.</p>
               <div class="announcement-actions"><span id="announcement-status" role="status">No active announcement</span><button type="submit" id="announcement-publish">Show on kiosks</button><button type="button" id="announcement-clear" class="announcement-clear" hidden>Clear message</button></div>
             </form>
             <div class="display-controls" aria-labelledby="display-controls-title">
@@ -156,7 +157,7 @@
   </div>
 
   <section class="announcement-screen" id="announcement-screen" aria-live="assertive" aria-atomic="true" hidden>
-    <div class="announcement-screen-inner"><p>Family message</p><h1 id="announcement-screen-message"></h1><span>Press the display button to clear</span></div>
+    <div class="announcement-screen-inner"><p class="announcement-kicker">Family message</p><div id="announcement-screen-message" class="announcement-message" role="heading" aria-level="1"></div><span class="announcement-instruction">Press the display button to clear</span></div>
   </section>
 
   <section class="remote-camera-overlay" id="remote-camera-overlay" aria-label="Live camera" hidden>
@@ -455,9 +456,12 @@
       <label class="setting-label" for="texture-select">Surface texture</label><select id="texture-select"><option value="paper">Paper grain</option><option value="screenprint">Screenprint</option><option value="halftone">Halftone</option><option value="none">Clean / none</option></select>
       <label class="setting-label" for="style-select">Layout aesthetic</label><select id="style-select"><option value="balanced">Balanced · soft cards</option><option value="precision">Precision · crisp lines</option><option value="elevated">Elevated · layered cards</option><option value="brutal">Brutal · poster blocks</option><option value="minimal">Minimal · quiet layout</option></select>
       <label class="setting-label" for="font-select">Typography</label><select id="font-select"><option value="system">System · clear</option><option value="editorial">Editorial · warm serif</option><option value="modern">Modern · geometric</option><option value="mono">Mono · utility</option></select>
+      {{if .KioskMode}}<label class="setting-label" for="low-power-mode">Overnight display</label><select id="low-power-mode"><option value="auto">Automatic · 10:00 p.m.–6:30 a.m.</option><option value="always">Always dim</option><option value="never">Never dim</option></select>
+      <p id="low-power-status" class="setting-helper" role="status">Dim and quiet overnight; messages and alerts stay bright.</p>{{end}}
       <div class="setting-row"><label for="rotate-toggle">Auto-rotate panels <small>Every 30 seconds. Your touch pauses it for 2 minutes.</small></label><input id="rotate-toggle" type="checkbox" checked></div>
       <div class="setting-row"><label for="wake-lock-toggle">Keep screen awake <small>Ask this browser to prevent the display from sleeping.</small></label><input id="wake-lock-toggle" type="checkbox"></div>
       <p id="wake-lock-status" class="setting-helper" role="status" aria-live="polite">Off · screen sleep follows Fire TV settings.</p>
+      {{if .CanManage}}<section class="remote-power-settings" aria-labelledby="remote-power-title"><p class="eyebrow">REMOTE DISPLAYS</p><h3 id="remote-power-title">Brightness and schedule</h3><p>Messages and door alerts always return to full brightness.</p><div class="display-button-row power-actions"><button type="button" data-kiosk-action="low-power-on">Dim displays</button><button type="button" data-kiosk-action="low-power-off">Wake displays</button><button type="button" data-kiosk-action="low-power-auto">Follow schedule</button></div><p id="display-power-status" role="status" aria-live="polite">{{if eq .LowPowerMode "low-power"}}Dimmed by phone control{{else if eq .LowPowerMode "awake"}}Kept bright by phone control{{else}}Schedule · 10:00 p.m.–6:30 a.m.{{end}}</p></section>{{end}}
       <button type="button" class="reset-button" id="reset-settings">Reset display defaults</button>
       {{if not .KioskMode}}<p class="setting-helper"><a href="/devices">Manage paired photo frames</a></p>{{end}}
     </div>

@@ -369,6 +369,8 @@ func TestPhotoFrameAssetsAndIconNames(t *testing.T) {
 	for _, tc := range []struct{ path, contentType, contains string }{
 		{"/app.js", "application/javascript", "120000"},
 		{"/style.css", "text/css", "kanagawa-wave"},
+		{"/devices.css", "text/css", ".device-card"},
+		{"/devices.js", "application/javascript", "data-filter"},
 		{"/dashboard", "text/html", "feature-window"},
 	} {
 		r := httptest.NewRecorder()
