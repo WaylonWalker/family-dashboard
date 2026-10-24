@@ -230,10 +230,6 @@ body.low-power-simplified .low-power-view{display:grid;grid-template-rows:auto a
 @media(prefers-reduced-motion:reduce){.camera-fetch-indicator.is-active{animation:none}}
 .camera-view-message{grid-column:1/-1;margin:3px 0;color:var(--muted);font-size:12px}
 @media(max-width:520px){.camera-grid{gap:5px;max-height:none;overflow:visible}}
-/* A short panel slide; disabled automatically when reduced motion is requested. */
-@keyframes panel-arrive{from{opacity:.75;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
-@media(prefers-reduced-motion:no-preference){.feature-pane.is-active{animation:panel-arrive .24s ease-out both}}
-
 .school-routine{margin:0 0 10px;padding:11px 12px;border:1px solid var(--line);border-radius:14px;background:var(--soft)}
 .school-routine-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
 .school-routine-head strong{font-size:13px}.school-routine-head span{font-size:10px;color:var(--muted)}

@@ -1373,6 +1373,10 @@
   function show(index, manual) {
     var previous = active;
     active = (index + panes.length) % panes.length;
+    if (active === previous) {
+      if (manual) pause();
+      return;
+    }
     var switchAt = Date.now();
     var completedAt = rotationProgressCompletedAt;
     recordTelemetry('feature_panel_switch', {
@@ -1385,10 +1389,16 @@
     cameraPanelShownAt = active === 2 ? switchAt : 0;
     document.getElementById('feature-panel').classList.toggle('cameras-focus',wideDisplay && active===2);
     document.querySelector('.dashboard').classList.toggle('cameras-selected',wideDisplay && active===2);
-    // Camera resources only need cleanup when leaving the camera pane. Running
-    // this on every weather/tasks/announcement change needlessly walks the
-    // camera DOM and stops players even when none were started.
-    if (previous === 2 && active !== 2) { cameraRefreshGeneration++; stopCameraRotation(); stopCameraStreams(); }
+    // Invalidate camera refreshes immediately, but let the new pane paint
+    // before stopping streams and walking camera tiles.
+    if (previous === 2 && active !== 2) {
+      cameraRefreshGeneration++;
+      window.requestAnimationFrame(function () {
+        window.requestAnimationFrame(function () {
+          if (active !== 2) { stopCameraRotation(); stopCameraStreams(); }
+        });
+      });
+    }
     for (var i=0;i<panes.length;i++) {
       var visible=i===active;
       panes[i].hidden=!visible;
