@@ -49,6 +49,13 @@
   var cameraPanelShownAt = 0;
   var lastFocus = null;
   var settingsCloseTimer = null;
+  var remoteCameraOverlay = document.getElementById('remote-camera-overlay');
+  var remoteCameraFace = document.getElementById('remote-camera-face');
+  var remoteCameraStatus = document.getElementById('remote-camera-status');
+  var remoteCameraIndex = 0;
+  var remoteCameraTimeout = null;
+  var remoteCameraCountdown = null;
+  var remoteCameraClosesAt = 0;
 
   function recordCameraTelemetry(eventName, attributes) {
     try {
@@ -936,6 +943,82 @@
       });
     });
   }
+  function showRemoteCamera(index) {
+    if (!cameraList.length) return;
+    remoteCameraIndex = (index + cameraList.length) % cameraList.length;
+    var camera = cameraList[remoteCameraIndex];
+    var previousVideo = remoteCameraFace.querySelector('video');
+    if (previousVideo) stopCameraPlayer(previousVideo);
+    remoteCameraFace.textContent = '';
+    var video = document.createElement('video');
+    video.muted = true;
+    video.defaultMuted = true;
+    video.setAttribute('muted', '');
+    video.autoplay = true;
+    video.playsInline = true;
+    video.setAttribute('aria-label', camera.replace(/[-_]/g, ' ') + ' live camera video');
+    video.poster = '/kiosk/api/essentials/cameras/' + encodeURIComponent(camera) + '/snapshot?refresh=' + Date.now();
+    var caption = document.createElement('figcaption');
+    caption.textContent = camera.replace(/[-_]/g, ' ');
+    remoteCameraFace.appendChild(video);
+    remoteCameraFace.appendChild(caption);
+    remoteCameraStatus.textContent = camera.replace(/[-_]/g, ' ') + ' · ' + (remoteCameraClosesAt ? 'closes in 30 minutes' : 'locked on');
+    if (window.MediaSource && window.WebSocket) connectCamera(video, camera);
+    else showCameraSnapshotFallback(video, camera);
+  }
+  function openRemoteCamera() {
+    if (!isKiosk || !remoteCameraOverlay) return;
+    stopCameraRotation();
+    stopCameraStreams();
+    remoteCameraOverlay.hidden = false;
+    remoteCameraClosesAt = Date.now() + 30 * 60 * 1000;
+    window.clearTimeout(remoteCameraTimeout);
+    window.clearInterval(remoteCameraCountdown);
+    remoteCameraTimeout = window.setTimeout(closeRemoteCamera, 30 * 60 * 1000);
+    remoteCameraCountdown = window.setInterval(function () {
+      if (remoteCameraClosesAt) {
+        var remaining = Math.max(0, Math.ceil((remoteCameraClosesAt - Date.now()) / 60000));
+        remoteCameraStatus.textContent = cameraList[remoteCameraIndex] ? cameraList[remoteCameraIndex].replace(/[-_]/g, ' ') + ' · closes in ' + remaining + ' min' : 'Loading camera · closes in ' + remaining + ' min';
+      }
+    }, 10000);
+    if (cameraList.length) {
+      showRemoteCamera(0);
+      return;
+    }
+    remoteCameraFace.textContent = 'Loading cameras…';
+    requestJSON('/kiosk/api/essentials/cameras', function (error, data) {
+      if (remoteCameraOverlay.hidden) return;
+      if (error || !data || !data.cameras || !data.cameras.length) {
+        remoteCameraFace.textContent = 'Cameras are unavailable.';
+        remoteCameraStatus.textContent = 'Camera unavailable';
+        return;
+      }
+      cameraList = data.cameras;
+      showRemoteCamera(0);
+    });
+  }
+  function closeRemoteCamera() {
+    if (!remoteCameraOverlay || remoteCameraOverlay.hidden) return;
+    window.clearTimeout(remoteCameraTimeout);
+    window.clearInterval(remoteCameraCountdown);
+    remoteCameraTimeout = null;
+    remoteCameraCountdown = null;
+    remoteCameraClosesAt = 0;
+    var video = remoteCameraFace.querySelector('video');
+    if (video) stopCameraPlayer(video);
+    remoteCameraFace.textContent = '';
+    remoteCameraOverlay.hidden = true;
+    if (active === 2) refreshCameraOverview();
+  }
+  function lockRemoteCamera() {
+    if (!remoteCameraOverlay || remoteCameraOverlay.hidden) return;
+    window.clearTimeout(remoteCameraTimeout);
+    window.clearInterval(remoteCameraCountdown);
+    remoteCameraTimeout = null;
+    remoteCameraCountdown = null;
+    remoteCameraClosesAt = 0;
+    remoteCameraStatus.textContent = (cameraList[remoteCameraIndex] || 'Live camera').replace(/[-_]/g, ' ') + ' · locked';
+  }
   function refreshHint() {
     var remaining = Math.max(0, Math.ceil((holdUntil-Date.now())/1000));
     if (!rotate.checked) hint.textContent = 'Auto-switch off · swipe or tap to change';
@@ -998,7 +1081,7 @@
   panel.addEventListener('click',function () { pause(); });
   window.setInterval(function () {
     var now = Date.now();
-    var blocked = !rotate.checked || now < holdUntil || document.hidden || !drawer.hidden || document.getElementById('feature-panel').classList.contains('sensor-alert-active');
+    var blocked = !rotate.checked || now < holdUntil || document.hidden || !drawer.hidden || !remoteCameraOverlay.hidden || document.getElementById('feature-panel').classList.contains('sensor-alert-active');
     if (!blocked && panel.contains(document.activeElement) && document.activeElement !== body) blocked = true;
     if (blocked) { resetRotationProgress(); return; }
     if (!rotationStartedAt) rotationStartedAt = now;
@@ -1133,6 +1216,34 @@
       }
     }
 
+    function handleRemoteControl(action) {
+      if (!isKiosk) return;
+      if (action === 'single') {
+        if (!doorAlert.hidden) {
+          dismissDoorAlert(false);
+          return;
+        }
+        if (!sensorPane.hidden) {
+          var sensorKey = sensorPane.getAttribute('data-sensor-key');
+          if (sensorKey) dismissedSensors[sensorKey] = true;
+          clearSensorAlert();
+          return;
+        }
+        if (!remoteCameraOverlay.hidden) {
+          if (cameraList.length > 1) showRemoteCamera(remoteCameraIndex + 1);
+          return;
+        }
+        show(active + 1, true);
+        return;
+      }
+      if (action === 'double') {
+        if (!remoteCameraOverlay.hidden) closeRemoteCamera();
+        else openRemoteCamera();
+        return;
+      }
+      if (action === 'long') lockRemoteCamera();
+    }
+
     var doorStream = new EventSource(isKiosk ? '/kiosk/frigate/events/stream' : '/api/frigate/events/stream');
     doorStream.addEventListener('frigate', function (message) {
       try {
@@ -1141,7 +1252,12 @@
           scheduleSharedRefresh();
           return;
         }
+        if (event.kind === 'remote-control') {
+          handleRemoteControl(event.action || '');
+          return;
+        }
         if (event.kind === 'temperature' || event.kind === 'water') {
+          if (!remoteCameraOverlay.hidden) closeRemoteCamera();
           updateHeaderSensorFromEvent(event);
           sensorPane.setAttribute('data-sensor-key', event.kind + ':' + (event.sensor || ''));
           showSensorAlert(event);

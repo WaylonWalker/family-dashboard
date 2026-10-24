@@ -386,11 +386,13 @@ type app struct {
 	frigateMu      sync.Mutex
 	frigateClients map[chan frigateEvent]struct{}
 	frigateToken   string
+	controlToken   string
 	frigateActive  map[string]frigateEvent
 }
 
 type frigateEvent struct {
 	ID           string  `json:"id"`
+	Action       string  `json:"action,omitempty"`
 	Camera       string  `json:"camera"`
 	Label        string  `json:"label"`
 	Timestamp    string  `json:"timestamp"`
@@ -466,6 +468,10 @@ func newApp(path string) (*app, error) {
 		return nil, fmt.Errorf("open travel decisions: %w", err)
 	}
 	a := &app{store: store, tmpl: tpl, csrf: newID(), tz: tz, now: time.Now, calendar: feed, schoolCalendar: schoolCalendar, weather: weather, travelRules: travelRules, travelReviews: travelReviews, devMode: os.Getenv("FAMILY_DASHBOARD_DEV_MODE") == "1", devVersion: newID(), frigateClients: make(map[chan frigateEvent]struct{}), frigateToken: strings.TrimSpace(os.Getenv("FRIGATE_EVENT_TOKEN")), frigateActive: make(map[string]frigateEvent)}
+	a.controlToken = strings.TrimSpace(os.Getenv("DASHBOARD_CONTROL_TOKEN"))
+	if a.controlToken == "" {
+		a.controlToken = a.frigateToken
+	}
 	if err := a.initializeAuth(path); err != nil {
 		return nil, err
 	}
@@ -842,6 +848,45 @@ func (a *app) receiveFrigateEvent(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 }
 
+func (a *app) receiveRemoteControl(w http.ResponseWriter, r *http.Request) {
+	controlToken := a.controlToken
+	if controlToken == "" {
+		controlToken = a.frigateToken
+	}
+	if controlToken == "" {
+		http.Error(w, "Dashboard control integration is not configured", http.StatusServiceUnavailable)
+		return
+	}
+	provided := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
+	if subtle.ConstantTimeCompare([]byte(provided), []byte(controlToken)) != 1 {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<10)
+	var command struct {
+		Action string `json:"action"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&command); err != nil {
+		http.Error(w, "invalid dashboard command", http.StatusBadRequest)
+		return
+	}
+	command.Action = strings.ToLower(strings.TrimSpace(command.Action))
+	if command.Action != "single" && command.Action != "double" && command.Action != "long" {
+		http.Error(w, "unsupported dashboard command", http.StatusBadRequest)
+		return
+	}
+	event := frigateEvent{ID: "remote-control-" + newID(), Kind: "remote-control", Action: command.Action}
+	a.frigateMu.Lock()
+	for client := range a.frigateClients {
+		select {
+		case client <- event:
+		default:
+		}
+	}
+	a.frigateMu.Unlock()
+	w.WriteHeader(http.StatusAccepted)
+}
+
 func (a *app) publishDashboardRefresh() {
 	event := frigateEvent{ID: "dashboard-refresh", Kind: "dashboard-refresh"}
 	a.frigateMu.Lock()
@@ -1175,6 +1220,7 @@ func (a *app) routes() http.Handler {
 		a.renderPage(w, r, false)
 	}))
 	mux.HandleFunc("POST /api/frigate/events", a.receiveFrigateEvent)
+	mux.HandleFunc("POST /api/remote-control", a.receiveRemoteControl)
 	mux.HandleFunc("GET /api/frigate/events/stream", a.requireHuman("family-hq:read", a.streamFrigateEvents))
 	mux.HandleFunc("GET /api/essentials/sensors", a.requireDashboardReader(a.essentialsSensors))
 	mux.HandleFunc("GET /api/essentials/cameras", a.requireDashboardReader(a.essentialsCameras))

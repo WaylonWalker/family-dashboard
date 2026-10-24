@@ -81,6 +81,11 @@ spec:
                 secretKeyRef:
                   name: family-dashboard-frigate
                   key: FRIGATE_EVENT_TOKEN
+            - name: DASHBOARD_CONTROL_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: family-dashboard-frigate
+                  key: DASHBOARD_CONTROL_TOKEN
                   optional: true
             - name: OTEL_SERVICE_NAME
               value: family-dashboard
