@@ -365,6 +365,8 @@ type Page struct {
 	CanManage          bool
 	Announcement       string
 	LowPowerMode       string
+	LowPowerModeUntil  string
+	LowPowerUntilLabel string
 	ViewPanel          string
 	LiveCamera         bool
 	CameraIndex        int
@@ -380,37 +382,38 @@ type Page struct {
 }
 
 type app struct {
-	calendar         *calendarFeed
-	schoolCalendar   []byte
-	weather          *weatherFeed
-	store            *taskStore
-	tmpl             *template.Template
-	csrf             string
-	tz               *time.Location
-	now              func() time.Time
-	auth             authConfig
-	travelRules      []travelRule
-	travelReviews    *travelDecisionStore
-	devices          *deviceStore
-	pairings         *pairingPool
-	devMode          bool
-	devVersion       string
-	metricsHandler   http.Handler
-	pairTpl          *template.Template
-	approveTpl       *template.Template
-	approveDoneTpl   *template.Template
-	devicesTpl       *template.Template
-	frigateMu        sync.Mutex
-	frigateClients   map[chan frigateEvent]struct{}
-	frigateToken     string
-	controlToken     string
-	frigateActive    map[string]frigateEvent
-	announcement     string
-	announcementFile string
-	lowPowerMode     string
-	viewPanel        string
-	liveCamera       bool
-	cameraIndex      int
+	calendar          *calendarFeed
+	schoolCalendar    []byte
+	weather           *weatherFeed
+	store             *taskStore
+	tmpl              *template.Template
+	csrf              string
+	tz                *time.Location
+	now               func() time.Time
+	auth              authConfig
+	travelRules       []travelRule
+	travelReviews     *travelDecisionStore
+	devices           *deviceStore
+	pairings          *pairingPool
+	devMode           bool
+	devVersion        string
+	metricsHandler    http.Handler
+	pairTpl           *template.Template
+	approveTpl        *template.Template
+	approveDoneTpl    *template.Template
+	devicesTpl        *template.Template
+	frigateMu         sync.Mutex
+	frigateClients    map[chan frigateEvent]struct{}
+	frigateToken      string
+	controlToken      string
+	frigateActive     map[string]frigateEvent
+	announcement      string
+	announcementFile  string
+	lowPowerMode      string
+	lowPowerModeUntil time.Time
+	viewPanel         string
+	liveCamera        bool
+	cameraIndex       int
 }
 
 type frigateEvent struct {
@@ -434,6 +437,7 @@ type frigateEvent struct {
 	Panel              string  `json:"panel,omitempty"`
 	CameraIndex        int     `json:"camera_index,omitempty"`
 	PowerMode          string  `json:"power_mode,omitempty"`
+	PowerModeExpiresAt string  `json:"power_mode_expires_at,omitempty"`
 }
 
 type frigateConfig struct {
@@ -524,11 +528,12 @@ func (a *app) loadAnnouncement() error {
 		return fmt.Errorf("read announcement: %w", err)
 	}
 	var state struct {
-		Message      string `json:"message"`
-		Panel        string `json:"panel"`
-		LiveCamera   bool   `json:"live_camera"`
-		CameraIndex  int    `json:"camera_index"`
-		LowPowerMode string `json:"low_power_mode"`
+		Message           string    `json:"message"`
+		Panel             string    `json:"panel"`
+		LiveCamera        bool      `json:"live_camera"`
+		CameraIndex       int       `json:"camera_index"`
+		LowPowerMode      string    `json:"low_power_mode"`
+		LowPowerModeUntil time.Time `json:"low_power_mode_until"`
 	}
 	if err := json.Unmarshal(data, &state); err != nil {
 		return fmt.Errorf("decode announcement: %w", err)
@@ -541,10 +546,59 @@ func (a *app) loadAnnouncement() error {
 	if state.CameraIndex >= 0 && state.CameraIndex < 10000 {
 		a.cameraIndex = state.CameraIndex
 	}
-	if state.LowPowerMode == "auto" || state.LowPowerMode == "low-power" || state.LowPowerMode == "awake" {
-		a.lowPowerMode = state.LowPowerMode
+	needsSave := false
+	switch state.LowPowerMode {
+	case "low-power", "awake":
+		if !state.LowPowerModeUntil.IsZero() && a.now().Before(state.LowPowerModeUntil) {
+			a.lowPowerMode = state.LowPowerMode
+			a.lowPowerModeUntil = state.LowPowerModeUntil
+		} else {
+			a.lowPowerMode = "auto"
+			needsSave = true
+		}
+	case "auto":
+		a.lowPowerMode = "auto"
+	}
+	if needsSave {
+		return a.saveAnnouncementLocked(a.announcement)
 	}
 	return nil
+}
+
+func (a *app) nextPowerBoundary(mode string, now time.Time) time.Time {
+	local := now.In(a.tz)
+	hour, minute := 6, 30
+	if mode == "awake" {
+		hour, minute = 22, 0
+	}
+	boundary := time.Date(local.Year(), local.Month(), local.Day(), hour, minute, 0, 0, a.tz)
+	if !boundary.After(local) {
+		boundary = boundary.AddDate(0, 0, 1)
+	}
+	return boundary
+}
+
+func (a *app) normalizeLowPowerModeLocked() bool {
+	if a.lowPowerMode != "auto" && (a.lowPowerModeUntil.IsZero() || !a.now().Before(a.lowPowerModeUntil)) {
+		a.lowPowerMode = "auto"
+		a.lowPowerModeUntil = time.Time{}
+		return true
+	}
+	return false
+}
+
+func (a *app) lowPowerExpiresAt() string {
+	if a.lowPowerModeUntil.IsZero() {
+		return ""
+	}
+	return a.lowPowerModeUntil.Format(time.RFC3339)
+}
+
+func (a *app) lowPowerUntilLabel() string {
+	if a.lowPowerModeUntil.IsZero() {
+		return ""
+	}
+	return a.lowPowerModeUntil.In(a.tz).Format("3:04 PM")
 }
 
 func (a *app) saveAnnouncementLocked(message string) error {
@@ -552,12 +606,13 @@ func (a *app) saveAnnouncementLocked(message string) error {
 		return err
 	}
 	data, err := json.Marshal(struct {
-		Message      string `json:"message"`
-		Panel        string `json:"panel"`
-		LiveCamera   bool   `json:"live_camera"`
-		CameraIndex  int    `json:"camera_index"`
-		LowPowerMode string `json:"low_power_mode"`
-	}{Message: message, Panel: a.viewPanel, LiveCamera: a.liveCamera, CameraIndex: a.cameraIndex, LowPowerMode: a.lowPowerMode})
+		Message           string    `json:"message"`
+		Panel             string    `json:"panel"`
+		LiveCamera        bool      `json:"live_camera"`
+		CameraIndex       int       `json:"camera_index"`
+		LowPowerMode      string    `json:"low_power_mode"`
+		LowPowerModeUntil time.Time `json:"low_power_mode_until,omitempty"`
+	}{Message: message, Panel: a.viewPanel, LiveCamera: a.liveCamera, CameraIndex: a.cameraIndex, LowPowerMode: a.lowPowerMode, LowPowerModeUntil: a.lowPowerModeUntil})
 	if err != nil {
 		return err
 	}
@@ -612,7 +667,8 @@ func (a *app) updateAnnouncement(message string) error {
 func (a *app) updateKioskDisplay(action string) (string, int, error) {
 	a.frigateMu.Lock()
 	defer a.frigateMu.Unlock()
-	previousPanel, previousLive, previousCamera, previousPower := a.viewPanel, a.liveCamera, a.cameraIndex, a.lowPowerMode
+	a.normalizeLowPowerModeLocked()
+	previousPanel, previousLive, previousCamera, previousPower, previousPowerUntil := a.viewPanel, a.liveCamera, a.cameraIndex, a.lowPowerMode, a.lowPowerModeUntil
 	event := frigateEvent{ID: "display-" + newID(), Kind: "remote-control"}
 	switch action {
 	case "panel-weather", "panel-tasks", "panel-cameras":
@@ -655,6 +711,7 @@ func (a *app) updateKioskDisplay(action string) (string, int, error) {
 		event.Panel = a.viewPanel
 	case "low-power-on":
 		a.lowPowerMode = "low-power"
+		a.lowPowerModeUntil = a.nextPowerBoundary(a.lowPowerMode, a.now())
 		a.liveCamera = false
 		if a.viewPanel == "cameras" {
 			a.viewPanel = "weather"
@@ -664,18 +721,23 @@ func (a *app) updateKioskDisplay(action string) (string, int, error) {
 		event.Panel = a.viewPanel
 	case "low-power-off":
 		a.lowPowerMode = "awake"
+		a.lowPowerModeUntil = a.nextPowerBoundary(a.lowPowerMode, a.now())
 		event.Action = "low-power-set"
 		event.PowerMode = a.lowPowerMode
 	case "low-power-auto":
 		a.lowPowerMode = "auto"
+		a.lowPowerModeUntil = time.Time{}
 		event.Action = "low-power-set"
 		event.PowerMode = a.lowPowerMode
 	default:
 		return "", 0, errors.New("unsupported kiosk display action")
 	}
+	event.PowerMode = a.lowPowerMode
+	event.PowerModeExpiresAt = a.lowPowerExpiresAt()
 	if err := a.saveAnnouncementLocked(a.announcement); err != nil {
 		a.viewPanel, a.liveCamera, a.cameraIndex = previousPanel, previousLive, previousCamera
 		a.lowPowerMode = previousPower
+		a.lowPowerModeUntil = previousPowerUntil
 		return "", 0, err
 	}
 	queued := 0
@@ -1019,11 +1081,16 @@ func (a *app) renderPage(w http.ResponseWriter, r *http.Request, kiosk bool) {
 	pg.CanManageTravel = !kiosk && a.human(r, "family-hq:manage")
 	pg.CanManage = !kiosk && a.human(r, "family-hq:manage")
 	a.frigateMu.Lock()
+	if a.normalizeLowPowerModeLocked() {
+		_ = a.saveAnnouncementLocked(a.announcement)
+	}
 	pg.Announcement = a.announcement
 	pg.ViewPanel = a.viewPanel
 	pg.LiveCamera = a.liveCamera
 	pg.CameraIndex = a.cameraIndex
 	pg.LowPowerMode = a.lowPowerMode
+	pg.LowPowerModeUntil = a.lowPowerExpiresAt()
+	pg.LowPowerUntilLabel = a.lowPowerUntilLabel()
 	a.frigateMu.Unlock()
 	if kiosk {
 		pg.TaskAction = "/kiosk/tasks"
@@ -1284,14 +1351,19 @@ func (a *app) setKioskDisplay(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	a.frigateMu.Lock()
+	if a.normalizeLowPowerModeLocked() {
+		_ = a.saveAnnouncementLocked(a.announcement)
+	}
 	powerMode := a.lowPowerMode
+	powerModeExpiresAt := a.lowPowerExpiresAt()
 	a.frigateMu.Unlock()
 	_ = json.NewEncoder(w).Encode(struct {
-		OK              bool   `json:"ok"`
-		CommandID       string `json:"command_id"`
-		ConnectedKiosks int    `json:"connected_kiosks"`
-		PowerMode       string `json:"power_mode"`
-	}{OK: true, CommandID: commandID, ConnectedKiosks: connectedKiosks, PowerMode: powerMode})
+		OK                 bool   `json:"ok"`
+		CommandID          string `json:"command_id"`
+		ConnectedKiosks    int    `json:"connected_kiosks"`
+		PowerMode          string `json:"power_mode"`
+		PowerModeExpiresAt string `json:"power_mode_expires_at,omitempty"`
+	}{OK: true, CommandID: commandID, ConnectedKiosks: connectedKiosks, PowerMode: powerMode, PowerModeExpiresAt: powerModeExpiresAt})
 }
 
 func (a *app) publishDashboardRefresh() {
@@ -1577,6 +1649,10 @@ func (a *app) streamFrigateEvents(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("X-Accel-Buffering", "no")
 	client := make(chan frigateEvent, 4)
 	a.frigateMu.Lock()
+	if a.normalizeLowPowerModeLocked() {
+		_ = a.saveAnnouncementLocked(a.announcement)
+	}
+	powerMode, powerModeExpiresAt := a.lowPowerMode, a.lowPowerExpiresAt()
 	a.frigateClients[client] = struct{}{}
 	select {
 	case client <- frigateEvent{ID: "dashboard-refresh", Kind: "dashboard-refresh"}:
@@ -1590,12 +1666,12 @@ func (a *app) streamFrigateEvents(w http.ResponseWriter, r *http.Request) {
 	}
 	if a.liveCamera {
 		select {
-		case client <- frigateEvent{ID: "display-current", Kind: "remote-control", Action: "live-open", CameraIndex: a.cameraIndex, Panel: a.viewPanel, PowerMode: a.lowPowerMode}:
+		case client <- frigateEvent{ID: "display-current", Kind: "remote-control", Action: "live-open", CameraIndex: a.cameraIndex, Panel: a.viewPanel, PowerMode: powerMode, PowerModeExpiresAt: powerModeExpiresAt}:
 		default:
 		}
 	} else {
 		select {
-		case client <- frigateEvent{ID: "display-current", Kind: "remote-control", Action: "panel-set", Panel: a.viewPanel, PowerMode: a.lowPowerMode}:
+		case client <- frigateEvent{ID: "display-current", Kind: "remote-control", Action: "panel-set", Panel: a.viewPanel, PowerMode: powerMode, PowerModeExpiresAt: powerModeExpiresAt}:
 		default:
 		}
 	}

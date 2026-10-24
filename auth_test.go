@@ -73,15 +73,20 @@ func TestProxyTrustAndScopes(t *testing.T) {
 
 func TestRemoteLowPowerControlsPersistAndReachDisplays(t *testing.T) {
 	a := proxyApp(t)
+	now := time.Date(2026, time.October, 24, 10, 0, 0, 0, a.tz)
+	a.now = func() time.Time { return now }
 	client := make(chan frigateEvent, 2)
 	a.frigateMu.Lock()
 	a.frigateClients[client] = struct{}{}
 	a.frigateMu.Unlock()
 
-	for _, tc := range []struct{ action, want string }{
-		{"low-power-on", "low-power"},
-		{"low-power-off", "awake"},
-		{"low-power-auto", "auto"},
+	for _, tc := range []struct {
+		action, want string
+		expires      time.Time
+	}{
+		{"low-power-on", "low-power", time.Date(2026, time.October, 25, 6, 30, 0, 0, a.tz)},
+		{"low-power-off", "awake", time.Date(2026, time.October, 24, 22, 0, 0, 0, a.tz)},
+		{"low-power-auto", "auto", time.Time{}},
 	} {
 		values := url.Values{"csrf": {a.csrf}, "action": {tc.action}}
 		response := served(a, humanReq(http.MethodPost, "/api/kiosk-control", values.Encode(), "family-hq:manage"))
@@ -91,6 +96,13 @@ func TestRemoteLowPowerControlsPersistAndReachDisplays(t *testing.T) {
 		event := <-client
 		if event.Kind != "remote-control" || event.Action != "low-power-set" || event.PowerMode != tc.want {
 			t.Fatalf("action %s event = %+v", tc.action, event)
+		}
+		if got := event.PowerModeExpiresAt; got != "" && got != tc.expires.Format(time.RFC3339) {
+			t.Fatalf("action %s expiry = %q, want %q", tc.action, got, tc.expires.Format(time.RFC3339))
+		} else if tc.expires.IsZero() && got != "" {
+			t.Fatalf("action %s expiry = %q, want empty", tc.action, got)
+		} else if !tc.expires.IsZero() && got == "" {
+			t.Fatalf("action %s has no expiry", tc.action)
 		}
 	}
 

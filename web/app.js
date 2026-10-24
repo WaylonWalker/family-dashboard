@@ -36,6 +36,7 @@
   var wakeLockToggle = document.getElementById('wake-lock-toggle');
   var wakeLockStatus = document.getElementById('wake-lock-status');
   var remotePowerMode = body.getAttribute('data-remote-power-mode') || 'auto';
+  var remotePowerUntil = Date.parse(body.getAttribute('data-remote-power-until') || '') || 0;
   var isLowPowerMode = false;
   var powerModeInitialized = false;
   var eventTimesTimer = null;
@@ -263,12 +264,13 @@
         });
         if (data.power_mode) {
           remotePowerMode = data.power_mode;
+          remotePowerUntil = Date.parse(data.power_mode_expires_at || '') || 0;
           if (isKiosk) applyLowPowerMode();
         }
         if (status) {
           var connected = Number(data.connected_kiosks || 0);
           status.textContent = data.power_mode
-            ? (data.power_mode === 'low-power' ? 'Dimmed by phone control' : data.power_mode === 'awake' ? 'Kept bright by phone control' : 'Schedule · 10:00 p.m.–6:30 a.m.') + (connected > 0 ? ' · queued for ' + connected + ' display' + (connected === 1 ? '' : 's') + '.' : ' · saved for reconnecting displays.')
+            ? (data.power_mode === 'low-power' ? 'Dimmed until 6:30 a.m.' : data.power_mode === 'awake' ? 'Kept bright until 10:00 p.m.' : 'Schedule · 10:00 p.m.–6:30 a.m.') + (connected > 0 ? ' · queued for ' + connected + ' display' + (connected === 1 ? '' : 's') + '.' : ' · saved for reconnecting displays.')
             : connected > 0
             ? 'Queued for ' + connected + ' connected kiosk' + (connected === 1 ? '' : 's') + '.'
             : 'No kiosk is connected right now. Saved to sync when kiosks reconnect.';
@@ -638,6 +640,12 @@
   }
 
   function applyLowPowerMode() {
+    var expiredRemoteOverride = false;
+    if (remotePowerMode !== 'auto' && remotePowerUntil && Date.now() >= remotePowerUntil) {
+      remotePowerMode = 'auto';
+      remotePowerUntil = 0;
+      expiredRemoteOverride = true;
+    }
     var now = new Date();
     var minutes = now.getHours() * 60 + now.getMinutes();
     var inSchedule = minutes >= 22 * 60 || minutes < 6 * 60 + 30;
@@ -645,7 +653,7 @@
     var commandAwake = Date.now() < remoteWakeUntil;
     var next = isKiosk && !commandAwake && (remotePowerMode === 'low-power' || (remotePowerMode !== 'awake' && (localMode === 'always' || (localMode === 'auto' && inSchedule))));
     var changed = next !== isLowPowerMode;
-    if (!changed && powerModeInitialized) return;
+    if (!changed && powerModeInitialized && !expiredRemoteOverride) return;
     powerModeInitialized = true;
     isLowPowerMode = next;
     root.setAttribute('data-low-power', next ? 'true' : 'false');
@@ -663,18 +671,18 @@
     configurePowerTimers();
     if (lowPowerStatus) {
       lowPowerStatus.textContent = remotePowerMode === 'low-power'
-        ? 'Phone control is dimming this display. Messages and alerts stay bright.'
+        ? 'Phone control is dimming this display until 6:30 a.m. Messages and alerts stay bright.'
         : remotePowerMode === 'awake'
-          ? 'Phone control is keeping this display bright.'
+          ? 'Phone control is keeping this display bright until 10:00 p.m.'
           : next
             ? 'Low power is active. Messages and alerts stay bright.'
             : 'Automatic mode dims this display from 10:00 p.m. to 6:30 a.m.';
     }
     if (displayPowerStatus) {
       displayPowerStatus.textContent = remotePowerMode === 'low-power'
-        ? 'Dimmed by phone control'
+        ? 'Dimmed until 6:30 a.m.'
         : remotePowerMode === 'awake'
-          ? 'Kept bright by phone control'
+          ? 'Kept bright until 10:00 p.m.'
           : 'Schedule · 10:00 p.m.–6:30 a.m.';
     }
   }
@@ -1556,8 +1564,9 @@
       event = event || {};
       if (event.power_mode === 'auto' || event.power_mode === 'low-power' || event.power_mode === 'awake') {
         remotePowerMode = event.power_mode;
+        remotePowerUntil = Date.parse(event.power_mode_expires_at || '') || 0;
         if (isKiosk) applyLowPowerMode();
-        if (displayPowerStatus) displayPowerStatus.textContent = remotePowerMode === 'low-power' ? 'Dimmed by phone control' : remotePowerMode === 'awake' ? 'Kept bright by phone control' : 'Schedule · 10:00 p.m.–6:30 a.m.';
+        if (displayPowerStatus) displayPowerStatus.textContent = remotePowerMode === 'low-power' ? 'Dimmed until 6:30 a.m.' : remotePowerMode === 'awake' ? 'Kept bright until 10:00 p.m.' : 'Schedule · 10:00 p.m.–6:30 a.m.';
       }
       if (!isKiosk) return;
       var commandId = event.command_id || event.id || '';
