@@ -153,6 +153,19 @@ URLs. Faro navigation events also identify page loads and reloads
 or `event_data_type="reload"`. Server snapshot and Frigate spans remain
 available in Tempo under `family-dashboard`.
 
+Desk-button response timing is correlated by `command_id`. Notify bridge logs
+record MQTT receipt and the dashboard POST round-trip; Tempo's dashboard
+request span records stream client/enqueue counts; Faro records
+`remote_control_received` and `remote_control_applied` on kiosk browsers.
+The receive event includes approximate bridge-to-browser and
+server-to-browser wall-clock delays (affected by clock skew), while
+`browser_apply_ms` measures local handling through two animation frames.
+When a double press opens live video, `camera_stream_connect_started` and
+`camera_stream_first_frame` carry the same command ID. Search Loki for
+`event_name="remote_control_received"` or `event_name="remote_control_applied"`
+and match the IDs against notify bridge logs; search Tempo for
+`button.command_id`.
+
 OpenTelemetry HTTP metrics are exposed at `/metrics` for Prometheus. The
 `family-dashboard` ServiceMonitor scrapes this endpoint every 30 seconds, and
 the NetworkPolicy allows only the in-cluster Prometheus pods and Traefik to

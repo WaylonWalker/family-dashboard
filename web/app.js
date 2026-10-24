@@ -56,8 +56,9 @@
   var remoteCameraTimeout = null;
   var remoteCameraCountdown = null;
   var remoteCameraClosesAt = 0;
+  var remoteCameraCommandId = '';
 
-  function recordCameraTelemetry(eventName, attributes) {
+  function recordTelemetry(eventName, attributes) {
     try {
       var faro = window.__waylonFaro;
       if (faro && faro.api && typeof faro.api.pushEvent === 'function') {
@@ -97,7 +98,7 @@
         }
         var now = window.performance.now();
         if (!count || (lastSentAt && now - lastSentAt < 15000)) return;
-        recordCameraTelemetry('browser_main_thread_stalls', {
+        recordTelemetry('browser_main_thread_stalls', {
           interval_ms: Math.round(lastSentAt ? now - lastSentAt : now),
           count: count,
           total_duration_ms: Math.round(totalMs),
@@ -590,7 +591,7 @@
     video._cameraFallback = true;
     if (video._cameraConnectStartedAt && !video._cameraFallbackReported) {
       video._cameraFallbackReported = true;
-      recordCameraTelemetry('camera_stream_fallback', {
+      recordTelemetry('camera_stream_fallback', {
         duration_ms: Date.now() - video._cameraConnectStartedAt,
         face: video._cameraFace || 'unknown'
       });
@@ -608,7 +609,9 @@
     if (!window.MediaSource || !window.WebSocket) return;
     video._cameraConnectStartedAt = Date.now();
     video._cameraFace = video.parentNode && video.parentNode.className.indexOf('camera-face-back') !== -1 ? 'back' : 'front';
-    recordCameraTelemetry('camera_stream_connect_started', { face: video._cameraFace });
+    var connectTelemetry = { face: video._cameraFace };
+    if (remoteCameraCommandId) connectTelemetry.command_id = remoteCameraCommandId;
+    recordTelemetry('camera_stream_connect_started', connectTelemetry);
     var base = (isKiosk ? '/kiosk/api/essentials' : '/api/essentials') + '/cameras/' + encodeURIComponent(camera) + '/live';
     var socketURL = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + base;
     var socket = new WebSocket(socketURL);
@@ -630,12 +633,14 @@
     video.addEventListener('loadeddata', function () {
       if (video._cameraStartupTimer !== null) window.clearTimeout(video._cameraStartupTimer);
       video._cameraStartupTimer = null;
-      recordCameraTelemetry('camera_stream_first_frame', {
+      var frameTelemetry = {
         duration_ms: Date.now() - video._cameraConnectStartedAt,
         face: video._cameraFace,
         width: video.videoWidth || 0,
         height: video.videoHeight || 0
-      });
+      };
+      if (remoteCameraCommandId) frameTelemetry.command_id = remoteCameraCommandId;
+      recordTelemetry('camera_stream_first_frame', frameTelemetry);
     }, {once:true});
     video.addEventListener('error', function () { showCameraSnapshotFallback(video, camera); }, {once:true});
     function appendNext() {
@@ -644,7 +649,7 @@
       catch (error) { showCameraSnapshotFallback(video, camera); }
     }
     socket.onopen = function () {
-      recordCameraTelemetry('camera_stream_socket_open', {
+      recordTelemetry('camera_stream_socket_open', {
         duration_ms: Date.now() - video._cameraConnectStartedAt,
         face: video._cameraFace
       });
@@ -716,7 +721,7 @@
           refreshIndicator.classList.remove('is-active');
           if (fallback._cameraLoadStartedAt) {
             var transfer = snapshotTransferStats(fallback);
-            recordCameraTelemetry('camera_snapshot_loaded', {
+            recordTelemetry('camera_snapshot_loaded', {
               duration_ms: Date.now() - fallback._cameraLoadStartedAt,
               face: fallback._cameraLoadFace || 'unknown',
               natural_width: transfer.natural_width,
@@ -733,7 +738,7 @@
           if (fallback._cameraLoadingTimer !== null && fallback._cameraLoadingTimer !== undefined) window.clearTimeout(fallback._cameraLoadingTimer);
           refreshIndicator.classList.remove('is-active');
           if (fallback._cameraLoadStartedAt) {
-            recordCameraTelemetry('camera_snapshot_failed', {
+            recordTelemetry('camera_snapshot_failed', {
               duration_ms: Date.now() - fallback._cameraLoadStartedAt,
               face: fallback._cameraLoadFace || 'unknown'
             });
@@ -778,7 +783,7 @@
       var progress = elapsed / 30000;
       if (progress >= 1 && !completeReported) {
         completeReported = true;
-        recordCameraTelemetry('camera_rotation_progress_complete', { duration_ms: elapsed });
+        recordTelemetry('camera_rotation_progress_complete', { duration_ms: elapsed });
       }
       var rails = document.querySelectorAll('#camera-grid .camera-cycle-progress');
       for (var i = 0; i < rails.length; i++) {
@@ -842,7 +847,7 @@
   function flipCameraGroup(generation) {
     if (generation !== cameraSessionGeneration || active !== 2 || cameraList.length <= 4 || !cameraTiles.length) return;
     var switchStartedAt = Date.now();
-    recordCameraTelemetry('camera_rotation_switch_started', {
+    recordTelemetry('camera_rotation_switch_started', {
       progress_elapsed_ms: cameraCycleStartedAt ? switchStartedAt - cameraCycleStartedAt : -1,
       tile_count: cameraTiles.length
     });
@@ -851,7 +856,7 @@
       flipCameraTile(tile, function () {
         finished++;
         if (generation === cameraSessionGeneration && active === 2 && finished === cameraTiles.length) {
-          recordCameraTelemetry('camera_rotation_switch_finished', {
+          recordTelemetry('camera_rotation_switch_finished', {
             duration_ms: Date.now() - switchStartedAt,
             tile_count: cameraTiles.length
           });
@@ -1033,7 +1038,7 @@
     active = (index + panes.length) % panes.length;
     var switchAt = Date.now();
     var completedAt = rotationProgressCompletedAt;
-    recordCameraTelemetry('feature_panel_switch', {
+    recordTelemetry('feature_panel_switch', {
       from_panel: ['weather','tasks','cameras'][previous],
       to_panel: ['weather','tasks','cameras'][active],
       trigger: manual ? 'manual' : 'automatic',
@@ -1063,7 +1068,7 @@
   })(i);
   panes[2].addEventListener('animationend', function (event) {
     if (event.target !== panes[2] || event.animationName !== 'panel-arrive' || !cameraPanelShownAt) return;
-    recordCameraTelemetry('camera_panel_visible', { duration_ms: Date.now() - cameraPanelShownAt });
+    recordTelemetry('camera_panel_visible', { duration_ms: Date.now() - cameraPanelShownAt });
     cameraPanelShownAt = 0;
   });
   document.getElementById('feature-prev').addEventListener('click', function () { show(active-1,true); });
@@ -1095,7 +1100,7 @@
     rotationProgress.setAttribute('aria-valuenow', String(Math.floor(progress * duration / 1000)));
     rotationProgress.setAttribute('aria-valuetext', secondsLeft + ' seconds until next panel');
     if (elapsed >= duration) {
-      recordCameraTelemetry('feature_rotation_progress_complete', { duration_ms: elapsed });
+      recordTelemetry('feature_rotation_progress_complete', { duration_ms: elapsed });
       rotationProgressCompletedAt = Date.now();
       show(active + 1, false);
       rotationStartedAt = Date.now();
@@ -1216,32 +1221,72 @@
       }
     }
 
-    function handleRemoteControl(action) {
+    function handleRemoteControl(action, event) {
       if (!isKiosk) return;
+      event = event || {};
+      var commandId = event.command_id || event.id || '';
+      var receivedAt = window.performance && window.performance.now ? window.performance.now() : Date.now();
+      var receiveTelemetry = { action: action, command_id: commandId };
+      var bridgeReceivedAt = Number(event.bridge_received_at_ms || 0);
+      var serverReceivedAt = Number(event.server_received_at_ms || 0);
+      if (bridgeReceivedAt > 0) receiveTelemetry.bridge_to_browser_ms = Date.now() - bridgeReceivedAt;
+      if (serverReceivedAt > 0) receiveTelemetry.server_to_browser_ms = Date.now() - serverReceivedAt;
+      recordTelemetry('remote_control_received', receiveTelemetry);
+      function recordApplied() {
+        var afterFrame = function () {
+          var appliedAt = window.performance && window.performance.now ? window.performance.now() : Date.now();
+          recordTelemetry('remote_control_applied', {
+            action: action,
+            command_id: commandId,
+            browser_apply_ms: Math.max(0, Math.round(appliedAt - receivedAt)),
+            active_panel: ['weather', 'tasks', 'cameras'][active],
+            door_alert_open: !!doorAlert && !doorAlert.hidden,
+            sensor_alert_open: !sensorPane.hidden,
+            camera_overlay_open: !!remoteCameraOverlay && !remoteCameraOverlay.hidden
+          });
+        };
+        window.requestAnimationFrame(function () { window.requestAnimationFrame(afterFrame); });
+      }
       if (action === 'single') {
         if (!doorAlert.hidden) {
           dismissDoorAlert(false);
+          recordApplied();
           return;
         }
         if (!sensorPane.hidden) {
           var sensorKey = sensorPane.getAttribute('data-sensor-key');
           if (sensorKey) dismissedSensors[sensorKey] = true;
           clearSensorAlert();
+          recordApplied();
           return;
         }
         if (!remoteCameraOverlay.hidden) {
-          if (cameraList.length > 1) showRemoteCamera(remoteCameraIndex + 1);
+          if (cameraList.length > 1) {
+            remoteCameraCommandId = commandId;
+            showRemoteCamera(remoteCameraIndex + 1);
+          }
+          recordApplied();
           return;
         }
         show(active + 1, true);
+        recordApplied();
         return;
       }
       if (action === 'double') {
-        if (!remoteCameraOverlay.hidden) closeRemoteCamera();
-        else openRemoteCamera();
+        if (!remoteCameraOverlay.hidden) {
+          closeRemoteCamera();
+          remoteCameraCommandId = '';
+        } else {
+          remoteCameraCommandId = commandId;
+          openRemoteCamera();
+        }
+        recordApplied();
         return;
       }
-      if (action === 'long') lockRemoteCamera();
+      if (action === 'long') {
+        lockRemoteCamera();
+        recordApplied();
+      }
     }
 
     var doorStream = new EventSource(isKiosk ? '/kiosk/frigate/events/stream' : '/api/frigate/events/stream');
@@ -1253,7 +1298,7 @@
           return;
         }
         if (event.kind === 'remote-control') {
-          handleRemoteControl(event.action || '');
+          handleRemoteControl(event.action || '', event);
           return;
         }
         if (event.kind === 'temperature' || event.kind === 'water') {

@@ -391,19 +391,22 @@ type app struct {
 }
 
 type frigateEvent struct {
-	ID           string  `json:"id"`
-	Action       string  `json:"action,omitempty"`
-	Camera       string  `json:"camera"`
-	Label        string  `json:"label"`
-	Timestamp    string  `json:"timestamp"`
-	Snapshot     string  `json:"snapshot"`
-	SnapshotURL  string  `json:"snapshot_url,omitempty"`
-	ClipURL      string  `json:"clip_url"`
-	Kind         string  `json:"kind,omitempty"`
-	Sensor       string  `json:"sensor,omitempty"`
-	TemperatureF float64 `json:"temperature_f,omitempty"`
-	Severity     string  `json:"severity,omitempty"`
-	Active       bool    `json:"active,omitempty"`
+	ID                 string  `json:"id"`
+	CommandID          string  `json:"command_id,omitempty"`
+	BridgeReceivedAtMS int64   `json:"bridge_received_at_ms,omitempty"`
+	ServerReceivedAtMS int64   `json:"server_received_at_ms,omitempty"`
+	Action             string  `json:"action,omitempty"`
+	Camera             string  `json:"camera"`
+	Label              string  `json:"label"`
+	Timestamp          string  `json:"timestamp"`
+	Snapshot           string  `json:"snapshot"`
+	SnapshotURL        string  `json:"snapshot_url,omitempty"`
+	ClipURL            string  `json:"clip_url"`
+	Kind               string  `json:"kind,omitempty"`
+	Sensor             string  `json:"sensor,omitempty"`
+	TemperatureF       float64 `json:"temperature_f,omitempty"`
+	Severity           string  `json:"severity,omitempty"`
+	Active             bool    `json:"active,omitempty"`
 }
 
 type frigateConfig struct {
@@ -864,7 +867,9 @@ func (a *app) receiveRemoteControl(w http.ResponseWriter, r *http.Request) {
 	}
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<10)
 	var command struct {
-		Action string `json:"action"`
+		Action             string `json:"action"`
+		CommandID          string `json:"command_id"`
+		BridgeReceivedAtMS int64  `json:"bridge_received_at_ms"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&command); err != nil {
 		http.Error(w, "invalid dashboard command", http.StatusBadRequest)
@@ -875,15 +880,43 @@ func (a *app) receiveRemoteControl(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "unsupported dashboard command", http.StatusBadRequest)
 		return
 	}
-	event := frigateEvent{ID: "remote-control-" + newID(), Kind: "remote-control", Action: command.Action}
+	command.CommandID = strings.TrimSpace(command.CommandID)
+	if len(command.CommandID) > 64 {
+		http.Error(w, "invalid dashboard command id", http.StatusBadRequest)
+		return
+	}
+	if command.CommandID == "" {
+		command.CommandID = newID()
+	}
+	receivedAt := time.Now()
+	trace.SpanFromContext(r.Context()).SetAttributes(
+		attribute.String("button.command_id", command.CommandID),
+		attribute.String("button.action", command.Action),
+	)
+	event := frigateEvent{
+		ID:                 "remote-control-" + command.CommandID,
+		CommandID:          command.CommandID,
+		BridgeReceivedAtMS: command.BridgeReceivedAtMS,
+		ServerReceivedAtMS: receivedAt.UnixMilli(),
+		Kind:               "remote-control",
+		Action:             command.Action,
+	}
+	clients, enqueued := 0, 0
 	a.frigateMu.Lock()
 	for client := range a.frigateClients {
+		clients++
 		select {
 		case client <- event:
+			enqueued++
 		default:
 		}
 	}
 	a.frigateMu.Unlock()
+	trace.SpanFromContext(r.Context()).SetAttributes(
+		attribute.Int("button.stream_clients", clients),
+		attribute.Int("button.enqueued_clients", enqueued),
+		attribute.Int64("button.handler_duration_ms", time.Since(receivedAt).Milliseconds()),
+	)
 	w.WriteHeader(http.StatusAccepted)
 }
 
