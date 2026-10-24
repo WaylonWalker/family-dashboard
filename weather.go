@@ -32,6 +32,14 @@ type weatherView struct {
 	Slots                               []weatherSlot
 	Forecast                            []weatherSlot
 }
+type tomorrowWeather struct {
+	Available bool
+	High      string
+	Low       string
+	Condition string
+	Rain      string
+	Icon      string
+}
 type weatherFeed struct {
 	key      string
 	lat, lon float64
@@ -186,6 +194,44 @@ func (wf *weatherFeed) fetchContext(ctx context.Context, now time.Time) (weather
 		}
 	}
 	return view, nil
+}
+
+func weatherForTomorrow(weather weatherView, tomorrow time.Time, loc *time.Location) tomorrowWeather {
+	var slots []weatherSlot
+	for _, slot := range weather.Forecast {
+		if midnight(slot.At.In(loc), loc).Equal(midnight(tomorrow, loc)) {
+			slots = append(slots, slot)
+		}
+	}
+	if len(slots) == 0 {
+		return tomorrowWeather{}
+	}
+	high, low, rain := slots[0].TempValue, slots[0].TempValue, 0.0
+	condition := slots[0]
+	conditionDistance := 24 * time.Hour
+	for _, slot := range slots {
+		if slot.TempValue > high {
+			high = slot.TempValue
+		}
+		if slot.TempValue < low {
+			low = slot.TempValue
+		}
+		if slot.PopValue > rain {
+			rain = slot.PopValue
+		}
+		daytimeDistance := time.Duration(math.Abs(float64(slot.At.In(loc).Hour()-15))) * time.Hour
+		if daytimeDistance < conditionDistance {
+			condition, conditionDistance = slot, daytimeDistance
+		}
+	}
+	return tomorrowWeather{
+		Available: true,
+		High:      fmt.Sprintf("%.0f°", high),
+		Low:       fmt.Sprintf("%.0f°", low),
+		Condition: condition.Condition,
+		Rain:      fmt.Sprintf("%d%% rain", int(math.Round(math.Min(1, math.Max(0, rain))*100))),
+		Icon:      condition.Icon,
+	}
 }
 
 func addEventWeather(event *Event, weather weatherView, now time.Time, loc *time.Location) {

@@ -13,13 +13,13 @@
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/icons/family-hq-192.png">
   <script src="/theme.js?v=4"></script>
-  <link rel="stylesheet" href="/style.css?v=40">
+  <link rel="stylesheet" href="/style.css?v=42">
   <script defer referrerpolicy="no-referrer"
     src="https://telemetry.wayl.one/assets/faro-bootstrap.js"
     data-faro-app="family-dashboard"
     data-faro-version="performance-signals-1"
     data-faro-environment="production"></script>
-  <script src="/app.js?v=40" defer></script>
+  <script src="/app.js?v=42" defer></script>
   {{if .DevMode}}<script src="/dev-reload.js" defer></script>{{end}}
   <noscript><style>
     .feature-pane[hidden]{display:flex!important}
@@ -67,6 +67,26 @@
         <button id="open-settings" class="icon-button settings-launch" type="button" aria-label="Open display settings" aria-controls="settings" aria-expanded="false" title="Theme & display settings"><svg class="icon"><use href="#i-settings" xlink:href="#i-settings"/></svg></button>
       </div>
     </header>
+
+    <section class="low-power-view" aria-label="Overnight family overview" aria-live="off">
+      <div class="low-power-clock"><strong id="low-power-clock">{{.Clock}}</strong><span id="low-power-period">{{.Period}}</span></div>
+      <p class="low-power-date">{{.Today}} <span>·</span> TOMORROW {{.Tomorrow}}</p>
+      <div class="low-power-summary">
+        <section class="overnight-events" aria-labelledby="overnight-events-title">
+          <p class="eyebrow">TOMORROW</p><h2 id="overnight-events-title">Family plans</h2>
+          {{if .TomorrowEvents}}
+          <ul>{{range .TomorrowEvents}}<li><span class="overnight-event-time">{{if .AllDay}}All day{{else}}{{.Time}}{{end}}</span><span>{{.Title}}</span></li>{{end}}</ul>{{if gt .TomorrowEventsMore 0}}<p class="overnight-more">+ {{.TomorrowEventsMore}} more</p>{{end}}
+          {{else}}<p class="overnight-empty">Nothing on the calendar.</p>{{end}}
+        </section>
+        <section class="overnight-weather" aria-labelledby="overnight-weather-title">
+          <p class="eyebrow">{{if .Weather.Location}}{{.Weather.Location}}{{else}}LOCAL FORECAST{{end}}</p><h2 id="overnight-weather-title">Tomorrow’s weather</h2>
+          {{if .TomorrowWeather.Available}}
+          <div class="overnight-weather-main"><svg class="icon"><use href="#i-{{.TomorrowWeather.Icon}}" xlink:href="#i-{{.TomorrowWeather.Icon}}"/></svg><strong>{{.TomorrowWeather.High}}</strong><span>high</span><strong>{{.TomorrowWeather.Low}}</strong><span>low</span></div>
+          <p class="overnight-weather-condition">{{.TomorrowWeather.Condition}} <span>·</span> {{.TomorrowWeather.Rain}}</p>
+          {{else}}<p class="overnight-empty">Tomorrow’s forecast isn’t available.</p>{{end}}
+        </section>
+      </div>
+    </section>
 
     <main class="dashboard">
       <section class="calendar panel" aria-labelledby="calendar-title">
@@ -458,6 +478,7 @@
       <label class="setting-label" for="font-select">Typography</label><select id="font-select"><option value="system">System · clear</option><option value="editorial">Editorial · warm serif</option><option value="modern">Modern · geometric</option><option value="mono">Mono · utility</option></select>
       {{if .KioskMode}}<label class="setting-label" for="low-power-mode">Overnight display</label><select id="low-power-mode"><option value="auto">Automatic · 10:00 p.m.–6:30 a.m.</option><option value="always">Always dim</option><option value="never">Never dim</option></select>
       <p id="low-power-status" class="setting-helper" role="status">Dim and quiet overnight; messages and alerts stay bright.</p>{{end}}
+      {{if .KioskMode}}<button type="button" id="fullscreen-button" class="reset-button fullscreen-button">Enter browser fullscreen</button><p id="fullscreen-status" class="setting-helper" role="status">Press F on a connected keyboard, or use the button.</p>{{end}}
       <div class="setting-row"><label for="rotate-toggle">Auto-rotate panels <small>Every 30 seconds. Your touch pauses it for 2 minutes.</small></label><input id="rotate-toggle" type="checkbox" checked></div>
       <div class="setting-row"><label for="wake-lock-toggle">Keep screen awake <small>Ask this browser to prevent the display from sleeping.</small></label><input id="wake-lock-toggle" type="checkbox"></div>
       <p id="wake-lock-status" class="setting-helper" role="status" aria-live="polite">Off · screen sleep follows Fire TV settings.</p>

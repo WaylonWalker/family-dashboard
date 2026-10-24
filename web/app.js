@@ -30,6 +30,8 @@
   var lowPowerSelect = document.getElementById('low-power-mode');
   var lowPowerStatus = document.getElementById('low-power-status');
   var displayPowerStatus = document.getElementById('display-power-status');
+  var fullscreenButton = document.getElementById('fullscreen-button');
+  var fullscreenStatus = document.getElementById('fullscreen-status');
   var rotate = document.getElementById('rotate-toggle');
   var wakeLockToggle = document.getElementById('wake-lock-toggle');
   var wakeLockStatus = document.getElementById('wake-lock-status');
@@ -41,6 +43,8 @@
   var rotationTimer = null;
   var hintTimer = null;
   var powerScheduleTimer = null;
+  var remoteWakeTimer = null;
+  var remoteWakeUntil = 0;
   var isKiosk = body.getAttribute('data-kiosk') === 'true';
   var wideDisplay = isKiosk || (window.matchMedia ? window.matchMedia('(min-width:1200px) and (orientation:landscape)').matches : window.innerWidth >= 1200);
   var cameraCycleTimer = null;
@@ -179,13 +183,13 @@
 
   function fitAnnouncementMessage() {
     if (!announcementScreenMessage || announcementScreen.hidden) return;
-    for (var size = 1; size <= 8; size += 1) announcementScreenMessage.classList.remove('fit-' + size);
-    for (var candidate = 1; candidate <= 8; candidate += 1) {
+    for (var size = 1; size <= 15; size += 1) announcementScreenMessage.classList.remove('fit-' + size);
+    for (var candidate = 1; candidate <= 15; candidate += 1) {
       announcementScreenMessage.classList.add('fit-' + candidate);
       if (announcementScreenMessage.scrollHeight <= announcementScreenMessage.clientHeight + 1 && announcementScreenMessage.scrollWidth <= announcementScreenMessage.clientWidth + 1) return;
       announcementScreenMessage.classList.remove('fit-' + candidate);
     }
-    announcementScreenMessage.classList.add('fit-8');
+    announcementScreenMessage.classList.add('fit-15');
   }
 
   function applyAnnouncement(message) {
@@ -449,6 +453,36 @@
     if (lowPowerSelect) { lowPowerSelect.value='auto'; save('low-power','auto'); applyLowPowerMode(); }
     save('theme','auto');save('texture','paper');save('font','system');save('style','balanced');save('rotate','true');save('keep-awake',String(isKiosk));releaseWakeLock();wakeLockStatus.textContent=isKiosk?'Requesting screen wake lock…':'Off · screen sleep follows Fire TV settings.';if(isKiosk)requestWakeLock();applyTheme();refreshHint();
   });
+  function requestBrowserFullscreen() {
+    if (document.fullscreenElement) {
+      if (fullscreenStatus) fullscreenStatus.textContent = 'Already in browser fullscreen. Press Esc to leave.';
+      return;
+    }
+    if (!document.documentElement.requestFullscreen) {
+      if (fullscreenStatus) fullscreenStatus.textContent = 'This Silk version does not offer page fullscreen. Use its browser menu to hide the address bar.';
+      return;
+    }
+    try {
+      var request = document.documentElement.requestFullscreen({ navigationUI: 'hide' });
+      if (request && request.then) {
+        request.then(function () {
+          if (fullscreenStatus) fullscreenStatus.textContent = 'Fullscreen requested. Press Esc to leave.';
+        }).catch(function () {
+          if (fullscreenStatus) fullscreenStatus.textContent = 'Silk did not allow fullscreen. Use its browser menu to hide the address bar.';
+        });
+      }
+    } catch (error) {
+      if (fullscreenStatus) fullscreenStatus.textContent = 'Silk did not allow fullscreen. Use its browser menu to hide the address bar.';
+    }
+  }
+  if (fullscreenButton) fullscreenButton.addEventListener('click', requestBrowserFullscreen);
+  document.addEventListener('keydown', function (event) {
+    if (!isKiosk || event.repeat || event.key.toLowerCase() !== 'f' || event.ctrlKey || event.metaKey || event.altKey) return;
+    var target = event.target;
+    if (target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
+    event.preventDefault();
+    requestBrowserFullscreen();
+  });
   applyTheme();
   if (wakeLockToggle.checked) requestWakeLock();
   function updateClock() {
@@ -457,7 +491,11 @@
       var timeParts = formattedTime.match(/^(\d{1,2}:\d{2})\s*(AM|PM)$/i);
       var date = new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',weekday:'short',month:'short',day:'numeric'}).format(new Date());
       document.getElementById('live-clock').textContent=timeParts ? timeParts[1] : formattedTime;
+      var lowPowerClock = document.getElementById('low-power-clock');
+      if (lowPowerClock) lowPowerClock.textContent=timeParts ? timeParts[1] : formattedTime;
       if (timeParts) document.getElementById('live-period').textContent=timeParts[2];
+      var lowPowerPeriod = document.getElementById('low-power-period');
+      if (lowPowerPeriod && timeParts) lowPowerPeriod.textContent=timeParts[2];
       document.getElementById('live-date').textContent=date;
     } catch(e) { /* Keep server-rendered local clock on unsupported devices. */ }
   }
@@ -565,18 +603,22 @@
     var minutes = now.getHours() * 60 + now.getMinutes();
     var inSchedule = minutes >= 22 * 60 || minutes < 6 * 60 + 30;
     var localMode = lowPowerSelect ? lowPowerSelect.value : 'auto';
-    var next = isKiosk && (remotePowerMode === 'low-power' || (remotePowerMode !== 'awake' && (localMode === 'always' || (localMode === 'auto' && inSchedule))));
+    var commandAwake = Date.now() < remoteWakeUntil;
+    var next = isKiosk && !commandAwake && (remotePowerMode === 'low-power' || (remotePowerMode !== 'awake' && (localMode === 'always' || (localMode === 'auto' && inSchedule))));
     var changed = next !== isLowPowerMode;
     if (!changed && powerModeInitialized) return;
     powerModeInitialized = true;
     isLowPowerMode = next;
     root.setAttribute('data-low-power', next ? 'true' : 'false');
     body.classList.toggle('low-power-mode', next);
+    body.classList.toggle('low-power-simplified', next);
     if (changed) {
       resetRotationProgress();
       if (next) {
-        if (active === 2) show(0, true);
+        if (active === 2) stopCameraStreams();
         if (!remoteCameraOverlay.hidden) closeRemoteCamera();
+      } else if (active === 2) {
+        refreshCameraOverview();
       }
     }
     configurePowerTimers();
@@ -596,6 +638,18 @@
           ? 'Kept bright by phone control'
           : 'Schedule · 10:00 p.m.–6:30 a.m.';
     }
+  }
+
+  function wakeForRemoteCommand(event) {
+    if (!isKiosk || !isLowPowerMode || !event || (event.id === 'display-current' && !event.command_id)) return;
+    remoteWakeUntil = Date.now() + 120000;
+    applyLowPowerMode();
+    if (remoteWakeTimer !== null) window.clearTimeout(remoteWakeTimer);
+    remoteWakeTimer = window.setTimeout(function () {
+      remoteWakeTimer = null;
+      remoteWakeUntil = 0;
+      applyLowPowerMode();
+    }, 120000);
   }
 
   function updateUrgentBrightness() {
@@ -1478,13 +1532,14 @@
       if (action === 'low-power-set') {
         if (remotePowerMode === 'low-power') {
           if (!remoteCameraOverlay.hidden) closeRemoteCamera();
-          var staticPanelIndex = ['weather','tasks','cameras'].indexOf(event.panel || 'weather');
-          if (staticPanelIndex === 2) staticPanelIndex = 0;
-          if (active !== staticPanelIndex) show(staticPanelIndex < 0 ? 0 : staticPanelIndex, true);
+        } else {
+          var normalPanelIndex = ['weather','tasks','cameras'].indexOf(event.panel || 'weather');
+          if (active !== normalPanelIndex && normalPanelIndex >= 0) show(normalPanelIndex, false);
         }
         recordApplied();
         return;
       }
+      wakeForRemoteCommand(event);
       function recordApplied() {
         var afterFrame = function () {
           var appliedAt = window.performance && window.performance.now ? window.performance.now() : Date.now();

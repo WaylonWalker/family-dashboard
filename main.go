@@ -339,35 +339,44 @@ type Day struct {
 	Number string
 	Today  bool
 }
+type TomorrowEvent struct {
+	Title  string
+	Time   string
+	AllDay bool
+}
 type Page struct {
-	WeatherKind     string
-	Hour24          int
-	CalendarBadge   string
-	CalendarNote    string
-	CalendarMessage string
-	Weather         weatherView
-	Today           string
-	Clock           string
-	Period          string
-	Days            []Day
-	Events          []Event
-	TravelReview    []Event
-	CanManageTravel bool
-	CanManage       bool
-	Announcement    string
-	LowPowerMode    string
-	ViewPanel       string
-	LiveCamera      bool
-	CameraIndex     int
-	NextUp          *Event
-	SchoolCards     []SchoolCard
-	SchoolAfternoon bool
-	Tasks           []Task
-	Count           int
-	CSRF            string
-	KioskMode       bool
-	DevMode         bool
-	TaskAction      string
+	WeatherKind        string
+	Hour24             int
+	CalendarBadge      string
+	CalendarNote       string
+	CalendarMessage    string
+	Weather            weatherView
+	Today              string
+	Tomorrow           string
+	TomorrowEvents     []TomorrowEvent
+	TomorrowEventsMore int
+	TomorrowWeather    tomorrowWeather
+	Clock              string
+	Period             string
+	Days               []Day
+	Events             []Event
+	TravelReview       []Event
+	CanManageTravel    bool
+	CanManage          bool
+	Announcement       string
+	LowPowerMode       string
+	ViewPanel          string
+	LiveCamera         bool
+	CameraIndex        int
+	NextUp             *Event
+	SchoolCards        []SchoolCard
+	SchoolAfternoon    bool
+	Tasks              []Task
+	Count              int
+	CSRF               string
+	KioskMode          bool
+	DevMode            bool
+	TaskAction         string
 }
 
 type app struct {
@@ -816,6 +825,21 @@ func (a *app) pageContext(ctx context.Context, now time.Time) Page {
 		}
 		return startI.Before(startJ)
 	})
+	tomorrowDate := n.AddDate(0, 0, 1)
+	tomorrowEvents := make([]TomorrowEvent, 0)
+	for _, event := range events {
+		start, startErr := time.Parse(time.RFC3339, event.Start)
+		end, endErr := time.Parse(time.RFC3339, event.End)
+		if startErr != nil || endErr != nil || !start.Before(midnight(tomorrowDate, a.tz).AddDate(0, 0, 1)) || !end.After(midnight(tomorrowDate, a.tz)) {
+			continue
+		}
+		tomorrowEvents = append(tomorrowEvents, TomorrowEvent{Title: event.Title, Time: event.Time, AllDay: event.AllDay})
+	}
+	tomorrowEventsMore := 0
+	if len(tomorrowEvents) > 4 {
+		tomorrowEventsMore = len(tomorrowEvents) - 4
+		tomorrowEvents = tomorrowEvents[:4]
+	}
 	nextUp, events := nextEvent(events, n)
 	tasks := a.store.list()
 	count := 0
@@ -831,7 +855,7 @@ func (a *app) pageContext(ctx context.Context, now time.Time) Page {
 	if len(wv.Slots) > 0 {
 		weatherKind = wv.Slots[0].Icon
 	}
-	return Page{WeatherKind: weatherKind, Hour24: n.Hour(), Today: n.Format("Mon, Jan 2"), Clock: n.Format("3:04"), Period: n.Format("PM"), Days: days, Events: events, TravelReview: travelReview, NextUp: nextUp, SchoolCards: schoolCards, SchoolAfternoon: n.Hour() >= 11, Tasks: tasks, Count: count, CSRF: a.csrf, CalendarBadge: badge, CalendarNote: note, CalendarMessage: message, Weather: wv}
+	return Page{WeatherKind: weatherKind, Hour24: n.Hour(), Today: n.Format("Mon, Jan 2"), Tomorrow: tomorrowDate.Format("Mon, Jan 2"), TomorrowEvents: tomorrowEvents, TomorrowEventsMore: tomorrowEventsMore, TomorrowWeather: weatherForTomorrow(wv, tomorrowDate, a.tz), Clock: n.Format("3:04"), Period: n.Format("PM"), Days: days, Events: events, TravelReview: travelReview, NextUp: nextUp, SchoolCards: schoolCards, SchoolAfternoon: n.Hour() >= 11, Tasks: tasks, Count: count, CSRF: a.csrf, CalendarBadge: badge, CalendarNote: note, CalendarMessage: message, Weather: wv}
 }
 
 func schoolDayCards(items []calendarItem, weather weatherView, now time.Time, loc *time.Location) []SchoolCard {

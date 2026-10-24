@@ -34,6 +34,23 @@ func TestClothingAdvice(t *testing.T) {
 	}
 }
 
+func TestWeatherForTomorrowSummarizesLocalForecast(t *testing.T) {
+	loc := chicago(t)
+	tomorrow := dateIn(t, "2026-10-24 00:00")
+	weather := weatherView{Forecast: []weatherSlot{
+		{At: dateIn(t, "2026-10-24 06:00"), TempValue: 42, PopValue: 0.2, Condition: "light rain", Icon: "rain"},
+		{At: dateIn(t, "2026-10-24 15:00"), TempValue: 66, PopValue: 0.6, Condition: "broken clouds", Icon: "cloud"},
+		{At: dateIn(t, "2026-10-25 00:00"), TempValue: 49, PopValue: 0.1, Condition: "clear sky", Icon: "sun"},
+	}}
+	got := weatherForTomorrow(weather, tomorrow, loc)
+	if !got.Available || got.High != "66°" || got.Low != "42°" || got.Condition != "broken clouds" || got.Rain != "60% rain" || got.Icon != "cloud" {
+		t.Fatalf("tomorrow forecast = %+v", got)
+	}
+	if noForecast := weatherForTomorrow(weatherView{}, tomorrow, loc); noForecast.Available {
+		t.Fatalf("empty forecast unexpectedly available: %+v", noForecast)
+	}
+}
+
 func TestWeatherForecastCachedAndNoKeyInHTML(t *testing.T) {
 	loc := chicago(t)
 	now := dateIn(t, "2026-10-21 10:00")
