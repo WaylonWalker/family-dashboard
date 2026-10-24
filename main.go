@@ -26,6 +26,7 @@ import (
 	"time"
 	_ "time/tzdata"
 	"unicode"
+	"unicode/utf8"
 
 	"github.com/gorilla/websocket"
 	"go.opentelemetry.io/otel/attribute"
@@ -351,6 +352,11 @@ type Page struct {
 	Events          []Event
 	TravelReview    []Event
 	CanManageTravel bool
+	CanManage       bool
+	Announcement    string
+	ViewPanel       string
+	LiveCamera      bool
+	CameraIndex     int
 	NextUp          *Event
 	SchoolCards     []SchoolCard
 	SchoolAfternoon bool
@@ -363,31 +369,36 @@ type Page struct {
 }
 
 type app struct {
-	calendar       *calendarFeed
-	schoolCalendar []byte
-	weather        *weatherFeed
-	store          *taskStore
-	tmpl           *template.Template
-	csrf           string
-	tz             *time.Location
-	now            func() time.Time
-	auth           authConfig
-	travelRules    []travelRule
-	travelReviews  *travelDecisionStore
-	devices        *deviceStore
-	pairings       *pairingPool
-	devMode        bool
-	devVersion     string
-	metricsHandler http.Handler
-	pairTpl        *template.Template
-	approveTpl     *template.Template
-	approveDoneTpl *template.Template
-	devicesTpl     *template.Template
-	frigateMu      sync.Mutex
-	frigateClients map[chan frigateEvent]struct{}
-	frigateToken   string
-	controlToken   string
-	frigateActive  map[string]frigateEvent
+	calendar         *calendarFeed
+	schoolCalendar   []byte
+	weather          *weatherFeed
+	store            *taskStore
+	tmpl             *template.Template
+	csrf             string
+	tz               *time.Location
+	now              func() time.Time
+	auth             authConfig
+	travelRules      []travelRule
+	travelReviews    *travelDecisionStore
+	devices          *deviceStore
+	pairings         *pairingPool
+	devMode          bool
+	devVersion       string
+	metricsHandler   http.Handler
+	pairTpl          *template.Template
+	approveTpl       *template.Template
+	approveDoneTpl   *template.Template
+	devicesTpl       *template.Template
+	frigateMu        sync.Mutex
+	frigateClients   map[chan frigateEvent]struct{}
+	frigateToken     string
+	controlToken     string
+	frigateActive    map[string]frigateEvent
+	announcement     string
+	announcementFile string
+	viewPanel        string
+	liveCamera       bool
+	cameraIndex      int
 }
 
 type frigateEvent struct {
@@ -407,6 +418,9 @@ type frigateEvent struct {
 	TemperatureF       float64 `json:"temperature_f,omitempty"`
 	Severity           string  `json:"severity,omitempty"`
 	Active             bool    `json:"active,omitempty"`
+	Message            string  `json:"message,omitempty"`
+	Panel              string  `json:"panel,omitempty"`
+	CameraIndex        int     `json:"camera_index,omitempty"`
 }
 
 type frigateConfig struct {
@@ -470,7 +484,14 @@ func newApp(path string) (*app, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open travel decisions: %w", err)
 	}
-	a := &app{store: store, tmpl: tpl, csrf: newID(), tz: tz, now: time.Now, calendar: feed, schoolCalendar: schoolCalendar, weather: weather, travelRules: travelRules, travelReviews: travelReviews, devMode: os.Getenv("FAMILY_DASHBOARD_DEV_MODE") == "1", devVersion: newID(), frigateClients: make(map[chan frigateEvent]struct{}), frigateToken: strings.TrimSpace(os.Getenv("FRIGATE_EVENT_TOKEN")), frigateActive: make(map[string]frigateEvent)}
+	announcementFile := strings.TrimSpace(os.Getenv("ANNOUNCEMENT_FILE"))
+	if announcementFile == "" {
+		announcementFile = filepath.Join(filepath.Dir(path), "announcement.json")
+	}
+	a := &app{store: store, tmpl: tpl, csrf: newID(), tz: tz, now: time.Now, calendar: feed, schoolCalendar: schoolCalendar, weather: weather, travelRules: travelRules, travelReviews: travelReviews, devMode: os.Getenv("FAMILY_DASHBOARD_DEV_MODE") == "1", devVersion: newID(), frigateClients: make(map[chan frigateEvent]struct{}), frigateToken: strings.TrimSpace(os.Getenv("FRIGATE_EVENT_TOKEN")), frigateActive: make(map[string]frigateEvent), announcementFile: announcementFile, viewPanel: "weather"}
+	if err := a.loadAnnouncement(); err != nil {
+		return nil, err
+	}
 	a.controlToken = strings.TrimSpace(os.Getenv("DASHBOARD_CONTROL_TOKEN"))
 	if a.controlToken == "" {
 		a.controlToken = a.frigateToken
@@ -479,6 +500,163 @@ func newApp(path string) (*app, error) {
 		return nil, err
 	}
 	return a, nil
+}
+
+func (a *app) loadAnnouncement() error {
+	data, err := os.ReadFile(a.announcementFile)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("read announcement: %w", err)
+	}
+	var state struct {
+		Message     string `json:"message"`
+		Panel       string `json:"panel"`
+		LiveCamera  bool   `json:"live_camera"`
+		CameraIndex int    `json:"camera_index"`
+	}
+	if err := json.Unmarshal(data, &state); err != nil {
+		return fmt.Errorf("decode announcement: %w", err)
+	}
+	a.announcement = state.Message
+	if state.Panel == "weather" || state.Panel == "tasks" || state.Panel == "cameras" {
+		a.viewPanel = state.Panel
+	}
+	a.liveCamera = state.LiveCamera
+	if state.CameraIndex >= 0 && state.CameraIndex < 10000 {
+		a.cameraIndex = state.CameraIndex
+	}
+	return nil
+}
+
+func (a *app) saveAnnouncementLocked(message string) error {
+	if err := os.MkdirAll(filepath.Dir(a.announcementFile), 0700); err != nil {
+		return err
+	}
+	data, err := json.Marshal(struct {
+		Message     string `json:"message"`
+		Panel       string `json:"panel"`
+		LiveCamera  bool   `json:"live_camera"`
+		CameraIndex int    `json:"camera_index"`
+	}{Message: message, Panel: a.viewPanel, LiveCamera: a.liveCamera, CameraIndex: a.cameraIndex})
+	if err != nil {
+		return err
+	}
+	file, err := os.CreateTemp(filepath.Dir(a.announcementFile), ".announcement-*")
+	if err != nil {
+		return err
+	}
+	tmp := file.Name()
+	defer os.Remove(tmp)
+	if err = file.Chmod(0600); err == nil {
+		_, err = file.Write(append(data, '\n'))
+	}
+	if err == nil {
+		err = file.Sync()
+	}
+	if closeErr := file.Close(); err == nil {
+		err = closeErr
+	}
+	if err != nil {
+		return err
+	}
+	return os.Rename(tmp, a.announcementFile)
+}
+
+func (a *app) updateAnnouncement(message string) error {
+	a.frigateMu.Lock()
+	defer a.frigateMu.Unlock()
+	if err := a.saveAnnouncementLocked(message); err != nil {
+		return err
+	}
+	a.announcement = message
+	event := frigateEvent{ID: "announcement-" + newID(), Kind: "announcement", Message: message, Active: message != ""}
+	for client := range a.frigateClients {
+		select {
+		case client <- event:
+		default:
+			// The latest shared state wins over stale queued events so connected
+			// displays converge even when a client briefly falls behind.
+			select {
+			case <-client:
+			default:
+			}
+			select {
+			case client <- event:
+			default:
+			}
+		}
+	}
+	return nil
+}
+
+func (a *app) updateKioskDisplay(action string) error {
+	a.frigateMu.Lock()
+	defer a.frigateMu.Unlock()
+	previousPanel, previousLive, previousCamera := a.viewPanel, a.liveCamera, a.cameraIndex
+	event := frigateEvent{ID: "display-" + newID(), Kind: "remote-control"}
+	switch action {
+	case "panel-weather", "panel-tasks", "panel-cameras":
+		a.viewPanel = strings.TrimPrefix(action, "panel-")
+		a.liveCamera = false
+		event.Action = "panel-set"
+		event.Panel = a.viewPanel
+	case "panel-next", "panel-previous":
+		panels := []string{"weather", "tasks", "cameras"}
+		index := 0
+		for i, panel := range panels {
+			if panel == a.viewPanel {
+				index = i
+				break
+			}
+		}
+		if action == "panel-next" {
+			index = (index + 1) % len(panels)
+		} else {
+			index = (index + len(panels) - 1) % len(panels)
+		}
+		a.viewPanel = panels[index]
+		a.liveCamera = false
+		event.Action = "panel-set"
+		event.Panel = a.viewPanel
+	case "live-open":
+		a.liveCamera = true
+		event.Action = "live-open"
+		event.CameraIndex = a.cameraIndex
+		event.Panel = a.viewPanel
+	case "live-next":
+		a.liveCamera = true
+		a.cameraIndex = (a.cameraIndex + 1) % 10000
+		event.Action = "live-open"
+		event.CameraIndex = a.cameraIndex
+		event.Panel = a.viewPanel
+	case "live-close":
+		a.liveCamera = false
+		event.Action = "live-close"
+		event.Panel = a.viewPanel
+	default:
+		return errors.New("unsupported kiosk display action")
+	}
+	if err := a.saveAnnouncementLocked(a.announcement); err != nil {
+		a.viewPanel, a.liveCamera, a.cameraIndex = previousPanel, previousLive, previousCamera
+		return err
+	}
+	for client := range a.frigateClients {
+		select {
+		case client <- event:
+		default:
+			select {
+			case <-client:
+			default:
+			}
+			select {
+			case client <- event:
+			default:
+			}
+		}
+	}
+	return nil
 }
 
 func (a *app) page(now time.Time) Page {
@@ -786,6 +964,13 @@ func (a *app) renderPage(w http.ResponseWriter, r *http.Request, kiosk bool) {
 	pg.KioskMode = kiosk
 	pg.DevMode = a.devMode
 	pg.CanManageTravel = !kiosk && a.human(r, "family-hq:manage")
+	pg.CanManage = !kiosk && a.human(r, "family-hq:manage")
+	a.frigateMu.Lock()
+	pg.Announcement = a.announcement
+	pg.ViewPanel = a.viewPanel
+	pg.LiveCamera = a.liveCamera
+	pg.CameraIndex = a.cameraIndex
+	a.frigateMu.Unlock()
 	if kiosk {
 		pg.TaskAction = "/kiosk/tasks"
 	} else {
@@ -888,6 +1073,19 @@ func (a *app) receiveRemoteControl(w http.ResponseWriter, r *http.Request) {
 	if command.CommandID == "" {
 		command.CommandID = newID()
 	}
+	if command.Action == "single" {
+		a.frigateMu.Lock()
+		announcement := a.announcement
+		a.frigateMu.Unlock()
+		if announcement != "" {
+			if err := a.updateAnnouncement(""); err != nil {
+				http.Error(w, "could not clear announcement", http.StatusInternalServerError)
+				return
+			}
+			w.WriteHeader(http.StatusAccepted)
+			return
+		}
+	}
 	receivedAt := time.Now()
 	trace.SpanFromContext(r.Context()).SetAttributes(
 		attribute.String("button.command_id", command.CommandID),
@@ -903,6 +1101,43 @@ func (a *app) receiveRemoteControl(w http.ResponseWriter, r *http.Request) {
 	}
 	clients, enqueued := 0, 0
 	a.frigateMu.Lock()
+	previousPanel, previousLive, previousCamera := a.viewPanel, a.liveCamera, a.cameraIndex
+	switch command.Action {
+	case "single":
+		if a.liveCamera {
+			a.cameraIndex = (a.cameraIndex + 1) % 10000
+			event.Action = "live-open"
+			event.CameraIndex = a.cameraIndex
+			event.Panel = a.viewPanel
+		} else {
+			panels := []string{"weather", "tasks", "cameras"}
+			index := 0
+			for i, panel := range panels {
+				if panel == a.viewPanel {
+					index = i
+					break
+				}
+			}
+			a.viewPanel = panels[(index+1)%len(panels)]
+			event.Panel = a.viewPanel
+		}
+	case "double":
+		a.liveCamera = !a.liveCamera
+		if a.liveCamera {
+			event.Action = "live-open"
+			event.CameraIndex = a.cameraIndex
+			event.Panel = a.viewPanel
+		} else {
+			event.Action = "live-close"
+			event.Panel = a.viewPanel
+		}
+	}
+	if (command.Action == "single" || command.Action == "double") && a.saveAnnouncementLocked(a.announcement) != nil {
+		a.viewPanel, a.liveCamera, a.cameraIndex = previousPanel, previousLive, previousCamera
+		a.frigateMu.Unlock()
+		http.Error(w, "could not save kiosk display state", http.StatusInternalServerError)
+		return
+	}
 	for client := range a.frigateClients {
 		clients++
 		select {
@@ -918,6 +1153,74 @@ func (a *app) receiveRemoteControl(w http.ResponseWriter, r *http.Request) {
 		attribute.Int64("button.handler_duration_ms", time.Since(receivedAt).Milliseconds()),
 	)
 	w.WriteHeader(http.StatusAccepted)
+}
+
+func (a *app) setAnnouncement(w http.ResponseWriter, r *http.Request) {
+	if !a.sameOrigin(r) {
+		http.Error(w, "invalid request origin", http.StatusForbidden)
+		return
+	}
+	r.Body = http.MaxBytesReader(w, r.Body, 4096)
+	if !strings.HasPrefix(r.Header.Get("Content-Type"), "application/x-www-form-urlencoded") {
+		http.Error(w, "form required", http.StatusUnsupportedMediaType)
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "bad form", http.StatusBadRequest)
+		return
+	}
+	if subtle.ConstantTimeCompare([]byte(r.PostForm.Get("csrf")), []byte(a.csrf)) != 1 {
+		http.Error(w, "forbidden", http.StatusForbidden)
+		return
+	}
+	message := strings.TrimSpace(r.PostForm.Get("message"))
+	if utf8.RuneCountInString(message) > 500 || strings.ContainsRune(message, '\x00') {
+		http.Error(w, "announcement must be 500 characters or fewer", http.StatusBadRequest)
+		return
+	}
+	if err := a.updateAnnouncement(message); err != nil {
+		http.Error(w, "could not save announcement", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_, _ = fmt.Fprintf(w, `{"active":%t}`, message != "")
+}
+
+func (a *app) setKioskDisplay(w http.ResponseWriter, r *http.Request) {
+	if !a.human(r, "family-hq:manage") && !a.frame(r) {
+		http.Error(w, "Family HQ management access required", http.StatusForbidden)
+		return
+	}
+	if !a.sameOrigin(r) {
+		http.Error(w, "invalid request origin", http.StatusForbidden)
+		return
+	}
+	r.Body = http.MaxBytesReader(w, r.Body, 4096)
+	if !strings.HasPrefix(r.Header.Get("Content-Type"), "application/x-www-form-urlencoded") {
+		http.Error(w, "form required", http.StatusUnsupportedMediaType)
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "bad form", http.StatusBadRequest)
+		return
+	}
+	if subtle.ConstantTimeCompare([]byte(r.PostForm.Get("csrf")), []byte(a.csrf)) != 1 {
+		http.Error(w, "forbidden", http.StatusForbidden)
+		return
+	}
+	action := strings.TrimSpace(r.PostForm.Get("action"))
+	switch action {
+	case "panel-weather", "panel-tasks", "panel-cameras", "panel-next", "panel-previous", "live-open", "live-next", "live-close":
+	default:
+		http.Error(w, "unsupported kiosk display action", http.StatusBadRequest)
+		return
+	}
+	if err := a.updateKioskDisplay(action); err != nil {
+		http.Error(w, "could not save kiosk display state", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_, _ = fmt.Fprint(w, `{"ok":true}`)
 }
 
 func (a *app) publishDashboardRefresh() {
@@ -1208,6 +1511,23 @@ func (a *app) streamFrigateEvents(w http.ResponseWriter, r *http.Request) {
 	case client <- frigateEvent{ID: "dashboard-refresh", Kind: "dashboard-refresh"}:
 	default:
 	}
+	if a.announcement != "" {
+		select {
+		case client <- frigateEvent{ID: "announcement-current", Kind: "announcement", Message: a.announcement, Active: true}:
+		default:
+		}
+	}
+	if a.liveCamera {
+		select {
+		case client <- frigateEvent{ID: "display-current", Kind: "remote-control", Action: "live-open", CameraIndex: a.cameraIndex, Panel: a.viewPanel}:
+		default:
+		}
+	} else {
+		select {
+		case client <- frigateEvent{ID: "display-current", Kind: "remote-control", Action: "panel-set", Panel: a.viewPanel}:
+		default:
+		}
+	}
 	for _, event := range a.frigateActive {
 		select {
 		case client <- event:
@@ -1254,6 +1574,9 @@ func (a *app) routes() http.Handler {
 	}))
 	mux.HandleFunc("POST /api/frigate/events", a.receiveFrigateEvent)
 	mux.HandleFunc("POST /api/remote-control", a.receiveRemoteControl)
+	mux.HandleFunc("POST /api/announcement", a.requireHuman("family-hq:manage", a.setAnnouncement))
+	mux.HandleFunc("POST /api/kiosk-control", a.setKioskDisplay)
+	mux.HandleFunc("POST /kiosk/api/kiosk-control", a.setKioskDisplay)
 	mux.HandleFunc("GET /api/frigate/events/stream", a.requireHuman("family-hq:read", a.streamFrigateEvents))
 	mux.HandleFunc("GET /api/essentials/sensors", a.requireDashboardReader(a.essentialsSensors))
 	mux.HandleFunc("GET /api/essentials/cameras", a.requireDashboardReader(a.essentialsCameras))

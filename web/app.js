@@ -10,6 +10,12 @@
   var panes = [document.getElementById('pane-weather'), document.getElementById('pane-tasks'), document.getElementById('pane-cameras')];
   var tabs = [document.getElementById('tab-weather'), document.getElementById('tab-tasks'), document.getElementById('tab-cameras')];
   var paneBaseClasses = ['feature-pane','feature-pane','feature-pane cameras-overview'];
+  if (document.getElementById('pane-announcement')) {
+    panes.push(document.getElementById('pane-announcement'));
+    tabs.push(document.getElementById('tab-announcement'));
+    paneBaseClasses.push('feature-pane announcement-pane');
+  }
+  var featureNames = ['Outside today','Family tasks','Cameras','Announcement'];
   var pager = document.querySelectorAll('.pager-dot');
   var rotationProgress = document.getElementById('rotation-progress');
   var name = document.getElementById('feature-title');
@@ -57,6 +63,39 @@
   var remoteCameraCountdown = null;
   var remoteCameraClosesAt = 0;
   var remoteCameraCommandId = '';
+  var announcementScreen = document.getElementById('announcement-screen');
+  var announcementScreenMessage = document.getElementById('announcement-screen-message');
+  var announcementStatus = document.getElementById('announcement-status');
+  var announcementClear = document.getElementById('announcement-clear');
+  var announcementActive = false;
+
+  function applyAnnouncement(message) {
+    announcementActive = !!message;
+    var messageInput = document.getElementById('announcement-message');
+    if (messageInput && document.activeElement !== messageInput) messageInput.value = message || '';
+    if (isKiosk && announcementScreen) {
+      announcementScreenMessage.textContent = message || '';
+      announcementScreen.hidden = !message;
+    }
+    if (announcementStatus) {
+      announcementStatus.textContent = message ? 'Showing on all kiosks: “' + message + '”' : 'No active announcement';
+      announcementClear.hidden = !message;
+    }
+  }
+  function sendKioskDisplayAction(action, status) {
+    var fields = new URLSearchParams();
+    fields.set('csrf', body.getAttribute('data-csrf') || '');
+    fields.set('action', action);
+    if (status) status.textContent = 'Sending to every kiosk…';
+    return fetch(isKiosk ? '/kiosk/api/kiosk-control' : '/api/kiosk-control', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: fields.toString(), credentials: 'same-origin' })
+      .then(function (response) {
+        if (!response.ok) throw new Error(response.status === 403 ? 'Management or kiosk access expired.' : 'Could not control the displays. Try again.');
+        return response.json();
+      })
+      .then(function (data) { if (status) status.textContent = 'Command sent to every kiosk.'; return data; })
+      .catch(function (error) { if (status) status.textContent = error.message; return null; });
+  }
+  applyAnnouncement(body.getAttribute('data-announcement') || '');
 
   function recordTelemetry(eventName, attributes) {
     try {
@@ -971,15 +1010,15 @@
     if (window.MediaSource && window.WebSocket) connectCamera(video, camera);
     else showCameraSnapshotFallback(video, camera);
   }
-  function openRemoteCamera() {
+  function openRemoteCamera(index, persistent) {
     if (!isKiosk || !remoteCameraOverlay) return;
     stopCameraRotation();
     stopCameraStreams();
     remoteCameraOverlay.hidden = false;
-    remoteCameraClosesAt = Date.now() + 30 * 60 * 1000;
+    remoteCameraClosesAt = persistent ? 0 : Date.now() + 30 * 60 * 1000;
     window.clearTimeout(remoteCameraTimeout);
     window.clearInterval(remoteCameraCountdown);
-    remoteCameraTimeout = window.setTimeout(closeRemoteCamera, 30 * 60 * 1000);
+    remoteCameraTimeout = persistent ? null : window.setTimeout(closeRemoteCamera, 30 * 60 * 1000);
     remoteCameraCountdown = window.setInterval(function () {
       if (remoteCameraClosesAt) {
         var remaining = Math.max(0, Math.ceil((remoteCameraClosesAt - Date.now()) / 60000));
@@ -987,7 +1026,7 @@
       }
     }, 10000);
     if (cameraList.length) {
-      showRemoteCamera(0);
+      showRemoteCamera(index || 0);
       return;
     }
     remoteCameraFace.textContent = 'Loading cameras…';
@@ -999,7 +1038,7 @@
         return;
       }
       cameraList = data.cameras;
-      showRemoteCamera(0);
+      showRemoteCamera(index || 0);
     });
   }
   function closeRemoteCamera() {
@@ -1039,8 +1078,8 @@
     var switchAt = Date.now();
     var completedAt = rotationProgressCompletedAt;
     recordTelemetry('feature_panel_switch', {
-      from_panel: ['weather','tasks','cameras'][previous],
-      to_panel: ['weather','tasks','cameras'][active],
+      from_panel: featureNames[previous],
+      to_panel: featureNames[active],
       trigger: manual ? 'manual' : 'automatic',
       progress_to_switch_ms: completedAt ? Math.max(0, switchAt - completedAt) : -1
     });
@@ -1058,27 +1097,27 @@
       tabs[i].className='feature-tab'+(visible?' is-active':'');
       if (pager[i]) pager[i].className='pager-dot'+(visible?' active':'');
     }
-    name.textContent=['Outside today','Family tasks','Cameras'][active];
+    name.textContent=featureNames[active];
     if (active === 2) refreshCameraOverview();
     if (manual) pause();
   }
   for (var i=0;i<tabs.length;i++) (function (n) {
-    tabs[n].addEventListener('click',function () { show(n,true); });
-    tabs[n].addEventListener('keydown',function (event) { if(event.key==='ArrowRight'||event.key==='ArrowLeft'){event.preventDefault();show(n+(event.key==='ArrowRight'?1:-1),true);tabs[active].focus();} });
+    tabs[n].addEventListener('click',function () { if (isKiosk) sendKioskDisplayAction('panel-' + ['weather','tasks','cameras'][n]); else show(n,true); });
+    tabs[n].addEventListener('keydown',function (event) { if(event.key==='ArrowRight'||event.key==='ArrowLeft'){event.preventDefault();var target=n+(event.key==='ArrowRight'?1:-1);if(isKiosk){target=(target+panes.length)%panes.length;sendKioskDisplayAction('panel-'+['weather','tasks','cameras'][target]);}else show(target,true);tabs[(target+panes.length)%panes.length].focus();} });
   })(i);
   panes[2].addEventListener('animationend', function (event) {
     if (event.target !== panes[2] || event.animationName !== 'panel-arrive' || !cameraPanelShownAt) return;
     recordTelemetry('camera_panel_visible', { duration_ms: Date.now() - cameraPanelShownAt });
     cameraPanelShownAt = 0;
   });
-  document.getElementById('feature-prev').addEventListener('click', function () { show(active-1,true); });
-  document.getElementById('feature-next').addEventListener('click', function () { show(active+1,true); });
+  document.getElementById('feature-prev').addEventListener('click', function () { if(isKiosk)sendKioskDisplayAction('panel-previous');else show(active-1,true); });
+  document.getElementById('feature-next').addEventListener('click', function () { if(isKiosk)sendKioskDisplayAction('panel-next');else show(active+1,true); });
   var startX=0,startY=0,tracking=false;
   panel.addEventListener('touchstart',function (event) { if(event.touches.length!==1)return; startX=event.touches[0].clientX;startY=event.touches[0].clientY;tracking=true; },{passive:true});
   panel.addEventListener('touchend',function (event) {
     if(!tracking || !event.changedTouches.length)return; tracking=false;
     var dx=event.changedTouches[0].clientX-startX,dy=event.changedTouches[0].clientY-startY;
-    if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)*1.4) show(active+(dx<0?1:-1),true);
+    if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)*1.4) { if(isKiosk)sendKioskDisplayAction(dx<0?'panel-next':'panel-previous');else show(active+(dx<0?1:-1),true); }
     else if(Math.abs(dx)>4 || Math.abs(dy)>4) pause();
   },{passive:true});
   /* Do not yank a form away while the user is typing or checking tasks. */
@@ -1239,13 +1278,37 @@
             action: action,
             command_id: commandId,
             browser_apply_ms: Math.max(0, Math.round(appliedAt - receivedAt)),
-            active_panel: ['weather', 'tasks', 'cameras'][active],
+            active_panel: featureNames[active],
             door_alert_open: !!doorAlert && !doorAlert.hidden,
             sensor_alert_open: !sensorPane.hidden,
             camera_overlay_open: !!remoteCameraOverlay && !remoteCameraOverlay.hidden
           });
         };
         window.requestAnimationFrame(function () { window.requestAnimationFrame(afterFrame); });
+      }
+      if (action === 'panel-set') {
+        if (!remoteCameraOverlay.hidden) closeRemoteCamera();
+        var panelIndex = ['weather','tasks','cameras'].indexOf(event.panel || 'weather');
+        show(panelIndex < 0 ? 0 : panelIndex, true);
+        recordApplied();
+        return;
+      }
+      if (action === 'live-open') {
+        remoteCameraCommandId = commandId;
+        var livePanelIndex = ['weather','tasks','cameras'].indexOf(event.panel || 'weather');
+        if (livePanelIndex >= 0 && active !== livePanelIndex) show(livePanelIndex, true);
+        if (remoteCameraOverlay.hidden || remoteCameraIndex !== Number(event.camera_index || 0)) openRemoteCamera(Number(event.camera_index || 0), true);
+        else lockRemoteCamera();
+        recordApplied();
+        return;
+      }
+      if (action === 'live-close') {
+        closeRemoteCamera();
+        var returnPanelIndex = ['weather','tasks','cameras'].indexOf(event.panel || 'weather');
+        if (returnPanelIndex >= 0 && active !== returnPanelIndex) show(returnPanelIndex, true);
+        remoteCameraCommandId = '';
+        recordApplied();
+        return;
       }
       if (action === 'single') {
         if (!doorAlert.hidden) {
@@ -1268,7 +1331,8 @@
           recordApplied();
           return;
         }
-        show(active + 1, true);
+        var nextPanelIndex = event.panel ? ['weather','tasks','cameras'].indexOf(event.panel) : -1;
+        show(nextPanelIndex < 0 ? active + 1 : nextPanelIndex, true);
         recordApplied();
         return;
       }
@@ -1297,7 +1361,15 @@
           scheduleSharedRefresh();
           return;
         }
+        if (event.kind === 'announcement') {
+          applyAnnouncement(event.active ? event.message : '');
+          return;
+        }
         if (event.kind === 'remote-control') {
+          if (!isKiosk && announcementStatus) {
+            var viewStatus = document.getElementById('display-control-status');
+            if (viewStatus) viewStatus.textContent = event.action === 'live-open' ? 'All kiosks are showing live video.' : event.action === 'live-close' ? 'All kiosks returned to ' + (event.panel || 'dashboard panels') + '.' : event.action === 'panel-set' ? 'All kiosks are showing ' + (event.panel || 'a dashboard panel') + '.' : viewStatus.textContent;
+          }
           handleRemoteControl(event.action || '', event);
           return;
         }
@@ -1345,6 +1417,35 @@
       }
     });
   }
+  var announcementForm = document.getElementById('announcement-form');
+  if (announcementForm) {
+    function submitAnnouncement(message) {
+      var status = document.getElementById('announcement-status');
+      var fields = new URLSearchParams();
+      fields.set('csrf', announcementForm.querySelector('[name="csrf"]').value);
+      fields.set('message', message);
+      status.textContent = 'Sending to the displays…';
+      fetch('/api/announcement', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: fields.toString(), credentials: 'same-origin' })
+        .then(function (response) {
+          if (!response.ok) throw new Error(response.status === 403 ? 'Management access expired. Sign in again.' : 'Could not update the displays. Try again.');
+          return response.json();
+        })
+        .then(function () { applyAnnouncement(message); if (!message) document.getElementById('announcement-message').value = ''; })
+        .catch(function (error) { status.textContent = error.message; });
+    }
+    announcementForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+      var message = document.getElementById('announcement-message').value.trim();
+      if (message) submitAnnouncement(message);
+    });
+    announcementClear.addEventListener('click', function () { submitAnnouncement(''); });
+  }
+  document.querySelectorAll('[data-kiosk-action]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      var status = document.getElementById('display-control-status');
+      sendKioskDisplayAction(button.getAttribute('data-kiosk-action'), status).catch(function () {});
+    });
+  });
   refreshHint();
   if ('serviceWorker' in navigator && window.isSecureContext) {
     navigator.serviceWorker.register('/sw.js').catch(function () {

@@ -13,13 +13,13 @@
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/icons/family-hq-192.png">
   <script src="/theme.js?v=4"></script>
-  <link rel="stylesheet" href="/style.css?v=35">
+  <link rel="stylesheet" href="/style.css?v=37">
   <script defer referrerpolicy="no-referrer"
     src="https://telemetry.wayl.one/assets/faro-bootstrap.js"
     data-faro-app="family-dashboard"
     data-faro-version="performance-signals-1"
     data-faro-environment="production"></script>
-  <script src="/app.js?v=34" defer></script>
+  <script src="/app.js?v=36" defer></script>
   {{if .DevMode}}<script src="/dev-reload.js" defer></script>{{end}}
   <noscript><style>
     .feature-pane[hidden]{display:flex!important}
@@ -29,7 +29,7 @@
     .feature-pane + .feature-pane{border-top:2px solid var(--line);margin-top:15px;padding-top:15px}
   </style></noscript>
 </head>
-<body data-weather="{{.WeatherKind}}" data-hour="{{.Hour24}}" data-kiosk="{{.KioskMode}}">
+<body data-weather="{{.WeatherKind}}" data-hour="{{.Hour24}}" data-kiosk="{{.KioskMode}}" data-csrf="{{.CSRF}}" data-announcement="{{.Announcement}}" data-view-panel="{{.ViewPanel}}" data-live-camera="{{.LiveCamera}}" data-camera-index="{{.CameraIndex}}">
   <!-- SVG symbols are embedded: no emoji fonts, CDN, or external requests required. -->
   <svg class="svg-sprite" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" focusable="false">
     <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1zM9 21v-7h6v7"/></symbol>
@@ -92,6 +92,7 @@
           <button role="tab" type="button" id="tab-weather" aria-controls="pane-weather" aria-selected="true" class="feature-tab is-active"><svg class="icon"><use href="#i-sun" xlink:href="#i-sun"/></svg> Weather</button>
           <button role="tab" type="button" id="tab-tasks" aria-controls="pane-tasks" aria-selected="false" tabindex="-1" class="feature-tab"><svg class="icon"><use href="#i-list" xlink:href="#i-list"/></svg> Tasks <span class="pill-count">{{.Count}}</span></button>
           <button role="tab" type="button" id="tab-cameras" aria-controls="pane-cameras" aria-selected="false" tabindex="-1" class="feature-tab"><svg class="icon"><use href="#i-camera" xlink:href="#i-camera"/></svg> Cameras</button>
+          {{if .CanManage}}<button role="tab" type="button" id="tab-announcement" aria-controls="pane-announcement" aria-selected="false" tabindex="-1" class="feature-tab announcement-tab"><svg class="icon"><use href="#i-spark" xlink:href="#i-spark"/></svg> Announcement</button>{{end}}
         </div>
         <div class="feature-window" id="feature-window">
           <section class="feature-pane sensor-pane" id="pane-sensor-alert" hidden aria-live="assertive">
@@ -121,11 +122,42 @@
           <section class="feature-pane cameras-overview" id="pane-cameras" role="tabpanel" aria-labelledby="tab-cameras" hidden>
             <div class="camera-grid" id="camera-grid" aria-label="Camera snapshots"><p class="camera-view-message">Loading cameras…</p></div>
           </section>
+          {{if .CanManage}}<section class="feature-pane announcement-pane" id="pane-announcement" role="tabpanel" aria-labelledby="tab-announcement" hidden>
+            <div class="announcement-heading"><p class="eyebrow">ALL FAMILY DISPLAYS</p><h3>Put a message on every screen.</h3><p>It stays full-screen until you clear it here or press the kiosk button.</p></div>
+            <form id="announcement-form" class="announcement-form">
+              <input type="hidden" name="csrf" value="{{.CSRF}}">
+              <label class="visually-hidden" for="announcement-message">Announcement message</label>
+              <textarea id="announcement-message" name="message" maxlength="500" placeholder="Dinner is ready…" rows="4"></textarea>
+              <div class="announcement-actions"><span id="announcement-status" role="status">No active announcement</span><button type="submit" id="announcement-publish">Show on kiosks</button><button type="button" id="announcement-clear" class="announcement-clear" hidden>Clear message</button></div>
+            </form>
+            <div class="display-controls" aria-labelledby="display-controls-title">
+              <div class="display-controls-heading"><p class="eyebrow">KIOSK DISPLAYS</p><h3 id="display-controls-title">What should they show?</h3></div>
+              <div class="display-button-row" aria-label="Change dashboard panel">
+                <button type="button" data-kiosk-action="panel-previous" aria-label="Previous panel">← Previous</button>
+                <button type="button" data-kiosk-action="panel-next" aria-label="Next panel">Next →</button>
+              </div>
+              <div class="display-button-row panel-shortcuts" aria-label="Choose a dashboard panel">
+                <button type="button" data-kiosk-action="panel-weather">Weather</button>
+                <button type="button" data-kiosk-action="panel-tasks">Tasks</button>
+                <button type="button" data-kiosk-action="panel-cameras">Cameras</button>
+              </div>
+              <div class="display-button-row live-controls" aria-label="Live camera controls">
+                <button type="button" data-kiosk-action="live-open">Show live video</button>
+                <button type="button" data-kiosk-action="live-next">Next camera</button>
+                <button type="button" data-kiosk-action="live-close">Return to panels</button>
+              </div>
+              <p id="display-control-status" role="status" aria-live="polite">All kiosks are showing {{if .LiveCamera}}live video{{else}}{{.ViewPanel}}{{end}}.</p>
+            </div>
+          </section>{{end}}
         </div>
-        <div class="feature-bottom"><span id="rotation-hint">Auto-switches every 30s · swipe to explore</span><div class="pager" aria-label="Panel position"><span class="pager-dot active"></span><span class="pager-dot"></span><span class="pager-dot"></span></div><span id="rotation-progress" class="switch-progress" role="progressbar" aria-label="Time until next panel" aria-valuemin="0" aria-valuemax="30" aria-valuenow="0" aria-valuetext="Auto-switch paused" hidden></span></div>
+        <div class="feature-bottom"><span id="rotation-hint">Auto-switches every 30s · swipe to explore</span><div class="pager" aria-label="Panel position"><span class="pager-dot active"></span><span class="pager-dot"></span><span class="pager-dot"></span>{{if .CanManage}}<span class="pager-dot"></span>{{end}}</div><span id="rotation-progress" class="switch-progress" role="progressbar" aria-label="Time until next panel" aria-valuemin="0" aria-valuemax="30" aria-valuenow="0" aria-valuetext="Auto-switch paused" hidden></span></div>
       </aside>
     </main>
   </div>
+
+  <section class="announcement-screen" id="announcement-screen" aria-live="assertive" aria-atomic="true" hidden>
+    <div class="announcement-screen-inner"><p>Family message</p><h1 id="announcement-screen-message"></h1><span>Press the display button to clear</span></div>
+  </section>
 
   <section class="remote-camera-overlay" id="remote-camera-overlay" aria-label="Live camera" hidden>
     <div class="remote-camera-head"><strong id="remote-camera-status">Live camera</strong><span>Double press to close</span></div>
