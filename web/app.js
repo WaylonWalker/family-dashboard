@@ -1565,6 +1565,10 @@
       if (event.power_mode === 'auto' || event.power_mode === 'low-power' || event.power_mode === 'awake') {
         remotePowerMode = event.power_mode;
         remotePowerUntil = Date.parse(event.power_mode_expires_at || '') || 0;
+        if (action === 'low-power-set' && remotePowerMode === 'auto' && lowPowerSelect) {
+          lowPowerSelect.value = 'auto';
+          save('low-power', 'auto');
+        }
         if (isKiosk) applyLowPowerMode();
         if (displayPowerStatus) displayPowerStatus.textContent = remotePowerMode === 'low-power' ? 'Dimmed until 6:30 a.m.' : remotePowerMode === 'awake' ? 'Kept bright until 10:00 p.m.' : 'Schedule · 10:00 p.m.–6:30 a.m.';
       }
