@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -11,6 +12,38 @@ import (
 
 	"github.com/gorilla/websocket"
 )
+
+func TestKioskShowsCompactPendingTravelStatusWithoutReviewQueue(t *testing.T) {
+	t.Setenv("GOOGLE_CALENDAR_ICAL_URL", "")
+	t.Setenv("PLAY_OUTSIDE_OPEN_WEATHER_API_KEY", "")
+	a, err := newApp(filepath.Join(t.TempDir(), "tasks.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	pending := Event{Title: "Dentist appointment", Date: "Today", Time: "4:00 PM", TravelDecision: travelDecisionPending}
+	page := Page{KioskMode: true, NextUp: &pending, Events: []Event{pending}, TravelReview: []Event{pending}}
+	var rendered bytes.Buffer
+	if err := a.tmpl.ExecuteTemplate(&rendered, "index.html", page); err != nil {
+		t.Fatal(err)
+	}
+	kioskHTML := rendered.String()
+	if strings.Contains(kioskHTML, `id="travel-review"`) || strings.Contains(kioskHTML, "Travel decision needed") {
+		t.Fatal("kiosk rendered the travel review queue or verbose pending status")
+	}
+	if strings.Count(kioskHTML, "Needs decision") != 2 {
+		t.Fatalf("kiosk pending status count = %d, want event and next-up statuses", strings.Count(kioskHTML, "Needs decision"))
+	}
+
+	page.KioskMode = false
+	rendered.Reset()
+	if err := a.tmpl.ExecuteTemplate(&rendered, "index.html", page); err != nil {
+		t.Fatal(err)
+	}
+	dashboardHTML := rendered.String()
+	if !strings.Contains(dashboardHTML, `id="travel-review"`) || !strings.Contains(dashboardHTML, "Travel decision needed") {
+		t.Fatal("signed-in dashboard lost its travel review queue or pending status")
+	}
+}
 
 func TestWeekStripAlwaysRunsSundayThroughSaturdayAndHighlightsToday(t *testing.T) {
 	loc, err := time.LoadLocation("America/Chicago")
