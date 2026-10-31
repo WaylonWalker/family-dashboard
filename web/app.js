@@ -1711,6 +1711,13 @@
             var viewStatus = document.getElementById('display-control-status');
             if (viewStatus) viewStatus.textContent = event.action === 'live-open' ? 'All kiosks are showing live video.' : event.action === 'live-close' ? 'All kiosks returned to ' + (event.panel || 'dashboard panels') + '.' : event.action === 'panel-set' ? 'All kiosks are showing ' + (event.panel || 'a dashboard panel') + '.' : viewStatus.textContent;
           }
+          // The server replays its last shared control state to new SSE clients.
+          // Treat a page refresh as a fresh dashboard start instead of reopening
+          // a camera panel or live stream left active by an earlier session.
+          if (isKiosk && event.id === 'display-current') {
+            event.action = 'panel-set';
+            event.panel = 'weather';
+          }
           handleRemoteControl(event.action || '', event);
           return;
         }
