@@ -12,6 +12,35 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+func TestWeekStripAlwaysRunsSundayThroughSaturdayAndHighlightsToday(t *testing.T) {
+	loc, err := time.LoadLocation("America/Chicago")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, now := range []time.Time{
+		time.Date(2026, 10, 31, 11, 30, 0, 0, loc), // Saturday
+		time.Date(2026, 11, 1, 0, 30, 0, 0, loc),   // Sunday
+		time.Date(2026, 11, 4, 12, 0, 0, 0, loc),   // Wednesday
+	} {
+		days := weekStrip(now, loc)
+		if len(days) != 7 || days[0].Label != "Sun" || days[6].Label != "Sat" {
+			t.Fatalf("week strip endpoints = %+v, want Sunday through Saturday", days)
+		}
+		selected := 0
+		for i, day := range days {
+			if day.Today {
+				selected++
+				if day.Label != now.Format("Mon") || day.Number != now.Format("2") || i != int(now.Weekday()) {
+					t.Errorf("selected day = %+v at index %d for %v", day, i, now)
+				}
+			}
+		}
+		if selected != 1 {
+			t.Errorf("selected %d days for %v; want exactly one", selected, now)
+		}
+	}
+}
+
 func TestDashboardAndTaskPersistence(t *testing.T) {
 	// `just` loads .env before running tests. Keep this assertion independent of
 	// private calendar and weather configuration from the developer's machine.

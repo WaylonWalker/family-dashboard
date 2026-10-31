@@ -31,6 +31,18 @@ type weatherView struct {
 	Current                             weatherSlot
 	Slots                               []weatherSlot
 	Forecast                            []weatherSlot
+	Chart                               weatherChart
+}
+type weatherChart struct {
+	Line, Area, SunsetLabel string
+	Points                  []weatherChartPoint
+	SunsetX                 float64
+	HasSunset               bool
+}
+type weatherChartPoint struct {
+	X, Y, LabelY, RainRadius float64
+	Hour, Temp, Rain         string
+	At                       time.Time
 }
 type tomorrowWeather struct {
 	Available bool
@@ -55,7 +67,10 @@ type weatherFeed struct {
 }
 
 type owConditions struct {
-	DT   int64 `json:"dt"`
+	DT  int64 `json:"dt"`
+	Sys struct {
+		Sunset int64 `json:"sunset"`
+	} `json:"sys"`
 	Main struct {
 		Temp  float64 `json:"temp"`
 		Feels float64 `json:"feels_like"`
@@ -194,7 +209,58 @@ func (wf *weatherFeed) fetchContext(ctx context.Context, now time.Time) (weather
 			view.Slots = append(view.Slots, slot)
 		}
 	}
+	chartSlots := []weatherSlot{view.Current}
+	for _, slot := range view.Forecast {
+		if len(chartSlots) >= 7 {
+			break
+		}
+		chartSlots = append(chartSlots, slot)
+	}
+	view.Chart = makeWeatherChart(chartSlots, time.Unix(current.Sys.Sunset, 0).In(wf.tz))
 	return view, nil
+}
+
+func makeWeatherChart(slots []weatherSlot, sunset time.Time) weatherChart {
+	if len(slots) < 2 {
+		return weatherChart{}
+	}
+	low, high := slots[0].TempValue, slots[0].TempValue
+	for _, slot := range slots[1:] {
+		low = math.Min(low, slot.TempValue)
+		high = math.Max(high, slot.TempValue)
+	}
+	if high-low < 1 {
+		low -= 1
+		high += 1
+	}
+	const left, right, top, bottom = 18.0, 542.0, 12.0, 74.0
+	points := make([]weatherChartPoint, 0, len(slots))
+	line := make([]string, 0, len(slots))
+	for i, slot := range slots {
+		x := left + float64(i)*(right-left)/float64(len(slots)-1)
+		y := bottom - (slot.TempValue-low)/(high-low)*(bottom-top)
+		radius := 2.5 + math.Min(1, math.Max(0, slot.PopValue))*4
+		points = append(points, weatherChartPoint{X: x, Y: y, LabelY: math.Max(10, y-7), RainRadius: radius, Hour: slot.Hour, Temp: slot.Temp, Rain: fmt.Sprintf("%.0f%%", math.Round(slot.PopValue*100)), At: slot.At})
+		line = append(line, fmt.Sprintf("%.1f,%.1f", x, y))
+	}
+	linePath := "M " + strings.Join(line, " L ")
+	areaPath := fmt.Sprintf("%s L %.1f,%.1f L %.1f,%.1f Z", linePath, right, bottom+8, left, bottom+8)
+	chart := weatherChart{Line: linePath, Area: areaPath, Points: points}
+	if !sunset.IsZero() && sunset.After(slots[0].At) && !sunset.After(slots[len(slots)-1].At) {
+		for i := 1; i < len(points); i++ {
+			if !sunset.After(points[i].At) {
+				span := points[i].At.Sub(points[i-1].At)
+				if span > 0 {
+					fraction := sunset.Sub(points[i-1].At).Seconds() / span.Seconds()
+					chart.SunsetX = points[i-1].X + fraction*(points[i].X-points[i-1].X)
+					chart.SunsetLabel = sunset.Format("3:04 PM")
+					chart.HasSunset = true
+				}
+				break
+			}
+		}
+	}
+	return chart
 }
 
 func weatherForTomorrow(weather weatherView, tomorrow time.Time, loc *time.Location) tomorrowWeather {

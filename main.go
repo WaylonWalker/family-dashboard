@@ -485,6 +485,9 @@ func newApp(path string) (*app, error) {
 	if err != nil {
 		return nil, errors.New("invalid FAMILY_TRAVEL_RULES_JSON configuration")
 	}
+	if os.Getenv("FAMILY_DASHBOARD_DEV_MODE") == "1" {
+		travelRules = append(travelRules, travelRule{Aliases: []string{"Demo outing"}, Location: "Demo destination", Minutes: 20})
+	}
 	travelRules = append(travelRules,
 		travelRule{
 			Aliases:  []string{"Ayla Vv"},
@@ -763,13 +766,20 @@ func (a *app) page(now time.Time) Page {
 	return a.pageContext(context.Background(), now)
 }
 
-func (a *app) pageContext(ctx context.Context, now time.Time) Page {
-	n := now.In(a.tz)
+func weekStrip(now time.Time, loc *time.Location) []Day {
+	today := now.In(loc)
+	sunday := time.Date(today.Year(), today.Month(), today.Day(), 0, 0, 0, 0, loc).AddDate(0, 0, -int(today.Weekday()))
 	days := make([]Day, 0, 7)
 	for i := 0; i < 7; i++ {
-		d := n.AddDate(0, 0, i)
-		days = append(days, Day{Label: d.Format("Mon"), Number: d.Format("2"), Today: i == 0})
+		day := sunday.AddDate(0, 0, i)
+		days = append(days, Day{Label: day.Format("Mon"), Number: day.Format("2"), Today: day.Year() == today.Year() && day.YearDay() == today.YearDay()})
 	}
+	return days
+}
+
+func (a *app) pageContext(ctx context.Context, now time.Time) Page {
+	n := now.In(a.tz)
+	days := weekStrip(n, a.tz)
 	sample := []struct {
 		Offset   int
 		Clock    string
@@ -831,6 +841,10 @@ func (a *app) pageContext(ctx context.Context, now time.Time) Page {
 	}
 	if a.calendar != nil {
 		badge = "SCHOOL + GOOGLE CALENDAR"
+	}
+	if a.devMode {
+		start := n.Add(75 * time.Minute).Truncate(time.Minute)
+		events = append(events, Event{Date: "Today", Weekday: start.Format("Mon"), Time: start.Format("3:04 PM"), Start: start.Format(time.RFC3339), End: start.Add(time.Hour).Format(time.RFC3339), Relative: relativeTime(start, n), Title: "Demo outing", Category: "family"})
 	}
 	travelReview := make([]Event, 0)
 	for i := range events {

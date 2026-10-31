@@ -848,6 +848,8 @@
     };
     request.send();
   }
+  // Keep calendar dates and travel countdowns current on unattended displays.
+  window.setInterval(scheduleSharedRefresh, 60000);
   document.addEventListener('focusout', function () {
     if (sharedRefreshPending && !isEditingSharedContent()) scheduleSharedRefresh();
   }, true);
@@ -1557,14 +1559,19 @@
     var doorAlertHistoryEntry = false;
     var doorAlertReturnFocus = null;
     var doorAlertClose = document.getElementById('door-alert-close');
-    var doorAlertImage = document.getElementById('door-alert-snapshot');
+    var doorAlertVideo = document.getElementById('door-alert-video');
     var doorAlertClip = document.getElementById('door-alert-clip');
+    var doorAlertTimer = null;
 
     function dismissDoorAlert(fromHistory) {
       if (doorAlert.hidden) return;
+      window.clearTimeout(doorAlertTimer);
+      doorAlertTimer = null;
       doorAlert.hidden = true;
       updateUrgentBrightness();
-      doorAlertImage.removeAttribute('src');
+      doorAlertVideo.pause();
+      doorAlertVideo.removeAttribute('src');
+      doorAlertVideo.load();
       if (doorAlertReturnFocus && doorAlertReturnFocus.focus && document.documentElement.contains(doorAlertReturnFocus)) doorAlertReturnFocus.focus({ preventScroll: true });
       doorAlertReturnFocus = null;
       if (!fromHistory && doorAlertHistoryEntry) {
@@ -1717,12 +1724,15 @@
         if (seenDoorEvents[event.id]) return;
         seenDoorEvents[event.id] = true;
         document.getElementById('door-alert-camera').textContent = (event.camera || 'Camera').replace(/[-_]/g, ' ');
-        doorAlertImage.src = event.snapshot || '';
+        doorAlertVideo.src = event.clip_url || '';
+        doorAlertVideo.play().catch(function () {});
         doorAlertClip.href = event.clip_url || '#';
         if (doorAlert.hidden) {
           doorAlertReturnFocus = document.activeElement === document.body ? document.getElementById('open-settings') : document.activeElement;
           doorAlert.hidden = false;
           updateUrgentBrightness();
+          window.clearTimeout(doorAlertTimer);
+          doorAlertTimer = window.setTimeout(function () { dismissDoorAlert(false); }, 30000);
           try {
             window.history.pushState({ doorAlert: true }, '', window.location.href);
             doorAlertHistoryEntry = true;

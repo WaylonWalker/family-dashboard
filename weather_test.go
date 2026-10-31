@@ -34,6 +34,25 @@ func TestClothingAdvice(t *testing.T) {
 	}
 }
 
+func TestWeatherChartMarksTemperaturePrecipitationAndSunset(t *testing.T) {
+	start := time.Date(2026, 10, 31, 16, 0, 0, 0, time.UTC)
+	slots := []weatherSlot{
+		{At: start, Hour: "Now", Temp: "63°", TempValue: 63, PopValue: 0},
+		{At: start.Add(3 * time.Hour), Hour: "7 PM", Temp: "58°", TempValue: 58, PopValue: .5},
+		{At: start.Add(6 * time.Hour), Hour: "10 PM", Temp: "54°", TempValue: 54, PopValue: .8},
+	}
+	chart := makeWeatherChart(slots, start.Add(90*time.Minute))
+	if len(chart.Points) != len(slots) || chart.Line == "" || chart.Area == "" {
+		t.Fatalf("chart geometry = %+v; want line, area, and all forecast points", chart)
+	}
+	if !chart.HasSunset || chart.SunsetLabel != "5:30 PM" || chart.SunsetX <= chart.Points[0].X || chart.SunsetX >= chart.Points[1].X {
+		t.Fatalf("sunset marker = %+v; want marker between first two points", chart)
+	}
+	if chart.Points[2].RainRadius <= chart.Points[0].RainRadius {
+		t.Fatalf("precipitation marker radii = %v, want higher chance shown larger", []float64{chart.Points[0].RainRadius, chart.Points[2].RainRadius})
+	}
+}
+
 func TestWeatherForTomorrowSummarizesLocalForecast(t *testing.T) {
 	loc := chicago(t)
 	tomorrow := dateIn(t, "2026-10-24 00:00")
