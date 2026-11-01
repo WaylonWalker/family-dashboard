@@ -552,3 +552,32 @@ html[data-theme="system-dark"]{--bg:#1d1d1c;--surface:#2e2e2d;--soft:#262625;--i
 html[data-theme="paper"]{--bg:#f3efe7;--surface:#fffdf8;--soft:#faf7f0;--ink:#292723;--muted:#55534e;--accent:#a9573c;--line:#d8d6d2;color-scheme:light}
 html[data-theme="paper-dark"]{--bg:#1d1d1c;--surface:#2e2e2d;--soft:#262625;--ink:#e5e5e5;--muted:#b9b9b9;--accent:#a9573c;--line:#4f4f4e;color-scheme:dark}
 .weather-chart{flex:none;width:100%;box-sizing:border-box;margin:2px 0 7px;padding:0 3px}.weather-chart svg{display:block;width:100%;height:150px;overflow:visible}.weather-chart-area{fill:color-mix(in srgb,var(--accent) 20%,transparent)}.weather-chart-line{fill:none;stroke:var(--accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.weather-chart-rain{fill:#68a9d2;stroke:var(--surface);stroke-width:1.5}.weather-chart-hour{fill:var(--muted);font-size:8px}.weather-chart figcaption{display:flex;justify-content:space-between;color:var(--muted);font-size:9px}.weather-chart-legend-rain:before{content:"";display:inline-block;width:7px;height:7px;margin-right:4px;border-radius:50%;background:#68a9d2}
+
+/* Keep kiosk calendar entries readable while fitting more of the week on screen. */
+body[data-kiosk="true"] .calendar{padding:clamp(12px,1.4vh,20px) clamp(14px,1.5vw,23px) 10px}
+body[data-kiosk="true"] .week-strip{gap:5px;margin:12px 0 7px}
+body[data-kiosk="true"] .day{min-height:clamp(46px,5.5vh,62px);gap:3px;border-radius:9px}
+body[data-kiosk="true"] .day span{font-size:10px}
+body[data-kiosk="true"] .day strong{font-size:19px}
+body[data-kiosk="true"] .next-up{min-height:88px;padding:10px 14px;gap:9px}
+body[data-kiosk="true"] .next-up h3{margin-bottom:4px;font-size:clamp(17px,1.8vw,22px)}
+body[data-kiosk="true"] .next-up-travel{margin-top:4px;font-size:10px}
+body[data-kiosk="true"] .next-up-weather{margin-top:4px;font-size:10px}
+body[data-kiosk="true"] .next-up-count strong,body[data-kiosk="true"] .next-up-count .event-relative{font-size:clamp(22px,2.5vw,32px)}
+body[data-kiosk="true"] .next-up-count .leave-countdown{font-size:clamp(28px,3.4vw,44px)}
+body[data-kiosk="true"] .school-routine{margin-bottom:7px;padding:8px 10px}
+body[data-kiosk="true"] .school-routine-head{margin-bottom:5px}
+body[data-kiosk="true"] .school-card-grid{gap:6px}
+body[data-kiosk="true"] .school-card{padding:7px 9px}
+body[data-kiosk="true"] .event{gap:9px;min-height:52px;padding:7px 2px}
+body[data-kiosk="true"] .event-date{width:59px;gap:1px}
+body[data-kiosk="true"] .event-date strong{font-size:11px}
+body[data-kiosk="true"] .event-date span{font-size:9px}
+body[data-kiosk="true"] .event-mark{height:25px;width:3px}
+body[data-kiosk="true"] .event-main h3{margin-bottom:2px;font-size:14px;line-height:1.12}
+body[data-kiosk="true"] .event-main span{font-size:10px}
+body[data-kiosk="true"] .event-relative{font-size:9px}
+body[data-kiosk="true"] .travel-status{margin-top:2px;font-size:9px!important}
+body[data-kiosk="true"] .event-kind,body[data-kiosk="true"] .event-span{padding:2px 6px;font-size:9px}
+body[data-kiosk="true"] .panel-footer{min-height:28px;padding-top:6px}
+@media(max-width:520px){body[data-kiosk="true"] .event{min-height:46px;padding:5px 1px;gap:7px}body[data-kiosk="true"] .event-date{width:52px}body[data-kiosk="true"] .event-main h3{font-size:13px}body[data-kiosk="true"] .week-strip{margin:8px 0 5px}body[data-kiosk="true"] .day{min-height:42px}}
