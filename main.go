@@ -966,7 +966,8 @@ func schoolDayCards(items []calendarItem, weather weatherView, now time.Time, lo
 	}
 	remaining := func(t time.Time) string { return formatLeaveCountdown(t.Sub(now)) }
 	leaveAyla := aylaArrive.start
-	leaveWyatt := wyattBus.start.Add(-15 * time.Minute)
+	// Wyatt leaves for the 7:30 bus at 7:30; the bus event is the leave target.
+	leaveWyatt := wyattBus.start
 	pickup := aylaLeave.start.Add(-25 * time.Minute)
 	rain := chance(aylaLeave.start)
 	rainNote := ""
@@ -1002,10 +1003,31 @@ func schoolDayCards(items []calendarItem, weather weatherView, now time.Time, lo
 	}
 	alertAt := pickup.Add(-2 * time.Hour)
 	alert := rain
-	return []SchoolCard{
+	cards := []SchoolCard{
 		{Name: "Ayla", LeaveAt: leaveAyla.Format(time.RFC3339), LateAt: aylaArrive.end.Format(time.RFC3339), HomeAt: aylaLeave.end.Format(time.RFC3339), LeaveClock: leaveAyla.In(loc).Format("3:04 PM"), HomeClock: aylaLeave.end.In(loc).Format("3:04 PM"), LeaveCountdown: remaining(leaveAyla), LateCountdown: remaining(aylaArrive.end), HomeCountdown: remaining(aylaLeave.end), Wear: wear, RainNote: rainNote, PickupAlert: alert, PickupAlertAt: alertAt.Format(time.RFC3339), PickupAt: pickup.Format(time.RFC3339), PickupCountdown: remaining(pickup)},
 		{Name: "Wyatt", LeaveAt: leaveWyatt.Format(time.RFC3339), LateAt: wyattBus.start.Format(time.RFC3339), HomeAt: wyattHome.end.Format(time.RFC3339), LeaveClock: leaveWyatt.In(loc).Format("3:04 PM"), HomeClock: wyattHome.end.In(loc).Format("3:04 PM"), LeaveCountdown: remaining(leaveWyatt), LateCountdown: remaining(wyattBus.start), HomeCountdown: remaining(wyattHome.end), Wear: wear},
 	}
+	// Keep the routine cards useful on an unattended dashboard: show them from
+	// one hour before the relevant leave or arrival through 15 minutes after.
+	target := func(card SchoolCard) time.Time {
+		if now.In(loc).Hour() >= 11 {
+			t, _ := time.Parse(time.RFC3339, card.HomeAt)
+			return t
+		}
+		t, _ := time.Parse(time.RFC3339, card.LeaveAt)
+		return t
+	}
+	active := cards[:0]
+	for _, card := range cards {
+		t := target(card)
+		if !now.Before(t.Add(-time.Hour)) && !now.After(t.Add(15*time.Minute)) {
+			active = append(active, card)
+		}
+	}
+	if len(active) == 0 {
+		return nil
+	}
+	return active
 }
 
 // relativeTime gives calendar items a compact label that fits beside their time.

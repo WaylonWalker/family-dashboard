@@ -74,6 +74,38 @@ func TestWeekStripAlwaysRunsSundayThroughSaturdayAndHighlightsToday(t *testing.T
 	}
 }
 
+func TestSchoolCardsUseLeaveTimeAndOnlyShowAroundRoutine(t *testing.T) {
+	loc, err := time.LoadLocation("America/Chicago")
+	if err != nil {
+		t.Fatal(err)
+	}
+	day := time.Date(2026, 11, 2, 0, 0, 0, 0, loc)
+	event := func(title string, startHour, startMinute, endHour, endMinute int) calendarItem {
+		return calendarItem{title: title, start: time.Date(day.Year(), day.Month(), day.Day(), startHour, startMinute, 0, 0, loc), end: time.Date(day.Year(), day.Month(), day.Day(), endHour, endMinute, 0, 0, loc)}
+	}
+	items := []calendarItem{
+		event("Ayla arrive at school", 7, 10, 7, 15),
+		event("Ayla leave school", 14, 30, 15, 0),
+		event("Wyatt bus ride to school", 7, 30, 7, 40),
+		event("Wyatt bus ride home", 14, 45, 15, 15),
+	}
+	cardsAt := func(hour, minute int) []SchoolCard {
+		return schoolDayCards(items, weatherView{}, time.Date(day.Year(), day.Month(), day.Day(), hour, minute, 0, 0, loc), loc)
+	}
+	if cards := cardsAt(6, 30); len(cards) != 2 || cards[1].LeaveClock != "7:30 AM" {
+		t.Fatalf("morning cards = %+v, want both cards and Wyatt leaving at 7:30 AM", cards)
+	}
+	if cards := cardsAt(7, 46); len(cards) != 0 {
+		t.Fatalf("morning cards after leave window = %+v, want none", cards)
+	}
+	if cards := cardsAt(14, 15); len(cards) != 2 {
+		t.Fatalf("afternoon cards before home arrival = %+v, want both", cards)
+	}
+	if cards := cardsAt(15, 31); len(cards) != 0 {
+		t.Fatalf("afternoon cards after arrival window = %+v, want none", cards)
+	}
+}
+
 func TestDashboardAndTaskPersistence(t *testing.T) {
 	// `just` loads .env before running tests. Keep this assertion independent of
 	// private calendar and weather configuration from the developer's machine.
@@ -84,7 +116,7 @@ func TestDashboardAndTaskPersistence(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	a.now = func() time.Time { return time.Date(2026, 10, 26, 15, 30, 0, 0, time.UTC) }
+	a.now = func() time.Time { return time.Date(2026, 10, 26, 12, 30, 0, 0, time.UTC) }
 	h := a.routes()
 	r := httptest.NewRecorder()
 	h.ServeHTTP(r, httptest.NewRequest(http.MethodGet, "/dashboard", nil))
@@ -264,7 +296,7 @@ func TestSchoolDayCardsUseSchoolTimesAndRainPickup(t *testing.T) {
 		{At: day.Add(14 * time.Hour), Condition: "light rain", PopValue: .1, FeelsValue: 30},
 	}
 	weather := weatherView{Forecast: forecast}
-	cards := schoolDayCards(items, weather, day.Add(10*time.Hour), loc)
+	cards := schoolDayCards(items, weather, day.Add(7*time.Hour+30*time.Minute), loc)
 	if len(cards) != 2 {
 		t.Fatalf("cards = %+v, want Ayla and Wyatt", cards)
 	}
@@ -272,8 +304,8 @@ func TestSchoolDayCardsUseSchoolTimesAndRainPickup(t *testing.T) {
 	if got := ayla.LeaveAt; got != items[0].start.Format(time.RFC3339) {
 		t.Fatalf("Ayla leave = %s, want school event time %s", got, items[0].start.Format(time.RFC3339))
 	}
-	if got, want := wyatt.LeaveAt, items[1].start.Add(-15*time.Minute).Format(time.RFC3339); got != want {
-		t.Fatalf("Wyatt leave = %s, want 15 minutes before bus at %s", got, want)
+	if got, want := wyatt.LeaveAt, items[1].start.Format(time.RFC3339); got != want {
+		t.Fatalf("Wyatt leave = %s, want 7:30 bus time %s", got, want)
 	}
 	if got, want := wyatt.LateAt, items[1].start.Format(time.RFC3339); got != want {
 		t.Fatalf("Wyatt late time = %s, want bus time %s", got, want)
@@ -290,9 +322,9 @@ func TestSchoolDayCardsUseSchoolTimesAndRainPickup(t *testing.T) {
 	if got, want := ayla.PickupAlertAt, day.Add(11*time.Hour+40*time.Minute).Format(time.RFC3339); got != want {
 		t.Fatalf("pickup alert begins at %s, want %s", got, want)
 	}
-	cards = schoolDayCards(items, weather, day.Add(11*time.Hour+40*time.Minute), loc)
-	if len(cards) != 2 || !cards[0].PickupAlert {
-		t.Fatalf("pickup alert should be active two hours before pickup: %+v", cards)
+	cards = schoolDayCards(items, weather, day.Add(13*time.Hour+30*time.Minute), loc)
+	if len(cards) == 0 || !cards[0].PickupAlert {
+		t.Fatalf("pickup alert should be active in the afternoon routine window: %+v", cards)
 	}
 }
 
