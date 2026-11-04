@@ -1005,7 +1005,7 @@ func schoolDayCards(items []calendarItem, weather weatherView, now time.Time, lo
 	alert := rain
 	cards := []SchoolCard{
 		{Name: "Ayla", LeaveAt: leaveAyla.Format(time.RFC3339), LateAt: aylaArrive.end.Format(time.RFC3339), HomeAt: aylaLeave.end.Format(time.RFC3339), LeaveClock: leaveAyla.In(loc).Format("3:04 PM"), HomeClock: aylaLeave.end.In(loc).Format("3:04 PM"), LeaveCountdown: remaining(leaveAyla), LateCountdown: remaining(aylaArrive.end), HomeCountdown: remaining(aylaLeave.end), Wear: wear, RainNote: rainNote, PickupAlert: alert, PickupAlertAt: alertAt.Format(time.RFC3339), PickupAt: pickup.Format(time.RFC3339), PickupCountdown: remaining(pickup)},
-		{Name: "Wyatt", LeaveAt: leaveWyatt.Format(time.RFC3339), LateAt: wyattBus.start.Format(time.RFC3339), HomeAt: wyattHome.end.Format(time.RFC3339), LeaveClock: leaveWyatt.In(loc).Format("3:04 PM"), HomeClock: wyattHome.end.In(loc).Format("3:04 PM"), LeaveCountdown: remaining(leaveWyatt), LateCountdown: remaining(wyattBus.start), HomeCountdown: remaining(wyattHome.end), Wear: wear},
+		{Name: "Wyatt", LeaveAt: leaveWyatt.Format(time.RFC3339), LateAt: wyattBus.end.Format(time.RFC3339), HomeAt: wyattHome.end.Format(time.RFC3339), LeaveClock: leaveWyatt.In(loc).Format("3:04 PM"), HomeClock: wyattHome.end.In(loc).Format("3:04 PM"), LeaveCountdown: remaining(leaveWyatt), LateCountdown: remaining(wyattBus.end), HomeCountdown: remaining(wyattHome.end), Wear: wear},
 	}
 	// Keep the routine cards useful on an unattended dashboard: show them from
 	// one hour before the relevant leave or arrival through 15 minutes after.

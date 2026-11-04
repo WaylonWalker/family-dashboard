@@ -307,8 +307,8 @@ func TestSchoolDayCardsUseSchoolTimesAndRainPickup(t *testing.T) {
 	if got, want := wyatt.LeaveAt, items[1].start.Format(time.RFC3339); got != want {
 		t.Fatalf("Wyatt leave = %s, want 7:30 bus time %s", got, want)
 	}
-	if got, want := wyatt.LateAt, items[1].start.Format(time.RFC3339); got != want {
-		t.Fatalf("Wyatt late time = %s, want bus time %s", got, want)
+	if got, want := wyatt.LateAt, items[1].end.Format(time.RFC3339); got != want {
+		t.Fatalf("Wyatt late time = %s, want bus arrival time %s", got, want)
 	}
 	if got, want := ayla.HomeAt, items[2].end.Format(time.RFC3339); got != want {
 		t.Fatalf("Ayla home time = %s, want event end %s", got, want)
