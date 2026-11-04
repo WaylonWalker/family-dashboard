@@ -20,7 +20,7 @@
     data-faro-app="family-dashboard"
     data-faro-version="performance-signals-1"
     data-faro-environment="production"></script>
-  <script src="/app.js?v=46" defer></script>
+  <script src="/app.js?v=47" defer></script>
   {{if .DevMode}}<script src="/dev-reload.js" defer></script>{{end}}
   <noscript><style>
     .feature-pane[hidden]{display:flex!important}
@@ -194,9 +194,12 @@
         <div class="door-alert-title-group"><p class="eyebrow">FRIGATE · PERSON DETECTED</p><h2 id="door-alert-title">Someone is at the door</h2><p id="door-alert-camera"></p></div>
         <button class="door-alert-close" id="door-alert-close" type="button" aria-label="Dismiss door alert"><span aria-hidden="true">×</span><span>Dismiss</span></button>
       </header>
-      <video id="door-alert-video" autoplay muted playsinline controls aria-label="Person detection video"></video>
+      <div class="door-alert-video-wrap">
+        <video id="door-alert-video" autoplay muted playsinline controls aria-label="Live camera video"></video>
+        <span id="door-alert-live-status" class="door-alert-live-status" role="status">Connecting to live camera…</span>
+      </div>
       <footer class="door-alert-actions">
-        <a id="door-alert-clip" href="#" target="_blank" rel="noopener">View video clip</a>
+        <a id="door-alert-clip" href="#" target="_blank" rel="noopener">Open camera in Frigate</a>
         <span class="door-alert-remaining">Returning to the dashboard in 30 seconds</span>
       </footer>
     </div>

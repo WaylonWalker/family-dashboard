@@ -27,6 +27,16 @@ func TestKioskShowsCompactPendingTravelStatusWithoutReviewQueue(t *testing.T) {
 		t.Fatal(err)
 	}
 	kioskHTML := rendered.String()
+	if !strings.Contains(kioskHTML, `id="door-alert-video"`) || !strings.Contains(kioskHTML, "/app.js?v=47") {
+		t.Fatal("kiosk is missing the current live person-alert player")
+	}
+	serviceWorker, err := webFS.ReadFile("web/sw.js")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(serviceWorker), "family-hq-static-v16") || !strings.Contains(string(serviceWorker), "/app.js?v=47") {
+		t.Fatal("kiosk service worker is not primed with the current alert script")
+	}
 	if strings.Contains(kioskHTML, `id="travel-review"`) || strings.Contains(kioskHTML, "Travel decision needed") {
 		t.Fatal("kiosk rendered the travel review queue or verbose pending status")
 	}
@@ -42,6 +52,47 @@ func TestKioskShowsCompactPendingTravelStatusWithoutReviewQueue(t *testing.T) {
 	dashboardHTML := rendered.String()
 	if !strings.Contains(dashboardHTML, `id="travel-review"`) || !strings.Contains(dashboardHTML, "Travel decision needed") {
 		t.Fatal("signed-in dashboard lost its travel review queue or pending status")
+	}
+}
+
+func TestReceiveFrigatePersonEventStoresShortLivedKioskReplay(t *testing.T) {
+	now := time.Date(2026, 11, 4, 12, 0, 0, 0, time.UTC)
+	a := &app{frigateToken: "test-token", now: func() time.Time { return now }}
+	req := httptest.NewRequest(http.MethodPost, "/api/frigate/events", strings.NewReader(`{"id":"event-1","camera":"front-door","label":"person"}`))
+	req.Header.Set("Authorization", "Bearer test-token")
+	recorder := httptest.NewRecorder()
+	a.receiveFrigateEvent(recorder, req)
+	if recorder.Code != http.StatusAccepted {
+		t.Fatalf("person event status = %d, body = %s", recorder.Code, recorder.Body.String())
+	}
+	if a.lastPersonEvent.ID != "event-1" || a.lastPersonEvent.Camera != "front-door" {
+		t.Fatalf("stored person event = %+v", a.lastPersonEvent)
+	}
+	if got, want := a.lastPersonEvent.ExpiresAt, now.Add(30*time.Second).Format(time.RFC3339Nano); got != want {
+		t.Fatalf("person event expiry = %q, want %q", got, want)
+	}
+	if !recentPersonEvent(a.lastPersonAt, now) {
+		t.Fatal("newly received person event is not available for kiosk replay")
+	}
+}
+
+func TestRecentPersonEventReplayIsLimitedToAlertLifetime(t *testing.T) {
+	now := time.Date(2026, 11, 4, 12, 0, 0, 0, time.UTC)
+	for _, tc := range []struct {
+		name       string
+		receivedAt time.Time
+		want       bool
+	}{
+		{name: "fresh", receivedAt: now.Add(-29 * time.Second), want: true},
+		{name: "expired", receivedAt: now.Add(-31 * time.Second), want: false},
+		{name: "future clock", receivedAt: now.Add(time.Second), want: false},
+		{name: "missing", want: false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := recentPersonEvent(tc.receivedAt, now); got != tc.want {
+				t.Fatalf("recentPersonEvent = %t, want %t", got, tc.want)
+			}
+		})
 	}
 }
 

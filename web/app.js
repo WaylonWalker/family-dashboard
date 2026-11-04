@@ -936,6 +936,11 @@
       });
     }
     stopCameraPlayer(video);
+    if (video._cameraFallbackStatus) {
+      video._cameraFallbackStatus.textContent = 'Live video is unavailable. Showing the latest camera image.';
+      video._cameraFallbackStatus.hidden = false;
+      return;
+    }
     var image = document.createElement('img');
     image.setAttribute('data-camera', camera);
     image.alt = camera.replace(/[-_]/g, ' ') + ' camera snapshot; live stream unavailable';
@@ -945,7 +950,13 @@
     if (caption) caption.textContent = camera.replace(/[-_]/g, ' ') + ' · snapshot';
   }
   function connectCamera(video, camera) {
-    if (!window.MediaSource || !window.WebSocket) return;
+    if (!window.MediaSource || !window.WebSocket) {
+      if (video._cameraFallbackStatus) {
+        video._cameraFallbackStatus.textContent = 'Live video is not supported on this display.';
+        video._cameraFallbackStatus.hidden = false;
+      }
+      return;
+    }
     video._cameraConnectStartedAt = Date.now();
     video._cameraFace = video.parentNode && video.parentNode.className.indexOf('camera-face-back') !== -1 ? 'back' : 'front';
     var connectTelemetry = { face: video._cameraFace };
@@ -972,6 +983,7 @@
     video.addEventListener('loadeddata', function () {
       if (video._cameraStartupTimer !== null) window.clearTimeout(video._cameraStartupTimer);
       video._cameraStartupTimer = null;
+      if (video._cameraFallbackStatus) video._cameraFallbackStatus.hidden = true;
       var frameTelemetry = {
         duration_ms: Date.now() - video._cameraConnectStartedAt,
         face: video._cameraFace,
@@ -1560,6 +1572,7 @@
     var doorAlertReturnFocus = null;
     var doorAlertClose = document.getElementById('door-alert-close');
     var doorAlertVideo = document.getElementById('door-alert-video');
+    var doorAlertLiveStatus = document.getElementById('door-alert-live-status');
     var doorAlertClip = document.getElementById('door-alert-clip');
     var doorAlertTimer = null;
 
@@ -1570,8 +1583,9 @@
       doorAlert.hidden = true;
       updateUrgentBrightness();
       doorAlertVideo.pause();
-      doorAlertVideo.removeAttribute('src');
-      doorAlertVideo.load();
+      stopCameraPlayer(doorAlertVideo);
+      doorAlertLiveStatus.textContent = 'Connecting to live camera…';
+      doorAlertLiveStatus.hidden = false;
       if (doorAlertReturnFocus && doorAlertReturnFocus.focus && document.documentElement.contains(doorAlertReturnFocus)) doorAlertReturnFocus.focus({ preventScroll: true });
       doorAlertReturnFocus = null;
       if (!fromHistory && doorAlertHistoryEntry) {
@@ -1729,22 +1743,30 @@
           return;
         }
         if (seenDoorEvents[event.id]) return;
+        var expiresAt = Date.parse(event.expires_at || '') || (Date.now() + 30000);
+        var remainingAlertTime = Math.min(30000, expiresAt - Date.now());
+        if (remainingAlertTime <= 0) return;
         seenDoorEvents[event.id] = true;
         document.getElementById('door-alert-camera').textContent = (event.camera || 'Camera').replace(/[-_]/g, ' ');
-        doorAlertVideo.src = event.clip_url || '';
-        doorAlertVideo.play().catch(function () {});
+        stopCameraPlayer(doorAlertVideo);
+        doorAlertVideo._cameraFallback = false;
+        doorAlertVideo._cameraFallbackStatus = doorAlertLiveStatus;
+        doorAlertVideo.poster = (isKiosk ? '/kiosk/api/essentials' : '/api/essentials') + '/cameras/' + encodeURIComponent(event.camera) + '/snapshot?refresh=' + Date.now();
+        doorAlertLiveStatus.textContent = 'Connecting to live camera…';
+        doorAlertLiveStatus.hidden = false;
         doorAlertClip.href = event.clip_url || '#';
         if (doorAlert.hidden) {
           doorAlertReturnFocus = document.activeElement === document.body ? document.getElementById('open-settings') : document.activeElement;
           doorAlert.hidden = false;
           updateUrgentBrightness();
           window.clearTimeout(doorAlertTimer);
-          doorAlertTimer = window.setTimeout(function () { dismissDoorAlert(false); }, 30000);
+          doorAlertTimer = window.setTimeout(function () { dismissDoorAlert(false); }, remainingAlertTime);
           try {
             window.history.pushState({ doorAlert: true }, '', window.location.href);
             doorAlertHistoryEntry = true;
           } catch (_) {}
         }
+        connectCamera(doorAlertVideo, event.camera);
         doorAlertClose.focus({ preventScroll: true });
       } catch (_) {}
     });

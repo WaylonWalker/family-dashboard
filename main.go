@@ -37,6 +37,8 @@ import (
 //go:embed web/*
 var webFS embed.FS
 
+const personAlertLifetime = 30 * time.Second
+
 type Task struct {
 	ID    string `json:"id"`
 	Title string `json:"title"`
@@ -407,6 +409,8 @@ type app struct {
 	frigateToken      string
 	controlToken      string
 	frigateActive     map[string]frigateEvent
+	lastPersonEvent   frigateEvent
+	lastPersonAt      time.Time
 	announcement      string
 	announcementFile  string
 	lowPowerMode      string
@@ -425,6 +429,7 @@ type frigateEvent struct {
 	Camera             string  `json:"camera"`
 	Label              string  `json:"label"`
 	Timestamp          string  `json:"timestamp"`
+	ExpiresAt          string  `json:"expires_at,omitempty"`
 	Snapshot           string  `json:"snapshot"`
 	SnapshotURL        string  `json:"snapshot_url,omitempty"`
 	ClipURL            string  `json:"clip_url"`
@@ -1171,7 +1176,15 @@ func (a *app) receiveFrigateEvent(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "unsupported event kind", http.StatusBadRequest)
 		return
 	}
+	receivedAt := a.now()
+	if event.Kind == "person" {
+		event.ExpiresAt = receivedAt.Add(personAlertLifetime).Format(time.RFC3339Nano)
+	}
 	a.frigateMu.Lock()
+	if event.Kind == "person" {
+		a.lastPersonEvent = event
+		a.lastPersonAt = receivedAt
+	}
 	if a.frigateActive == nil {
 		a.frigateActive = make(map[string]frigateEvent)
 	}
@@ -1683,7 +1696,7 @@ func (a *app) streamFrigateEvents(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache, no-store")
 	w.Header().Set("X-Accel-Buffering", "no")
-	client := make(chan frigateEvent, 4)
+	client := make(chan frigateEvent, 16)
 	a.frigateMu.Lock()
 	if a.normalizeLowPowerModeLocked() {
 		_ = a.saveAnnouncementLocked(a.announcement)
@@ -1717,6 +1730,12 @@ func (a *app) streamFrigateEvents(w http.ResponseWriter, r *http.Request) {
 		default:
 		}
 	}
+	if recentPersonEvent(a.lastPersonAt, a.now()) {
+		select {
+		case client <- a.lastPersonEvent:
+		default:
+		}
+	}
 	a.frigateMu.Unlock()
 	defer func() {
 		a.frigateMu.Lock()
@@ -1741,6 +1760,10 @@ func (a *app) streamFrigateEvents(w http.ResponseWriter, r *http.Request) {
 			flusher.Flush()
 		}
 	}
+}
+
+func recentPersonEvent(receivedAt, now time.Time) bool {
+	return !receivedAt.IsZero() && !now.Before(receivedAt) && now.Sub(receivedAt) <= personAlertLifetime
 }
 
 func (a *app) routes() http.Handler {
