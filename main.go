@@ -348,6 +348,7 @@ type TomorrowEvent struct {
 }
 type Page struct {
 	WeatherKind        string
+	BirthdayMessage    string
 	Hour24             int
 	CalendarBadge      string
 	CalendarNote       string
@@ -782,6 +783,34 @@ func weekStrip(now time.Time, loc *time.Location) []Day {
 	return days
 }
 
+func birthdayMessage(now time.Time, loc *time.Location) string {
+	today := now.In(loc)
+	birthdays := []struct {
+		name  string
+		month time.Month
+		day   int
+	}{
+		{name: "Wyatt", month: time.November, day: 9},
+		{name: "Ayla", month: time.October, day: 18},
+		{name: "Rhiannon", month: time.March, day: 4},
+		{name: "Waylon", month: time.March, day: 26},
+	}
+	names := make([]string, 0, len(birthdays))
+	for _, birthday := range birthdays {
+		if today.Month() == birthday.month && today.Day() == birthday.day {
+			names = append(names, birthday.name)
+		}
+	}
+	switch len(names) {
+	case 0:
+		return ""
+	case 1:
+		return "Happy birthday, " + names[0] + "!"
+	default:
+		return "Happy birthday, " + strings.Join(names[:len(names)-1], ", ") + " & " + names[len(names)-1] + "!"
+	}
+}
+
 func (a *app) pageContext(ctx context.Context, now time.Time) Page {
 	n := now.In(a.tz)
 	days := weekStrip(n, a.tz)
@@ -936,7 +965,7 @@ func (a *app) pageContext(ctx context.Context, now time.Time) Page {
 	if len(wv.Slots) > 0 {
 		weatherKind = wv.Slots[0].Icon
 	}
-	return Page{WeatherKind: weatherKind, Hour24: n.Hour(), Today: n.Format("Mon, Jan 2"), Tomorrow: tomorrowDate.Format("Mon, Jan 2"), TomorrowEvents: tomorrowEvents, TomorrowEventsMore: tomorrowEventsMore, TomorrowWeather: weatherForTomorrow(wv, tomorrowDate, a.tz), Clock: n.Format("3:04"), Period: n.Format("PM"), Days: days, Events: events, TravelReview: travelReview, NextUp: nextUp, SchoolCards: schoolCards, SchoolAfternoon: n.Hour() >= 11, Tasks: tasks, Count: count, CSRF: a.csrf, CalendarBadge: badge, CalendarNote: note, CalendarMessage: message, Weather: wv}
+	return Page{WeatherKind: weatherKind, BirthdayMessage: birthdayMessage(n, a.tz), Hour24: n.Hour(), Today: n.Format("Mon, Jan 2"), Tomorrow: tomorrowDate.Format("Mon, Jan 2"), TomorrowEvents: tomorrowEvents, TomorrowEventsMore: tomorrowEventsMore, TomorrowWeather: weatherForTomorrow(wv, tomorrowDate, a.tz), Clock: n.Format("3:04"), Period: n.Format("PM"), Days: days, Events: events, TravelReview: travelReview, NextUp: nextUp, SchoolCards: schoolCards, SchoolAfternoon: n.Hour() >= 11, Tasks: tasks, Count: count, CSRF: a.csrf, CalendarBadge: badge, CalendarNote: note, CalendarMessage: message, Weather: wv}
 }
 
 func schoolDayCards(items []calendarItem, weather weatherView, now time.Time, loc *time.Location) []SchoolCard {

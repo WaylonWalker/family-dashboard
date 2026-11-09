@@ -14,7 +14,7 @@
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/icons/family-hq-192.png">
   <script src="/theme.js?v=4"></script>
-  <link rel="stylesheet" href="/style.css?v=49">
+  <link rel="stylesheet" href="/style.css?v=53">
   <script defer referrerpolicy="no-referrer"
     src="https://telemetry.wayl.one/assets/faro-bootstrap.js"
     data-faro-app="family-dashboard"
@@ -53,13 +53,16 @@
     <symbol id="i-umbrella" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 18 0H3m9-9v16a3 3 0 0 0 6 0"/></symbol>
   </svg>
 
-  <div class="shell">
-    <header class="header">
+  <div class="shell{{if .BirthdayMessage}} birthday-mode{{end}}">
+    <header class="header{{if .BirthdayMessage}} birthday-header{{end}}">
       <div class="brand"><span class="brand-icon"><svg class="icon"><use href="#i-home" xlink:href="#i-home"/></svg></span>
         <div><h1>Family HQ<span class="brand-period">.</span></h1><p>Our little corner of the world</p></div>
       </div>
+      {{if not .BirthdayMessage}}
       <div class="clock-block"><strong id="live-clock">{{.Clock}}</strong><span id="live-period">{{.Period}}</span></div>
+      {{end}}
       <div class="header-right">
+        {{if .BirthdayMessage}}<div class="clock-block birthday-clock"><strong id="live-clock">{{.Clock}}</strong><span id="live-period">{{.Period}}</span></div>{{end}}
         <div class="header-sensors" aria-label="Home sensor status" aria-live="polite">
           <span id="header-freezer" class="header-sensor" title="Freezer sensor"><span class="sensor-signal" aria-label="Status unknown"></span>Freezer <strong>--</strong></span>
           <span id="header-basement" class="header-sensor" title="Basement water sensor"><span class="sensor-signal" aria-label="Status unknown"></span>Basement <strong>--</strong></span>
@@ -67,6 +70,22 @@
         <span id="live-date" class="date-block">{{.Today}}</span>
         <button id="open-settings" class="icon-button settings-launch" type="button" aria-label="Open display settings" aria-controls="settings" aria-expanded="false" title="Theme & display settings"><svg class="icon"><use href="#i-settings" xlink:href="#i-settings"/></svg></button>
       </div>
+      {{if .BirthdayMessage}}
+      <section class="birthday-banner" role="status" aria-label="{{.BirthdayMessage}}">
+        <div class="birthday-garland" aria-hidden="true">
+          <span class="flag-coral"></span><span class="flag-yellow"></span><span class="flag-blue"></span><span class="flag-purple"></span><span class="flag-green"></span><span class="flag-yellow"></span><span class="flag-coral"></span>
+        </div>
+        <span class="birthday-balloon balloon-left" aria-hidden="true"></span>
+        <span class="birthday-balloon balloon-right" aria-hidden="true"></span>
+        <span class="birthday-sparkle sparkle-left" aria-hidden="true">✦</span>
+        <span class="birthday-sparkle sparkle-right" aria-hidden="true">✦</span>
+        <div class="birthday-copy">
+          <p class="birthday-kicker">THE BIRTHDAY DEPARTMENT ANNOUNCES</p>
+          <h2>{{.BirthdayMessage}}</h2>
+          <p class="birthday-subtitle">More cake. Fewer chores. That's the rule.</p>
+        </div>
+      </section>
+      {{end}}
     </header>
 
     <section class="low-power-view" aria-label="Overnight family overview" aria-live="off">
