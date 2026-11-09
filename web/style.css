@@ -585,11 +585,37 @@ body[data-kiosk="true"] .panel-footer{min-height:28px;padding-top:6px}
 @media(max-width:520px){body[data-kiosk="true"] .event{min-height:46px;padding:5px 1px;gap:7px}body[data-kiosk="true"] .event-date{width:52px}body[data-kiosk="true"] .event-main h3{font-size:13px}body[data-kiosk="true"] .week-strip{margin:8px 0 5px}body[data-kiosk="true"] .day{min-height:42px}}
 
 /* Birthday mode moves the party into the masthead and turns the tabs into pennants. */
-.birthday-header {
+.celebration-mode {
   --party-ink: #583348;
+  --party-muted: #795b52;
   --party-coral: #ed5972;
   --party-yellow: #f2c64b;
   --party-blue: #45a8c3;
+  --party-purple: #a779c6;
+  --party-green: #74ad78;
+  --party-border: #dfa064;
+  --party-shadow: #dfa064;
+  --party-accent: #9a2f48;
+  --party-accent-ink: #fffdf5;
+  --party-card: #fffdf5;
+  --party-card-ink: #583348;
+  --party-card-border: #d7ad7d;
+  --party-header-background:
+    radial-gradient(circle at 12% 75%, rgba(237, 89, 114, .15) 0 2px, transparent 2.5px),
+    radial-gradient(circle at 84% 24%, rgba(69, 168, 195, .15) 0 2px, transparent 2.5px),
+    linear-gradient(105deg, #fff1d0, #ffe9e8 52%, #fff1d0);
+  --party-nav-background:
+    radial-gradient(circle at 13% 24%, #ed5972 0 2px, transparent 2.5px),
+    radial-gradient(circle at 77% 72%, #45a8c3 0 2px, transparent 2.5px),
+    linear-gradient(90deg, #fff0e7, #fff5d9 48%, #e9f5f1);
+  --party-nav-surface: #fff1d0;
+  --party-nav-border: #d49b67;
+  --party-nav-shadow: #d9a66b;
+  --party-active-bg: #9a2f48;
+  --party-active-border: #72283b;
+  --party-active-ink: #fffdf5;
+}
+.celebration-header {
   position: relative;
   isolation: isolate;
   min-height: 112px;
@@ -597,50 +623,47 @@ body[data-kiosk="true"] .panel-footer{min-height:28px;padding-top:6px}
   gap: 12px;
   overflow: hidden;
   padding: 8px 13px;
-  border: 1px solid #dfa064;
+  border: 1px solid var(--party-border);
   border-radius: 17px;
-  background-color: #fff1d0;
-  background-image:
-    radial-gradient(circle at 12% 75%, rgba(237, 89, 114, .15) 0 2px, transparent 2.5px),
-    radial-gradient(circle at 84% 24%, rgba(69, 168, 195, .15) 0 2px, transparent 2.5px),
-    linear-gradient(105deg, #fff1d0, #ffe9e8 52%, #fff1d0);
-  box-shadow: 0 4px 0 #dfa064;
+  background-color: var(--party-nav-surface);
+  background-image: var(--party-header-background);
+  box-shadow: 0 4px 0 var(--party-shadow);
 }
-.birthday-header > .brand,
-.birthday-header > .header-right {
+.celebration-header > .brand,
+.celebration-header > .header-right {
   position: relative;
   z-index: 2;
 }
-.birthday-header .brand-icon { background: #9a2f48; color: #fffdf5; }
-.birthday-header .brand h1,
-.birthday-header .brand p,
-.birthday-header .date-block,
-.birthday-header .header-sensor,
-.birthday-header .header-sensor strong { color: var(--party-ink); }
-.birthday-header .header-sensor { border-color: #d7ad7d; background: #fff9e8; }
-.birthday-header .header-sensor.is-alert,
-.birthday-header .header-sensor.is-alert strong { color: #9a2f48; }
-.birthday-header > .brand { grid-column: 1; grid-row: 1; }
-.birthday-header .birthday-clock {
+.celebration-header .brand-icon { background: var(--party-accent); color: var(--party-accent-ink); }
+.celebration-header .brand h1,
+.celebration-header .brand p,
+.celebration-header .date-block,
+.celebration-header .header-sensor,
+.celebration-header .header-sensor strong { color: var(--party-ink); }
+.celebration-header .header-sensor { border-color: var(--party-card-border); background: var(--party-card); color: var(--party-card-ink); }
+.celebration-header .header-sensor.is-alert,
+.celebration-header .header-sensor.is-alert strong { color: var(--party-accent); }
+.celebration-header > .brand { grid-column: 1; grid-row: 1; }
+.celebration-header .celebration-clock {
   align-items: center;
   min-width: 132px;
   padding: 4px 10px 4px 12px;
-  border: 1px solid #d7ad7d;
+  border: 1px solid var(--party-card-border);
   border-radius: 11px;
-  background: #fff9e8;
-  box-shadow: 0 2px 0 #d49b67;
-  color: var(--party-ink);
+  background: var(--party-card);
+  box-shadow: 0 2px 0 var(--party-nav-shadow);
+  color: var(--party-card-ink);
   white-space: nowrap;
 }
-.birthday-header .clock-block strong { color: var(--party-ink); font-size: 43px; }
-.birthday-header .clock-block span { color: #9a2f48; }
-.birthday-header > .header-right { grid-column: 3; grid-row: 1; z-index: 5; gap: 9px; }
-.birthday-header .settings-launch {
-  border-color: #cc7180;
+.celebration-header .clock-block strong { color: var(--party-card-ink); font-size: 43px; }
+.celebration-header .clock-block span { color: var(--party-accent); }
+.celebration-header > .header-right { grid-column: 3; grid-row: 1; z-index: 5; gap: 9px; }
+.celebration-header .settings-launch {
+  border-color: var(--party-accent);
   background: var(--party-coral);
-  color: #fffdf5;
+  color: var(--party-accent-ink);
 }
-.birthday-header .birthday-banner {
+.celebration-header .celebration-banner {
   position: relative;
   z-index: 3;
   grid-column: 2;
@@ -659,7 +682,7 @@ body[data-kiosk="true"] .panel-footer{min-height:28px;padding-top:6px}
   text-align: center;
   pointer-events: none;
 }
-.birthday-header .birthday-garland {
+.celebration-header .celebration-garland {
   position: absolute;
   z-index: 1;
   top: -8px;
@@ -670,47 +693,47 @@ body[data-kiosk="true"] .panel-footer{min-height:28px;padding-top:6px}
   justify-content: space-around;
   height: 31px;
 }
-.birthday-garland::before {
+.celebration-garland::before {
   position: absolute;
   top: -2px;
   right: 0;
   left: 0;
   height: 20px;
-  border-bottom: 2px solid #795b52;
+  border-bottom: 2px solid var(--party-muted);
   border-radius: 0 0 50% 50%;
   content: "";
 }
-.birthday-garland span {
+.celebration-garland span {
   position: relative;
   z-index: 1;
   width: clamp(25px, 4vw, 48px);
   height: 26px;
   margin-top: 5px;
   clip-path: polygon(0 0, 100% 0, 50% 100%);
-  animation: birthday-pennant-sway 2.8s ease-in-out infinite alternate;
+  animation: celebration-pennant-sway 2.8s ease-in-out infinite alternate;
   transform-origin: 50% 0;
 }
-.birthday-garland span:nth-child(2n) { animation-delay: -1.1s; }
-.birthday-garland span:nth-child(3n) { animation-delay: -1.8s; }
-.birthday-garland .flag-coral { background: var(--party-coral); }
-.birthday-garland .flag-yellow { background: var(--party-yellow); }
-.birthday-garland .flag-blue { background: var(--party-blue); }
-.birthday-garland .flag-purple { background: #a779c6; }
-.birthday-garland .flag-green { background: #74ad78; }
-.birthday-header .birthday-copy {
+.celebration-garland span:nth-child(2n) { animation-delay: -1.1s; }
+.celebration-garland span:nth-child(3n) { animation-delay: -1.8s; }
+.celebration-garland .flag-coral { background: var(--party-coral); }
+.celebration-garland .flag-yellow { background: var(--party-yellow); }
+.celebration-garland .flag-blue { background: var(--party-blue); }
+.celebration-garland .flag-purple { background: var(--party-purple); }
+.celebration-garland .flag-green { background: var(--party-green); }
+.celebration-header .celebration-copy {
   position: relative;
   z-index: 4;
   max-width: calc(100% - 84px);
-  animation: birthday-message-bob 3.8s ease-in-out infinite;
+  animation: celebration-message-bob 3.8s ease-in-out infinite;
 }
-.birthday-kicker {
+.celebration-kicker {
   margin: 0 0 3px;
-  color: #a34658;
+  color: var(--party-accent);
   font-size: 9px;
   font-weight: 900;
   letter-spacing: .2em;
 }
-.birthday-copy h2 {
+.celebration-copy h2 {
   margin: 0;
   color: var(--party-ink);
   font-family: var(--heading);
@@ -720,24 +743,24 @@ body[data-kiosk="true"] .panel-footer{min-height:28px;padding-top:6px}
   line-height: 1.05;
   text-shadow: 1px 2px 0 #fff8df;
 }
-.birthday-subtitle {
+.celebration-subtitle {
   margin: 4px 0 0;
-  color: #795b52;
+  color: var(--party-muted);
   font-size: 11px;
   font-weight: 750;
   letter-spacing: .035em;
 }
-.birthday-balloon {
+.celebration-balloon {
   position: absolute;
   top: 39%;
   width: 25px;
   height: 32px;
   border-radius: 50% 50% 48% 48%;
-  animation: birthday-balloon-float 3s ease-in-out infinite;
+  animation: celebration-balloon-float 3s ease-in-out infinite;
   background: var(--party-coral);
   box-shadow: inset -5px -4px 0 #00000018, inset 5px 3px 0 #ffffff42;
 }
-.birthday-balloon::before {
+.celebration-balloon::before {
   position: absolute;
   bottom: -4px;
   left: 9px;
@@ -747,7 +770,7 @@ body[data-kiosk="true"] .panel-footer{min-height:28px;padding-top:6px}
   background: inherit;
   content: "";
 }
-.birthday-balloon::after {
+.celebration-balloon::after {
   position: absolute;
   top: 100%;
   left: 12px;
@@ -755,125 +778,281 @@ body[data-kiosk="true"] .panel-footer{min-height:28px;padding-top:6px}
   border-left: 1px solid #795b52;
   content: "";
 }
-.birthday-header .birthday-balloon.balloon-left { left: 3%; }
-.birthday-header .birthday-balloon.balloon-right { right: 3%; animation-name: birthday-balloon-float-right; animation-delay: -1.5s; background: var(--party-blue); }
-.birthday-sparkle {
+.celebration-header .celebration-balloon.balloon-left { left: 3%; }
+.celebration-header .celebration-balloon.balloon-right { right: 3%; animation-name: celebration-balloon-float-right; animation-delay: -1.5s; background: var(--party-blue); }
+.celebration-sparkle {
   position: absolute;
   color: #bc7b26;
   font-size: 22px;
-  animation: birthday-sparkle-pop 1.8s ease-in-out infinite alternate;
+  animation: celebration-sparkle-pop 1.8s ease-in-out infinite alternate;
 }
-.birthday-sparkle.sparkle-left { top: 56%; left: 13%; }
-.birthday-sparkle.sparkle-right { top: 32%; right: 13%; animation-delay: -.9s; color: #a779c6; }
-@keyframes birthday-pennant-sway { from { transform: rotate(-5deg); } to { transform: rotate(5deg); } }
-@keyframes birthday-message-bob {
+.celebration-sparkle.sparkle-left { top: 56%; left: 13%; }
+.celebration-sparkle.sparkle-right { top: 32%; right: 13%; animation-delay: -.9s; color: #a779c6; }
+@keyframes celebration-pennant-sway { from { transform: rotate(-5deg); } to { transform: rotate(5deg); } }
+@keyframes celebration-message-bob {
   0%, 100% { transform: translateY(1px) rotate(-.35deg); }
   50% { transform: translateY(-2px) rotate(.35deg); }
 }
-@keyframes birthday-balloon-float-left {
+@keyframes celebration-balloon-float-left {
   0%, 100% { transform: translateY(2px) rotate(-8deg); }
   50% { transform: translateY(-6px) rotate(-8deg); }
 }
-@keyframes birthday-balloon-float-right {
+@keyframes celebration-balloon-float-right {
   0%, 100% { transform: translateY(2px) rotate(8deg); }
   50% { transform: translateY(-6px) rotate(8deg); }
 }
-@keyframes birthday-sparkle-pop {
+@keyframes celebration-sparkle-pop {
   from { opacity: .55; transform: scale(.78) rotate(-12deg); }
   to { opacity: 1; transform: scale(1.12) rotate(12deg); }
 }
 
 /* The dashboard tabs get party colors, tiny tilts, and a paper confetti rail. */
-.birthday-mode .feature-tabs {
+.celebration-mode .feature-tabs {
   position: relative;
   isolation: isolate;
   gap: 8px;
   margin: 14px 0 11px;
   overflow: hidden;
   padding: 8px 7px 9px;
-  border: 2px dashed #d49b67;
+  border: 2px dashed var(--party-nav-border);
   border-radius: 13px;
-  background-color: #fff1d0;
-  background-image:
-    radial-gradient(circle at 13% 24%, #ed5972 0 2px, transparent 2.5px),
-    radial-gradient(circle at 77% 72%, #45a8c3 0 2px, transparent 2.5px),
-    linear-gradient(90deg, #fff0e7, #fff5d9 48%, #e9f5f1);
+  background-color: var(--party-nav-surface);
+  background-image: var(--party-nav-background);
 }
-.birthday-mode .feature-tab {
+.celebration-mode .feature-tab {
   position: relative;
   z-index: 1;
   min-width: 0;
-  border-color: #e2bb89;
-  background: #fffdf5;
-  box-shadow: 0 3px 0 #d9a66b;
-  color: #583348;
-  animation: birthday-nav-jiggle 4s ease-in-out infinite;
+  border-color: var(--party-card-border);
+  background: var(--party-card);
+  box-shadow: 0 3px 0 var(--party-nav-shadow);
+  color: var(--party-card-ink);
+  animation: celebration-nav-jiggle 4s ease-in-out infinite;
 }
-.birthday-mode .feature-tab:nth-child(2n) { animation-delay: -1.4s; }
-.birthday-mode .feature-tab:nth-child(3n) { animation-delay: -2.1s; }
-.birthday-mode .feature-tab.is-active {
-  border-color: #72283b;
-  background: #9a2f48;
-  color: #fffdf5;
+.celebration-mode .feature-tab:nth-child(2n) { animation-delay: -1.4s; }
+.celebration-mode .feature-tab:nth-child(3n) { animation-delay: -2.1s; }
+.celebration-mode .feature-tab.is-active {
+  border-color: var(--party-active-border);
+  background: var(--party-active-bg);
+  color: var(--party-active-ink);
 }
-.birthday-mode .feature-tab:hover { animation-play-state: paused; transform: translateY(-3px) rotate(0); }
-@keyframes birthday-nav-jiggle {
+.celebration-mode .feature-tab:hover { animation-play-state: paused; transform: translateY(-3px) rotate(0); }
+@keyframes celebration-nav-jiggle {
   0%, 100% { transform: translateY(0) rotate(-.7deg); }
   50% { transform: translateY(-2px) rotate(.7deg); }
 }
 
 @media (max-width: 1179px) {
-  .birthday-header {
+  .celebration-header {
     min-height: 145px;
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-rows: 49px minmax(74px, 1fr);
     padding: 8px 12px;
   }
-  .birthday-header > .brand { grid-column: 1; grid-row: 1; }
-  .birthday-header > .header-right { grid-column: 2; grid-row: 1; justify-self: end; gap: 7px; }
-  .birthday-header .birthday-clock { min-width: 112px; padding-left: 10px; }
-  .birthday-header .clock-block strong { font-size: 35px; }
-  .birthday-header .birthday-banner {
+  .celebration-header > .brand { grid-column: 1; grid-row: 1; }
+  .celebration-header > .header-right { grid-column: 2; grid-row: 1; justify-self: end; gap: 7px; }
+  .celebration-header .celebration-clock { min-width: 112px; padding-left: 10px; }
+  .celebration-header .clock-block strong { font-size: 35px; }
+  .celebration-header .celebration-banner {
     grid-column: 1 / -1;
     grid-row: 2;
     min-height: 74px;
     padding: 20px 12px 4px;
   }
-  .birthday-header .birthday-garland { right: -3%; left: -3%; }
-  .birthday-header .birthday-balloon.balloon-left { left: 3%; }
-  .birthday-header .birthday-balloon.balloon-right { right: 3%; }
-  .birthday-header .birthday-sparkle.sparkle-left { left: 20%; }
-  .birthday-header .birthday-sparkle.sparkle-right { right: 20%; }
+  .celebration-header .celebration-garland { right: -3%; left: -3%; }
+  .celebration-header .celebration-balloon.balloon-left { left: 3%; }
+  .celebration-header .celebration-balloon.balloon-right { right: 3%; }
+  .celebration-header .celebration-sparkle.sparkle-left { left: 20%; }
+  .celebration-header .celebration-sparkle.sparkle-right { right: 20%; }
 }
 @media (max-width: 520px) {
-  .birthday-header {
+  .celebration-header {
     min-height: 0;
     grid-template-columns: minmax(0, 1fr) auto auto;
     grid-template-rows: auto auto auto;
-    grid-template-areas: "brand brand settings" "clock sensors date" "birthday birthday birthday";
+    grid-template-areas: "brand brand settings" "clock sensors date" "celebration celebration celebration";
     gap: 4px 6px;
     padding: 5px 7px 8px;
   }
-  .birthday-header > .brand { grid-area: brand; }
-  .birthday-header .birthday-clock { grid-area: clock; grid-column: auto; grid-row: auto; justify-self: start; min-width: 0; padding: 2px 6px; border: 1px solid #d7ad7d; border-radius: 8px; background: #fff9e8; }
-  .birthday-header .clock-block strong { font-size: 28px; }
-  .birthday-header .clock-block span { font-size: 10px; }
-  .birthday-header > .header-right { display: contents; }
-  .birthday-header .header-sensors { grid-area: sensors; justify-self: center; }
-  .birthday-header .date-block { grid-area: date; }
-  .birthday-header .settings-launch { grid-area: settings; justify-self: end; }
-  .birthday-header .birthday-banner { grid-area: birthday; grid-column: 1 / -1; grid-row: auto; min-height: 64px; padding: 18px 30px 3px; }
-  .birthday-header .birthday-garland { top: -5px; right: -1%; left: -1%; }
-  .birthday-garland span { width: 22px; height: 21px; }
-  .birthday-kicker { font-size: 7px; letter-spacing: .14em; }
-  .birthday-copy h2 { font-size: clamp(17px, 5vw, 23px); }
-  .birthday-subtitle { margin-top: 3px; font-size: 9px; }
-  .birthday-header .birthday-balloon { top: 40%; width: 18px; height: 24px; }
-  .birthday-balloon::before { left: 6px; }
-  .birthday-balloon::after { left: 8px; height: 16px; }
-  .birthday-header .birthday-sparkle { font-size: 16px; }
-  .birthday-header .birthday-sparkle.sparkle-left { left: 15%; }
-  .birthday-header .birthday-sparkle.sparkle-right { right: 15%; }
-  .birthday-mode .feature-tabs { gap: 5px; padding: 6px 4px 7px; }
-  .birthday-mode .feature-tab { gap: 3px; padding: 5px 6px; font-size: 10px; }
+  .celebration-header > .brand { grid-area: brand; }
+  .celebration-header .celebration-clock { grid-area: clock; grid-column: auto; grid-row: auto; justify-self: start; min-width: 0; padding: 2px 6px; border: 1px solid #d7ad7d; border-radius: 8px; background: #fff9e8; }
+  .celebration-header .clock-block strong { font-size: 28px; }
+  .celebration-header .clock-block span { font-size: 10px; }
+  .celebration-header > .header-right { display: contents; }
+  .celebration-header .header-sensors { grid-area: sensors; justify-self: center; }
+  .celebration-header .date-block { grid-area: date; }
+  .celebration-header .settings-launch { grid-area: settings; justify-self: end; }
+  .celebration-header .celebration-banner { grid-area: celebration; grid-column: 1 / -1; grid-row: auto; min-height: 64px; padding: 18px 30px 3px; }
+  .celebration-header .celebration-garland { top: -5px; right: -1%; left: -1%; }
+  .celebration-garland span { width: 22px; height: 21px; }
+  .celebration-kicker { font-size: 7px; letter-spacing: .14em; }
+  .celebration-copy h2 { font-size: clamp(17px, 5vw, 23px); }
+  .celebration-subtitle { margin-top: 3px; font-size: 9px; }
+  .celebration-header .celebration-balloon { top: 40%; width: 18px; height: 24px; }
+  .celebration-balloon::before { left: 6px; }
+  .celebration-balloon::after { left: 8px; height: 16px; }
+  .celebration-header .celebration-sparkle { font-size: 16px; }
+  .celebration-header .celebration-sparkle.sparkle-left { left: 15%; }
+  .celebration-header .celebration-sparkle.sparkle-right { right: 15%; }
+  .celebration-mode .feature-tabs { gap: 5px; padding: 6px 4px 7px; }
+  .celebration-mode .feature-tab { gap: 3px; padding: 5px 6px; font-size: 10px; }
+}
+
+/* Each federal holiday gets its own color story and printed-paper pattern. */
+.celebration-mode[data-holiday="new-years-day"] {
+  --party-ink: #fff5d8; --party-muted: #edd796; --party-accent: #d84f71; --party-accent-ink: #fff;
+  --party-card: #fff8e8; --party-card-ink: #302846; --party-card-border: #d2ad63;
+  --party-border: #c59a4e; --party-shadow: #8f6635; --party-nav-shadow: #9b713c;
+  --party-active-bg: #6b355b; --party-active-border: #48233e; --party-active-ink: #fff;
+  --party-coral: #f07179; --party-yellow: #f0ca65; --party-blue: #68c3db; --party-purple: #bd8cce; --party-green: #7eb28d;
+  --party-header-background: radial-gradient(circle at 18% 24%, #f2cf6d 0 2px, transparent 3px), radial-gradient(circle at 78% 69%, #e87180 0 2px, transparent 3px), linear-gradient(112deg, #202745, #603b64 53%, #182b49);
+  --party-nav-surface: #202745;
+  --party-nav-background: radial-gradient(circle at 12% 22%, #e5bd61 0 2px, transparent 3px), radial-gradient(circle at 83% 78%, #e87180 0 2px, transparent 3px), linear-gradient(90deg, #342849, #413052 50%, #24334a);
+}
+.celebration-mode[data-holiday="mlk-day"] {
+  --party-ink: #fff8df; --party-muted: #e5d9af; --party-accent: #e1b94f; --party-accent-ink: #132c52;
+  --party-card: #fff8e5; --party-card-ink: #1e3152; --party-card-border: #d3b968;
+  --party-border: #d1b765; --party-shadow: #8e7131; --party-nav-shadow: #a68c49;
+  --party-active-bg: #17365f; --party-active-border: #102746; --party-active-ink: #fff;
+  --party-coral: #d7b553; --party-yellow: #f1d78a; --party-blue: #6eb5cf; --party-purple: #9c88b7; --party-green: #8eae8c;
+  --party-header-background: radial-gradient(circle at 15% 28%, rgba(247, 218, 133, .72) 0 2px, transparent 3px), linear-gradient(112deg, #172d50, #294b71 55%, #172d50);
+  --party-nav-surface: #e7dfc7;
+  --party-nav-background: radial-gradient(circle at 11% 26%, #d2b05b 0 2px, transparent 3px), linear-gradient(90deg, #e8e2d1, #f5edd8 52%, #d7e2e8);
+}
+.celebration-mode[data-holiday="washingtons-birthday"] {
+  --party-ink: #17345d; --party-muted: #586a80; --party-accent: #a53948; --party-accent-ink: #fff;
+  --party-card: #fffdf4; --party-card-ink: #17345d; --party-card-border: #c4cbd1;
+  --party-border: #a7b6c7; --party-shadow: #7f98b3; --party-nav-shadow: #9cacbc;
+  --party-active-bg: #183d70; --party-active-border: #102b4e; --party-active-ink: #fff;
+  --party-coral: #b44350; --party-yellow: #dcbf74; --party-blue: #335f91; --party-purple: #8d9fb5; --party-green: #718e7a;
+  --party-header-background: radial-gradient(circle at 50% 25%, #fff 0 2px, transparent 3px), repeating-linear-gradient(0deg, #fffaf0 0 18px, #f2e7e2 18px 25px), linear-gradient(105deg, #e2eaf1, #fffaf0 50%, #eadfe0);
+  --party-nav-surface: #f3eee4;
+  --party-nav-background: radial-gradient(circle at 14% 20%, #355d88 0 2px, transparent 3px), radial-gradient(circle at 82% 75%, #b44350 0 2px, transparent 3px), linear-gradient(90deg, #e6edf2, #fffaf0 50%, #f0e0df);
+}
+.celebration-mode[data-holiday="memorial-day"] {
+  --party-ink: #20364f; --party-muted: #677587; --party-accent: #a33e45; --party-accent-ink: #fff;
+  --party-card: #f8f5ec; --party-card-ink: #263950; --party-card-border: #c8c9c3;
+  --party-border: #9ba6ae; --party-shadow: #717e89; --party-nav-shadow: #929b9e;
+  --party-active-bg: #293f59; --party-active-border: #172a3d; --party-active-ink: #fff;
+  --party-coral: #a33e45; --party-yellow: #c9ad71; --party-blue: #344e68; --party-purple: #828897; --party-green: #7b8a78;
+  --party-header-background: linear-gradient(110deg, #dce0df, #f5f1e7 51%, #e6e0d5);
+  --party-nav-surface: #e9e5db;
+  --party-nav-background: linear-gradient(90deg, #dce3e6, #f5f1e7 52%, #e5dfd7);
+}
+.celebration-mode[data-holiday="juneteenth"] {
+  --party-ink: #fff4d3; --party-muted: #e8d7a9; --party-accent: #d8464b; --party-accent-ink: #fff;
+  --party-card: #fff7df; --party-card-ink: #27251e; --party-card-border: #d2ad58;
+  --party-border: #c2a149; --party-shadow: #77612d; --party-nav-shadow: #a48435;
+  --party-active-bg: #23633f; --party-active-border: #16472d; --party-active-ink: #fff;
+  --party-coral: #da4549; --party-yellow: #e6c252; --party-blue: #5988b3; --party-purple: #9c7090; --party-green: #4c9b62;
+  --party-header-background: radial-gradient(circle at 50% 50%, #e6c252 0 5px, transparent 6px), linear-gradient(105deg, #19231d 0 31%, #9e3038 31% 48%, #23231d 48% 52%, #28724a 52% 100%);
+  --party-nav-surface: #20271f;
+  --party-nav-background: radial-gradient(circle at 50% 50%, #e6c252 0 3px, transparent 4px), linear-gradient(90deg, #19231d, #702e36 48%, #28724a);
+}
+.celebration-mode[data-holiday="independence-day"] {
+  --party-ink: #183454; --party-muted: #5d7081; --party-accent: #b33d4b; --party-accent-ink: #fff;
+  --party-card: #fffdf5; --party-card-ink: #183454; --party-card-border: #c4cbd0;
+  --party-border: #a9b7c4; --party-shadow: #718da5; --party-nav-shadow: #96a9b8;
+  --party-active-bg: #224a78; --party-active-border: #153554; --party-active-ink: #fff;
+  --party-coral: #bd4650; --party-yellow: #d8b95e; --party-blue: #335b91; --party-purple: #857da5; --party-green: #6c927c;
+  --party-header-background: radial-gradient(circle at 13% 23%, #315d91 0 2px, transparent 3px), radial-gradient(circle at 83% 72%, #b83d4c 0 2px, transparent 3px), linear-gradient(105deg, #dce7f0, #fff9ed 53%, #f0dedd);
+  --party-nav-surface: #e7edf0;
+  --party-nav-background: radial-gradient(circle at 11% 24%, #315d91 0 2px, transparent 3px), radial-gradient(circle at 78% 72%, #b83d4c 0 2px, transparent 3px), linear-gradient(90deg, #e3ebf0, #fff8eb 52%, #f0dfdd);
+}
+.celebration-mode[data-holiday="labor-day"] {
+  --party-ink: #fff6dc; --party-muted: #e5d5a8; --party-accent: #efbd53; --party-accent-ink: #253552;
+  --party-card: #fff8e7; --party-card-ink: #27364f; --party-card-border: #d4b975;
+  --party-border: #d0af60; --party-shadow: #876b37; --party-nav-shadow: #a3874a;
+  --party-active-bg: #24476b; --party-active-border: #18334e; --party-active-ink: #fff;
+  --party-coral: #e1a94c; --party-yellow: #f3d273; --party-blue: #4b98bf; --party-purple: #9b88a2; --party-green: #77a27a;
+  --party-header-background: radial-gradient(circle at 19% 36%, rgba(243, 210, 115, .58) 0 8px, transparent 9px), radial-gradient(circle at 82% 71%, rgba(75, 152, 191, .55) 0 11px, transparent 12px), linear-gradient(110deg, #203a5c, #365c79 56%, #243653);
+  --party-nav-surface: #263d58;
+  --party-nav-background: radial-gradient(circle at 15% 30%, #e4b754 0 2px, transparent 3px), linear-gradient(90deg, #253b57, #385976 52%, #293a53);
+}
+.celebration-mode[data-holiday="columbus-day"] {
+  --party-ink: #fdf4dc; --party-muted: #e7d6b4; --party-accent: #c97347; --party-accent-ink: #fff;
+  --party-card: #fff7e8; --party-card-ink: #3b3b35; --party-card-border: #d2b08a;
+  --party-border: #b98962; --party-shadow: #795940; --party-nav-shadow: #9b7352;
+  --party-active-bg: #32686a; --party-active-border: #214c4e; --party-active-ink: #fff;
+  --party-coral: #cb7651; --party-yellow: #d8ad61; --party-blue: #44898b; --party-purple: #9c8193; --party-green: #718d60;
+  --party-header-background: radial-gradient(circle at 18% 25%, rgba(237, 194, 115, .55) 0 2px, transparent 3px), linear-gradient(108deg, #305b5b, #84634e 52%, #374b52);
+  --party-nav-surface: #355454;
+  --party-nav-background: radial-gradient(circle at 14% 22%, #d8ad61 0 2px, transparent 3px), linear-gradient(90deg, #355454, #785d4c 52%, #355454);
+}
+.celebration-mode[data-holiday="veterans-day"] {
+  --party-ink: #f5f1df; --party-muted: #c8c9b6; --party-accent: #b54a4c; --party-accent-ink: #fff;
+  --party-card: #f5f2e5; --party-card-ink: #2d3940; --party-card-border: #b9b8a4;
+  --party-border: #9c9f8b; --party-shadow: #646b5f; --party-nav-shadow: #858b76;
+  --party-active-bg: #344e49; --party-active-border: #233833; --party-active-ink: #fff;
+  --party-coral: #b84d4f; --party-yellow: #c6ae70; --party-blue: #455f70; --party-purple: #85818c; --party-green: #718264;
+  --party-header-background: radial-gradient(circle at 16% 27%, rgba(211, 184, 113, .46) 0 2px, transparent 3px), linear-gradient(110deg, #354a4b, #596151 54%, #34464c);
+  --party-nav-surface: #394b49;
+  --party-nav-background: radial-gradient(circle at 80% 70%, #b84d4f 0 2px, transparent 3px), linear-gradient(90deg, #354a4b, #58604f 52%, #35474b);
+}
+.celebration-mode[data-holiday="thanksgiving-day"] {
+  --party-ink: #563827; --party-muted: #75563b; --party-accent: #a94731; --party-accent-ink: #fff;
+  --party-card: #fff5df; --party-card-ink: #563827; --party-card-border: #d9ae78;
+  --party-border: #c58c57; --party-shadow: #98633f; --party-nav-shadow: #ad8054;
+  --party-active-bg: #8c3f2d; --party-active-border: #642e24; --party-active-ink: #fff;
+  --party-coral: #c45a38; --party-yellow: #e5b64f; --party-blue: #64877e; --party-purple: #9b7080; --party-green: #6f8c4f;
+  --party-header-background: radial-gradient(circle at 16% 26%, #e4b24a 0 3px, transparent 4px), radial-gradient(circle at 83% 74%, #c25739 0 4px, transparent 5px), linear-gradient(108deg, #f2d8a5, #f8ead0 52%, #e6c295);
+  --party-nav-surface: #ecd5ad;
+  --party-nav-background: radial-gradient(circle at 14% 20%, #bb5738 0 2px, transparent 3px), radial-gradient(circle at 80% 70%, #6f8c4f 0 2px, transparent 3px), linear-gradient(90deg, #edd3a8, #fff0d4 52%, #e3c194);
+}
+.celebration-mode[data-holiday="christmas-day"] {
+  --party-ink: #fff5dd; --party-muted: #dfd2b3; --party-accent: #c94a4c; --party-accent-ink: #fff;
+  --party-card: #fff8e7; --party-card-ink: #294338; --party-card-border: #c9aa70;
+  --party-border: #c8a665; --party-shadow: #735339; --party-nav-shadow: #987449;
+  --party-active-bg: #a7373f; --party-active-border: #78262e; --party-active-ink: #fff;
+  --party-coral: #d44e51; --party-yellow: #e8c25f; --party-blue: #5d9a9b; --party-purple: #9d7fa6; --party-green: #75a273;
+  --party-header-background: radial-gradient(circle at 17% 24%, #e8c25f 0 2px, transparent 3px), radial-gradient(circle at 84% 71%, #d44e51 0 2px, transparent 3px), linear-gradient(108deg, #174d3d, #286a4a 52%, #174639);
+  --party-nav-surface: #1e493a;
+  --party-nav-background: radial-gradient(circle at 13% 25%, #e8c25f 0 2px, transparent 3px), radial-gradient(circle at 82% 76%, #c94a4c 0 2px, transparent 3px), linear-gradient(90deg, #1e493a, #326848 52%, #1e493a);
+}
+
+.celebration-header .header-sensor { background: var(--party-card); border-color: var(--party-card-border); color: var(--party-card-ink); }
+.celebration-header .header-sensor strong { color: var(--party-card-ink); }
+.celebration-header .celebration-clock { background: var(--party-card); border-color: var(--party-card-border); color: var(--party-card-ink); }
+.celebration-header .header-sensor.is-alert,
+.celebration-header .header-sensor.is-alert strong { color: var(--party-accent); }
+.celebration-header .celebration-clock { box-shadow: 0 2px 0 var(--party-nav-shadow); }
+.celebration-header .celebration-clock strong { color: var(--party-card-ink); }
+.celebration-header .celebration-clock span { color: var(--party-accent); }
+.celebration-header .settings-launch { border-color: var(--party-accent); background: var(--party-accent); color: var(--party-accent-ink); }
+.celebration-mode .feature-tabs { border-color: var(--party-nav-border); background-color: var(--party-nav-surface); background-image: var(--party-nav-background); }
+.celebration-mode .feature-tab { border-color: var(--party-card-border); background: var(--party-card); box-shadow: 0 3px 0 var(--party-nav-shadow); color: var(--party-card-ink); }
+.celebration-mode .feature-tab.is-active { border-color: var(--party-active-border); background: var(--party-active-bg); color: var(--party-active-ink); }
+.holiday-banner .holiday-copy { max-width: calc(100% - 92px); }
+.holiday-copy h2 { font-size: clamp(18px, 1.9vw, 26px); }
+.holiday-banner .holiday-garland { right: -85%; left: -85%; }
+.holiday-banner .holiday-art { position: absolute; z-index: 2; inset: 0; pointer-events: none; }
+.holiday-emblem { position: absolute; top: 47%; width: 38px; height: 38px; padding: 8px; border: 1px solid var(--party-border); border-radius: 50%; background: var(--party-card); color: var(--party-accent); box-shadow: 0 2px 0 var(--party-shadow); transform: translateY(-50%); animation: holiday-emblem-drift 4s ease-in-out infinite; }
+.holiday-emblem-left { left: 3%; }
+.holiday-emblem-right { right: 3%; color: var(--party-blue); animation-delay: -2s; }
+.holiday-date { display: inline-block; margin-left: .35em; padding: 2px 5px; border: 1px solid var(--party-card-border); border-radius: 99px; background: var(--party-card); color: var(--party-card-ink); font-size: 8px; letter-spacing: .02em; vertical-align: 1px; }
+@keyframes holiday-emblem-drift { 0%,100% { transform: translateY(-50%) rotate(-4deg); } 50% { transform: translateY(calc(-50% - 3px)) rotate(4deg); } }
+.celebration-mode[data-holiday="mlk-day"] .holiday-emblem,
+.celebration-mode[data-holiday="memorial-day"] .holiday-emblem,
+.celebration-mode[data-holiday="veterans-day"] .holiday-emblem,
+.celebration-mode[data-holiday="mlk-day"] .feature-tab,
+.celebration-mode[data-holiday="memorial-day"] .feature-tab,
+.celebration-mode[data-holiday="veterans-day"] .feature-tab { animation: none; }
+.local-holiday-preview { display: flex; flex-direction: column; gap: 8px; padding: 12px; border: 1px dashed var(--accent); border-radius: 12px; background: var(--soft); }
+.local-holiday-preview .setting-label { margin: 0; }
+.holiday-preview-button { min-height: 42px; padding: 8px 12px; border: 1px solid var(--accent); border-radius: 9px; background: var(--accent); color: var(--surface); font-weight: 800; }
+.holiday-preview-button:hover { filter: brightness(1.08); }
+@media (max-width: 520px) {
+  .celebration-header .celebration-clock { border-color: var(--party-card-border); background: var(--party-card); }
+  .holiday-emblem { width: 28px; height: 28px; padding: 5px; }
+  .holiday-banner .holiday-copy { max-width: calc(100% - 70px); }
+  .holiday-copy h2 { font-size: clamp(16px, 4.6vw, 21px); }
+  .holiday-date { margin-left: .15em; padding: 1px 3px; font-size: 7px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .celebration-mode .feature-tab,
+  .celebration-mode .celebration-copy,
+  .celebration-mode .celebration-garland span,
+  .celebration-mode .celebration-balloon,
+  .celebration-mode .celebration-sparkle,
+  .celebration-mode .holiday-emblem { animation: none !important; }
 }

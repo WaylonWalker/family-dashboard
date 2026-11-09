@@ -13,6 +13,7 @@ import (
 	"io"
 	"log"
 	"math"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -341,6 +342,16 @@ type Day struct {
 	Number string
 	Today  bool
 }
+type HolidayBanner struct {
+	Key           string
+	Title         string
+	Kicker        string
+	Tagline       string
+	Icon          string
+	SecondaryIcon string
+	Date          time.Time
+	DateLabel     string
+}
 type TomorrowEvent struct {
 	Title  string
 	Time   string
@@ -349,6 +360,9 @@ type TomorrowEvent struct {
 type Page struct {
 	WeatherKind        string
 	BirthdayMessage    string
+	Holiday            *HolidayBanner
+	HolidayOptions     []HolidayBanner
+	HolidayPreview     string
 	Hour24             int
 	CalendarBadge      string
 	CalendarNote       string
@@ -811,6 +825,108 @@ func birthdayMessage(now time.Time, loc *time.Location) string {
 	}
 }
 
+func observedFederalHoliday(date time.Time) time.Time {
+	switch date.Weekday() {
+	case time.Saturday:
+		date = date.AddDate(0, 0, -1)
+	case time.Sunday:
+		date = date.AddDate(0, 0, 1)
+	}
+	return time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
+}
+
+func nthWeekdayOfMonth(year int, month time.Month, weekday time.Weekday, occurrence int, loc *time.Location) time.Time {
+	first := time.Date(year, month, 1, 0, 0, 0, 0, loc)
+	offset := (int(weekday) - int(first.Weekday()) + 7) % 7
+	return first.AddDate(0, 0, offset+7*(occurrence-1))
+}
+
+func lastWeekdayOfMonth(year int, month time.Month, weekday time.Weekday, loc *time.Location) time.Time {
+	firstNextMonth := time.Date(year, month+1, 1, 0, 0, 0, 0, loc)
+	last := firstNextMonth.AddDate(0, 0, -1)
+	offset := (int(last.Weekday()) - int(weekday) + 7) % 7
+	return last.AddDate(0, 0, -offset)
+}
+
+func federalHolidaySchedule(year int, loc *time.Location) []HolidayBanner {
+	fixed := func(month time.Month, day int) time.Time {
+		return time.Date(year, month, day, 0, 0, 0, 0, loc)
+	}
+	holiday := func(key, title, kicker, tagline, icon, secondaryIcon string, date time.Time) HolidayBanner {
+		return HolidayBanner{Key: key, Title: title, Kicker: kicker, Tagline: tagline, Icon: icon, SecondaryIcon: secondaryIcon, Date: date, DateLabel: date.Format("Mon, Jan 2")}
+	}
+	holidayDate := func(date time.Time) time.Time { return observedFederalHoliday(date) }
+	holidays := []HolidayBanner{
+		holiday("new-years-day", "New Year's Day", "FRESH START", "Raise a glass to the next chapter.", "spark", "clock", holidayDate(fixed(time.January, 1))),
+		holiday("mlk-day", "Martin Luther King Jr. Day", "DAY OF SERVICE", "A day to serve, remember, and build together.", "heart", "spark", nthWeekdayOfMonth(year, time.January, time.Monday, 3, loc)),
+		holiday("washingtons-birthday", "Presidents' Day", "WASHINGTON'S BIRTHDAY", "A little history, a lot of character.", "spark", "compass", nthWeekdayOfMonth(year, time.February, time.Monday, 3, loc)),
+		holiday("memorial-day", "Memorial Day", "IN MEMORY", "Remembering those who gave their lives in service.", "poppy", "spark", lastWeekdayOfMonth(year, time.May, time.Monday, loc)),
+		holiday("juneteenth", "Juneteenth", "JUNETEENTH NATIONAL INDEPENDENCE DAY", "Freedom, history, and joy.", "spark", "sun", holidayDate(fixed(time.June, 19))),
+		holiday("independence-day", "Independence Day", "FOURTH OF JULY", "Stars, stripes, and backyard night skies.", "firework", "spark", holidayDate(fixed(time.July, 4))),
+		holiday("labor-day", "Labor Day", "LABOR DAY", "Here's to the hands that make it happen.", "settings", "sun", nthWeekdayOfMonth(year, time.September, time.Monday, 1, loc)),
+		holiday("columbus-day", "Columbus Day", "AUTUMN DISCOVERY", "A fall day to learn about the places we call home.", "compass", "leaf", nthWeekdayOfMonth(year, time.October, time.Monday, 2, loc)),
+		holiday("veterans-day", "Veterans Day", "VETERANS DAY", "Honoring all who served.", "medal", "spark", holidayDate(fixed(time.November, 11))),
+		holiday("thanksgiving-day", "Thanksgiving Day", "GATHER ROUND", "Second helpings are encouraged.", "leaf", "leaf", nthWeekdayOfMonth(year, time.November, time.Thursday, 4, loc)),
+		holiday("christmas-day", "Christmas Day", "CHRISTMAS", "Let the lights stay on a little longer.", "tree", "spark", holidayDate(fixed(time.December, 25))),
+	}
+	sort.SliceStable(holidays, func(i, j int) bool { return holidays[i].Date.Before(holidays[j].Date) })
+	return holidays
+}
+
+func sameLocalDay(left, right time.Time, loc *time.Location) bool {
+	left = left.In(loc)
+	right = right.In(loc)
+	return left.Year() == right.Year() && left.Month() == right.Month() && left.Day() == right.Day()
+}
+
+func federalHolidayForDate(now time.Time, loc *time.Location) *HolidayBanner {
+	today := now.In(loc)
+	for year := today.Year() - 1; year <= today.Year()+1; year++ {
+		for _, holiday := range federalHolidaySchedule(year, loc) {
+			if sameLocalDay(today, holiday.Date, loc) {
+				return &holiday
+			}
+		}
+	}
+	return nil
+}
+
+func loopbackRequest(r *http.Request) bool {
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		host = strings.Trim(r.RemoteAddr, "[]")
+	}
+	address := net.ParseIP(host)
+	return address != nil && address.IsLoopback()
+}
+
+func (a *app) holidayPreview(r *http.Request, page *Page, kiosk bool, now time.Time) {
+	page.HolidayPreview = "auto"
+	if !a.devMode || kiosk || !loopbackRequest(r) {
+		return
+	}
+	page.HolidayOptions = federalHolidaySchedule(now.In(a.tz).Year(), a.tz)
+	preview := r.URL.Query().Get("holiday-preview")
+	if preview == "" || preview == "auto" {
+		return
+	}
+	page.HolidayPreview = "auto"
+	if preview == "none" {
+		page.Holiday = nil
+		page.BirthdayMessage = ""
+		page.HolidayPreview = "none"
+		return
+	}
+	for _, holiday := range page.HolidayOptions {
+		if holiday.Key == preview {
+			page.Holiday = &holiday
+			page.BirthdayMessage = ""
+			page.HolidayPreview = preview
+			return
+		}
+	}
+}
+
 func (a *app) pageContext(ctx context.Context, now time.Time) Page {
 	n := now.In(a.tz)
 	days := weekStrip(n, a.tz)
@@ -965,7 +1081,7 @@ func (a *app) pageContext(ctx context.Context, now time.Time) Page {
 	if len(wv.Slots) > 0 {
 		weatherKind = wv.Slots[0].Icon
 	}
-	return Page{WeatherKind: weatherKind, BirthdayMessage: birthdayMessage(n, a.tz), Hour24: n.Hour(), Today: n.Format("Mon, Jan 2"), Tomorrow: tomorrowDate.Format("Mon, Jan 2"), TomorrowEvents: tomorrowEvents, TomorrowEventsMore: tomorrowEventsMore, TomorrowWeather: weatherForTomorrow(wv, tomorrowDate, a.tz), Clock: n.Format("3:04"), Period: n.Format("PM"), Days: days, Events: events, TravelReview: travelReview, NextUp: nextUp, SchoolCards: schoolCards, SchoolAfternoon: n.Hour() >= 11, Tasks: tasks, Count: count, CSRF: a.csrf, CalendarBadge: badge, CalendarNote: note, CalendarMessage: message, Weather: wv}
+	return Page{WeatherKind: weatherKind, BirthdayMessage: birthdayMessage(n, a.tz), Holiday: federalHolidayForDate(n, a.tz), Hour24: n.Hour(), Today: n.Format("Mon, Jan 2"), Tomorrow: tomorrowDate.Format("Mon, Jan 2"), TomorrowEvents: tomorrowEvents, TomorrowEventsMore: tomorrowEventsMore, TomorrowWeather: weatherForTomorrow(wv, tomorrowDate, a.tz), Clock: n.Format("3:04"), Period: n.Format("PM"), Days: days, Events: events, TravelReview: travelReview, NextUp: nextUp, SchoolCards: schoolCards, SchoolAfternoon: n.Hour() >= 11, Tasks: tasks, Count: count, CSRF: a.csrf, CalendarBadge: badge, CalendarNote: note, CalendarMessage: message, Weather: wv}
 }
 
 func schoolDayCards(items []calendarItem, weather weatherView, now time.Time, loc *time.Location) []SchoolCard {
@@ -1145,9 +1261,11 @@ func (a *app) renderPage(w http.ResponseWriter, r *http.Request, kiosk bool) {
 	securityHeaders(w)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.Header().Set("Cache-Control", "private, no-store")
-	pg := a.pageContext(r.Context(), a.now())
+	now := a.now()
+	pg := a.pageContext(r.Context(), now)
 	pg.KioskMode = kiosk
 	pg.DevMode = a.devMode
+	a.holidayPreview(r, &pg, kiosk, now)
 	pg.CanManageTravel = !kiosk && a.human(r, "family-hq:manage")
 	pg.CanManage = !kiosk && a.human(r, "family-hq:manage")
 	a.frigateMu.Lock()

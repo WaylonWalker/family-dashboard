@@ -14,7 +14,7 @@
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/icons/family-hq-192.png">
   <script src="/theme.js?v=4"></script>
-  <link rel="stylesheet" href="/style.css?v=53">
+  <link rel="stylesheet" href="/style.css?v=54">
   <script defer referrerpolicy="no-referrer"
     src="https://telemetry.wayl.one/assets/faro-bootstrap.js"
     data-faro-app="family-dashboard"
@@ -48,21 +48,28 @@
     <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 7h3l1.5-2h7L17 7h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13" r="3.5"/></symbol>
     <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
     <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 2 2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z"/></symbol>
+    <symbol id="i-firework" viewBox="0 0 24 24"><path d="M12 10V2m0 20v-8m2-2h8m-20 0h8m3.4-3.4 5.7-5.7m-14.2 14.2 5.7-5.7m0-2.8L5 3m14 18-5.7-5.7"/><circle cx="12" cy="12" r="2.3"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 8.8c0 5.2-8.8 11-8.8 11s-8.8-5.8-8.8-11A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"/><path d="m8 12 2.3 2.3L16 9"/></symbol>
+    <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m15.8 8.2-2.4 5.2-5.2 2.4 2.4-5.2z"/><path d="M12 2v2m10 8h-2M12 22v-2M2 12h2"/></symbol>
+    <symbol id="i-poppy" viewBox="0 0 24 24"><path d="M12 12c-4.2 0-6-2.1-6-4.2A3.1 3.1 0 0 1 12 6a3.1 3.1 0 0 1 6 1.8c0 2.1-1.8 4.2-6 4.2Z"/><path d="M12 12v9m0-4c-2.8 0-4.1-1.5-5.5-3M12 17c2.8 0 4.1-1.5 5.5-3"/><circle cx="12" cy="8.5" r="1.4"/></symbol>
+    <symbol id="i-medal" viewBox="0 0 24 24"><path d="m7 3 2 7-3 2-2-8zm10 0-2 7 3 2 2-8z"/><circle cx="12" cy="14" r="5"/><path d="m10 14 1.4 1.4L14.5 12"/></symbol>
+    <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M20 4C10 4 5 7.7 5 13a6 6 0 0 0 6 6c5.3 0 9-5 9-15Z"/><path d="M4 21c3-5 6-8 12-12"/></symbol>
+    <symbol id="i-tree" viewBox="0 0 24 24"><path d="m12 2 2 3h-1l3 4h-2l4 5h-4v5h-4v-5H6l4-5H8l3-4h-1zM8 22h8"/><path d="m12 2 .4.8"/></symbol>
     <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m3 0-1 14H7L6 7m4 4v6m4-6v6"/></symbol>
     <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h13a3 3 0 1 0-3-3M2 12h17a3 3 0 1 1-3 3M3 16h6a3 3 0 1 1-3 3"/></symbol>
     <symbol id="i-umbrella" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 18 0H3m9-9v16a3 3 0 0 0 6 0"/></symbol>
   </svg>
 
-  <div class="shell{{if .BirthdayMessage}} birthday-mode{{end}}">
-    <header class="header{{if .BirthdayMessage}} birthday-header{{end}}">
+  <div class="shell{{if or .BirthdayMessage .Holiday}} celebration-mode{{end}}"{{if .BirthdayMessage}} data-holiday="birthday"{{else if .Holiday}} data-holiday="{{.Holiday.Key}}"{{end}}>
+    <header class="header{{if or .BirthdayMessage .Holiday}} celebration-header{{end}}">
       <div class="brand"><span class="brand-icon"><svg class="icon"><use href="#i-home" xlink:href="#i-home"/></svg></span>
         <div><h1>Family HQ<span class="brand-period">.</span></h1><p>Our little corner of the world</p></div>
       </div>
-      {{if not .BirthdayMessage}}
+      {{if not (or .BirthdayMessage .Holiday)}}
       <div class="clock-block"><strong id="live-clock">{{.Clock}}</strong><span id="live-period">{{.Period}}</span></div>
       {{end}}
       <div class="header-right">
-        {{if .BirthdayMessage}}<div class="clock-block birthday-clock"><strong id="live-clock">{{.Clock}}</strong><span id="live-period">{{.Period}}</span></div>{{end}}
+        {{if or .BirthdayMessage .Holiday}}<div class="clock-block celebration-clock"><strong id="live-clock">{{.Clock}}</strong><span id="live-period">{{.Period}}</span></div>{{end}}
         <div class="header-sensors" aria-label="Home sensor status" aria-live="polite">
           <span id="header-freezer" class="header-sensor" title="Freezer sensor"><span class="sensor-signal" aria-label="Status unknown"></span>Freezer <strong>--</strong></span>
           <span id="header-basement" class="header-sensor" title="Basement water sensor"><span class="sensor-signal" aria-label="Status unknown"></span>Basement <strong>--</strong></span>
@@ -71,18 +78,33 @@
         <button id="open-settings" class="icon-button settings-launch" type="button" aria-label="Open display settings" aria-controls="settings" aria-expanded="false" title="Theme & display settings"><svg class="icon"><use href="#i-settings" xlink:href="#i-settings"/></svg></button>
       </div>
       {{if .BirthdayMessage}}
-      <section class="birthday-banner" role="status" aria-label="{{.BirthdayMessage}}">
-        <div class="birthday-garland" aria-hidden="true">
+      <section class="celebration-banner" role="status" aria-label="{{.BirthdayMessage}}">
+        <div class="celebration-garland" aria-hidden="true">
           <span class="flag-coral"></span><span class="flag-yellow"></span><span class="flag-blue"></span><span class="flag-purple"></span><span class="flag-green"></span><span class="flag-yellow"></span><span class="flag-coral"></span>
         </div>
-        <span class="birthday-balloon balloon-left" aria-hidden="true"></span>
-        <span class="birthday-balloon balloon-right" aria-hidden="true"></span>
-        <span class="birthday-sparkle sparkle-left" aria-hidden="true">✦</span>
-        <span class="birthday-sparkle sparkle-right" aria-hidden="true">✦</span>
-        <div class="birthday-copy">
-          <p class="birthday-kicker">THE BIRTHDAY DEPARTMENT ANNOUNCES</p>
+        <span class="celebration-balloon balloon-left" aria-hidden="true"></span>
+        <span class="celebration-balloon balloon-right" aria-hidden="true"></span>
+        <span class="celebration-sparkle sparkle-left" aria-hidden="true">✦</span>
+        <span class="celebration-sparkle sparkle-right" aria-hidden="true">✦</span>
+        <div class="celebration-copy">
+          <p class="celebration-kicker">THE BIRTHDAY DEPARTMENT ANNOUNCES</p>
           <h2>{{.BirthdayMessage}}</h2>
-          <p class="birthday-subtitle">More cake. Fewer chores. That's the rule.</p>
+          <p class="celebration-subtitle">More cake. Fewer chores. That's the rule.</p>
+        </div>
+      </section>
+      {{else if .Holiday}}
+      <section class="celebration-banner holiday-banner" role="status" aria-label="{{.Holiday.Title}}: {{.Holiday.Tagline}}">
+        <div class="celebration-garland holiday-garland" aria-hidden="true">
+          <span class="flag-coral"></span><span class="flag-yellow"></span><span class="flag-blue"></span><span class="flag-purple"></span><span class="flag-green"></span><span class="flag-yellow"></span><span class="flag-coral"></span>
+        </div>
+        <div class="holiday-art" aria-hidden="true">
+          <svg class="holiday-emblem holiday-emblem-left"><use href="#i-{{.Holiday.Icon}}" xlink:href="#i-{{.Holiday.Icon}}"/></svg>
+          <svg class="holiday-emblem holiday-emblem-right"><use href="#i-{{.Holiday.SecondaryIcon}}" xlink:href="#i-{{.Holiday.SecondaryIcon}}"/></svg>
+        </div>
+        <div class="celebration-copy holiday-copy">
+          <p class="celebration-kicker">{{.Holiday.Kicker}} <span class="holiday-date">{{.Holiday.DateLabel}}</span></p>
+          <h2>{{.Holiday.Title}}</h2>
+          <p class="celebration-subtitle">{{.Holiday.Tagline}}</p>
         </div>
       </section>
       {{end}}
@@ -228,6 +250,18 @@
   <aside class="settings-drawer" id="settings" aria-labelledby="settings-title" aria-modal="true" role="dialog" hidden>
     <div class="settings-head"><div><p class="eyebrow">MAKE IT YOURS</p><h2 id="settings-title">Display settings</h2></div><button type="button" id="close-settings" class="icon-button" aria-label="Close settings">×</button></div>
     <div class="settings-inner">
+      {{if .HolidayOptions}}
+      <form class="local-holiday-preview" method="get" aria-label="Local holiday banner preview">
+        <label class="setting-label" for="holiday-preview">Local celebration preview</label>
+        <select id="holiday-preview" name="holiday-preview">
+          <option value="auto"{{if eq .HolidayPreview "auto"}} selected{{end}}>Automatic for today</option>
+          <option value="none"{{if eq .HolidayPreview "none"}} selected{{end}}>No celebration</option>
+          {{range .HolidayOptions}}<option value="{{.Key}}"{{if eq $.HolidayPreview .Key}} selected{{end}}>{{.Title}} · {{.DateLabel}}</option>{{end}}
+        </select>
+        <button class="holiday-preview-button" type="submit">Preview banner</button>
+        <p class="setting-helper">This control is available only in local development.</p>
+      </form>
+      {{end}}
       <label class="setting-label" for="theme-select">Palette</label><select id="theme-select"><option value="auto">Automatic · dark / weather / holidays</option>
         <optgroup label="2bit-demichrome">
         <option value="2bit-demichrome">Dark · 2bit Demichrome</option>
