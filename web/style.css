@@ -1032,6 +1032,52 @@ body[data-kiosk="true"] .panel-footer{min-height:28px;padding-top:6px}
 }
 .holiday-banner .holiday-garland { right: -85%; left: -85%; }
 .holiday-banner .holiday-art { position: absolute; z-index: 2; inset: 0; pointer-events: none; }
+/* The holiday bunting changes shape and material with the day. */
+.celebration-mode[data-holiday="new-years-day"] .holiday-garland span {
+  clip-path: polygon(50% 0, 62% 34%, 98% 35%, 69% 58%, 80% 94%, 50% 72%, 20% 94%, 31% 58%, 2% 35%, 38% 34%);
+  background: linear-gradient(145deg, #fff0ad, #d9a938 58%, #fff3c4);
+}
+.celebration-mode[data-holiday="mlk-day"] .holiday-garland,
+.celebration-mode[data-holiday="memorial-day"] .holiday-garland { display: none; }
+.celebration-mode[data-holiday="washingtons-birthday"] .holiday-garland span {
+  background: repeating-linear-gradient(to bottom, #fffaf0 0 4px, #b43d4b 4px 8px);
+}
+.celebration-mode[data-holiday="washingtons-birthday"] .holiday-garland span:nth-child(2n) {
+  background: radial-gradient(circle, #fff 0 1px, transparent 1.4px) 0 0 / 7px 7px, #244b78;
+}
+.celebration-mode[data-holiday="juneteenth"] .holiday-garland span {
+  clip-path: polygon(50% 0, 62% 34%, 98% 35%, 69% 58%, 80% 94%, 50% 72%, 20% 94%, 31% 58%, 2% 35%, 38% 34%);
+  background: linear-gradient(135deg, #cf4146 0 34%, #171c18 34% 66%, #367b50 66%);
+}
+.celebration-mode[data-holiday="independence-day"] .holiday-garland span:nth-child(2n) {
+  background: radial-gradient(circle at 50% 34%, #fff 0 1px, transparent 1.4px), #244c7b;
+}
+.celebration-mode[data-holiday="independence-day"] .holiday-garland span:nth-child(2n + 1) {
+  background: repeating-linear-gradient(to bottom, #fffaf0 0 4px, #b83d4b 4px 8px);
+}
+.celebration-mode[data-holiday="labor-day"] .holiday-garland span {
+  clip-path: polygon(20% 0, 34% 14%, 50% 0, 66% 14%, 80% 0, 86% 25%, 100% 35%, 86% 50%, 100% 65%, 86% 75%, 80% 100%, 66% 86%, 50% 100%, 34% 86%, 20% 100%, 14% 75%, 0 65%, 14% 50%, 0 35%, 14% 25%);
+  background: repeating-linear-gradient(135deg, #f2ca62 0 5px, #345d7e 5px 10px);
+}
+.celebration-mode[data-holiday="columbus-day"] .holiday-garland span,
+.celebration-mode[data-holiday="thanksgiving-day"] .holiday-garland span {
+  clip-path: polygon(50% 0, 67% 23%, 100% 34%, 75% 53%, 67% 84%, 50% 70%, 33% 100%, 25% 57%, 0 34%, 34% 23%);
+}
+.celebration-mode[data-holiday="columbus-day"] .holiday-garland span {
+  background: linear-gradient(135deg, #e3b55c, #b65e42 55%, #557b69);
+}
+.celebration-mode[data-holiday="veterans-day"] .holiday-garland span {
+  clip-path: polygon(0 0, 100% 0, 100% 76%, 50% 100%, 0 76%);
+  background: repeating-linear-gradient(to bottom, #eee8d2 0 5px, #526b67 5px 10px);
+  animation: none;
+}
+.celebration-mode[data-holiday="thanksgiving-day"] .holiday-garland span {
+  background: linear-gradient(135deg, #e4b34d 0 35%, #b65338 35% 68%, #71864d 68%);
+}
+.celebration-mode[data-holiday="christmas-day"] .holiday-garland span {
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  background: radial-gradient(circle at 50% 67%, #f3d46d 0 1.5px, transparent 2px), radial-gradient(circle at 38% 42%, #d74c51 0 1.5px, transparent 2px), linear-gradient(90deg, #1c6849, #287b53 50%, #19533f);
+}
 .holiday-emblem { position: absolute; top: 47%; width: 38px; height: 38px; padding: 8px; border: 1px solid var(--party-border); border-radius: 50%; background: var(--party-card); color: var(--party-accent); box-shadow: 0 2px 0 var(--party-shadow); transform: translateY(-50%); animation: holiday-emblem-drift 4s ease-in-out infinite; }
 .holiday-emblem-left { left: 3%; }
 .holiday-emblem-right { right: 3%; color: var(--party-blue); animation-delay: -2s; }
