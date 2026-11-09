@@ -127,7 +127,7 @@ func TestHolidayPreviewOnlyOverridesOnLocalDevRequests(t *testing.T) {
 	}
 
 	remotePage := Page{BirthdayMessage: "Happy birthday, Wyatt!"}
-	remoteRequest := httptest.NewRequest("GET", "/?holiday-preview=christmas-day", nil)
+	remoteRequest := httptest.NewRequest("GET", "/?holiday-preview=christmas-day&holiday-step=next", nil)
 	remoteRequest.RemoteAddr = "192.0.2.4:5678"
 	a.holidayPreview(remoteRequest, &remotePage, false, now)
 	if remotePage.Holiday != nil || remotePage.BirthdayMessage == "" || len(remotePage.HolidayOptions) != 0 {
@@ -136,11 +136,48 @@ func TestHolidayPreviewOnlyOverridesOnLocalDevRequests(t *testing.T) {
 
 	productionApp := &app{devMode: false, tz: loc, now: func() time.Time { return now }}
 	productionPage := Page{BirthdayMessage: "Happy birthday, Wyatt!"}
-	localRequest := httptest.NewRequest("GET", "/?holiday-preview=christmas-day", nil)
+	localRequest := httptest.NewRequest("GET", "/?holiday-preview=auto&holiday-step=next", nil)
 	localRequest.RemoteAddr = "127.0.0.1:5678"
 	productionApp.holidayPreview(localRequest, &productionPage, false, now)
 	if productionPage.Holiday != nil || productionPage.BirthdayMessage == "" || len(productionPage.HolidayOptions) != 0 {
 		t.Errorf("production request changed preview content: holiday=%#v birthday=%q options=%d", productionPage.Holiday, productionPage.BirthdayMessage, len(productionPage.HolidayOptions))
+	}
+}
+
+func TestHolidayPreviewStepsAndWraps(t *testing.T) {
+	loc, err := time.LoadLocation("America/Chicago")
+	if err != nil {
+		t.Fatal(err)
+	}
+	now := time.Date(2026, time.November, 9, 12, 0, 0, 0, loc)
+	a := &app{devMode: true, tz: loc, now: func() time.Time { return now }}
+	for _, tc := range []struct {
+		name  string
+		query string
+		want  string
+		focus string
+	}{
+		{name: "next holiday", query: "holiday-preview=memorial-day&holiday-step=next", want: "juneteenth", focus: "next"},
+		{name: "previous holiday", query: "holiday-preview=memorial-day&holiday-step=previous", want: "washingtons-birthday", focus: "previous"},
+		{name: "next wraps after Christmas", query: "holiday-preview=christmas-day&holiday-step=next", want: "new-years-day", focus: "next"},
+		{name: "previous wraps before New Year's Day", query: "holiday-preview=new-years-day&holiday-step=previous", want: "christmas-day", focus: "previous"},
+		{name: "auto starts at first holiday", query: "holiday-preview=auto&holiday-step=next", want: "new-years-day", focus: "next"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			page := Page{BirthdayMessage: "Happy birthday, Wyatt!"}
+			request := httptest.NewRequest("GET", "/?"+tc.query, nil)
+			request.RemoteAddr = "127.0.0.1:5678"
+			a.holidayPreview(request, &page, false, now)
+			if page.Holiday == nil || page.Holiday.Key != tc.want {
+				t.Errorf("stepped holiday = %#v, want %q", page.Holiday, tc.want)
+			}
+			if page.HolidayPreview != tc.want || page.BirthdayMessage != "" {
+				t.Errorf("step selected %q with birthday %q, want %q and no birthday", page.HolidayPreview, page.BirthdayMessage, tc.want)
+			}
+			if !page.HolidayPreviewSettingsOpen || page.HolidayPreviewFocus != tc.focus {
+				t.Errorf("step did not keep the preview drawer open with focus on its control: open=%t focus=%q", page.HolidayPreviewSettingsOpen, page.HolidayPreviewFocus)
+			}
+		})
 	}
 }
 

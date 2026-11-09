@@ -358,44 +358,46 @@ type TomorrowEvent struct {
 	AllDay bool
 }
 type Page struct {
-	WeatherKind        string
-	BirthdayMessage    string
-	Holiday            *HolidayBanner
-	HolidayOptions     []HolidayBanner
-	HolidayPreview     string
-	Hour24             int
-	CalendarBadge      string
-	CalendarNote       string
-	CalendarMessage    string
-	Weather            weatherView
-	Today              string
-	Tomorrow           string
-	TomorrowEvents     []TomorrowEvent
-	TomorrowEventsMore int
-	TomorrowWeather    tomorrowWeather
-	Clock              string
-	Period             string
-	Days               []Day
-	Events             []Event
-	TravelReview       []Event
-	CanManageTravel    bool
-	CanManage          bool
-	Announcement       string
-	LowPowerMode       string
-	LowPowerModeUntil  string
-	LowPowerUntilLabel string
-	ViewPanel          string
-	LiveCamera         bool
-	CameraIndex        int
-	NextUp             *Event
-	SchoolCards        []SchoolCard
-	SchoolAfternoon    bool
-	Tasks              []Task
-	Count              int
-	CSRF               string
-	KioskMode          bool
-	DevMode            bool
-	TaskAction         string
+	WeatherKind                string
+	BirthdayMessage            string
+	Holiday                    *HolidayBanner
+	HolidayOptions             []HolidayBanner
+	HolidayPreview             string
+	HolidayPreviewSettingsOpen bool
+	HolidayPreviewFocus        string
+	Hour24                     int
+	CalendarBadge              string
+	CalendarNote               string
+	CalendarMessage            string
+	Weather                    weatherView
+	Today                      string
+	Tomorrow                   string
+	TomorrowEvents             []TomorrowEvent
+	TomorrowEventsMore         int
+	TomorrowWeather            tomorrowWeather
+	Clock                      string
+	Period                     string
+	Days                       []Day
+	Events                     []Event
+	TravelReview               []Event
+	CanManageTravel            bool
+	CanManage                  bool
+	Announcement               string
+	LowPowerMode               string
+	LowPowerModeUntil          string
+	LowPowerUntilLabel         string
+	ViewPanel                  string
+	LiveCamera                 bool
+	CameraIndex                int
+	NextUp                     *Event
+	SchoolCards                []SchoolCard
+	SchoolAfternoon            bool
+	Tasks                      []Task
+	Count                      int
+	CSRF                       string
+	KioskMode                  bool
+	DevMode                    bool
+	TaskAction                 string
 }
 
 type app struct {
@@ -907,6 +909,40 @@ func (a *app) holidayPreview(r *http.Request, page *Page, kiosk bool, now time.T
 	}
 	page.HolidayOptions = federalHolidaySchedule(now.In(a.tz).Year(), a.tz)
 	preview := r.URL.Query().Get("holiday-preview")
+	if step := r.URL.Query().Get("holiday-step"); step == "previous" || step == "next" {
+		page.HolidayPreviewSettingsOpen = true
+		page.HolidayPreviewFocus = step
+		currentKey := preview
+		if currentKey == "" || currentKey == "auto" || currentKey == "none" {
+			if page.Holiday != nil {
+				currentKey = page.Holiday.Key
+			}
+		}
+		currentIndex := -1
+		for i, holiday := range page.HolidayOptions {
+			if holiday.Key == currentKey {
+				currentIndex = i
+				break
+			}
+		}
+		nextIndex := 0
+		if step == "previous" {
+			if currentIndex < 0 {
+				nextIndex = len(page.HolidayOptions) - 1
+			} else {
+				nextIndex = (currentIndex - 1 + len(page.HolidayOptions)) % len(page.HolidayOptions)
+			}
+		} else if currentIndex >= 0 {
+			nextIndex = (currentIndex + 1) % len(page.HolidayOptions)
+		}
+		if len(page.HolidayOptions) > 0 {
+			holiday := page.HolidayOptions[nextIndex]
+			page.Holiday = &holiday
+			page.BirthdayMessage = ""
+			page.HolidayPreview = holiday.Key
+			return
+		}
+	}
 	if preview == "" || preview == "auto" {
 		return
 	}

@@ -14,7 +14,7 @@
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/icons/family-hq-192.png">
   <script src="/theme.js?v=4"></script>
-  <link rel="stylesheet" href="/style.css?v=54">
+  <link rel="stylesheet" href="/style.css?v=55">
   <script defer referrerpolicy="no-referrer"
     src="https://telemetry.wayl.one/assets/faro-bootstrap.js"
     data-faro-app="family-dashboard"
@@ -75,7 +75,7 @@
           <span id="header-basement" class="header-sensor" title="Basement water sensor"><span class="sensor-signal" aria-label="Status unknown"></span>Basement <strong>--</strong></span>
         </div>
         <span id="live-date" class="date-block">{{.Today}}</span>
-        <button id="open-settings" class="icon-button settings-launch" type="button" aria-label="Open display settings" aria-controls="settings" aria-expanded="false" title="Theme & display settings"><svg class="icon"><use href="#i-settings" xlink:href="#i-settings"/></svg></button>
+        <button id="open-settings" class="icon-button settings-launch" type="button" aria-label="Open display settings" aria-controls="settings" aria-expanded="{{.HolidayPreviewSettingsOpen}}" title="Theme & display settings"><svg class="icon"><use href="#i-settings" xlink:href="#i-settings"/></svg></button>
       </div>
       {{if .BirthdayMessage}}
       <section class="celebration-banner" role="status" aria-label="{{.BirthdayMessage}}">
@@ -246,8 +246,8 @@
     </div>
   </section>
 
-  <div class="settings-backdrop" id="settings-backdrop" hidden></div>
-  <aside class="settings-drawer" id="settings" aria-labelledby="settings-title" aria-modal="true" role="dialog" hidden>
+  <div class="settings-backdrop{{if .HolidayPreviewSettingsOpen}} is-open{{end}}" id="settings-backdrop"{{if not .HolidayPreviewSettingsOpen}} hidden{{end}}></div>
+  <aside class="settings-drawer{{if .HolidayPreviewSettingsOpen}} is-open{{end}}" id="settings" aria-labelledby="settings-title" aria-modal="true" role="dialog"{{if not .HolidayPreviewSettingsOpen}} hidden{{end}}>
     <div class="settings-head"><div><p class="eyebrow">MAKE IT YOURS</p><h2 id="settings-title">Display settings</h2></div><button type="button" id="close-settings" class="icon-button" aria-label="Close settings">×</button></div>
     <div class="settings-inner">
       {{if .HolidayOptions}}
@@ -258,6 +258,10 @@
           <option value="none"{{if eq .HolidayPreview "none"}} selected{{end}}>No celebration</option>
           {{range .HolidayOptions}}<option value="{{.Key}}"{{if eq $.HolidayPreview .Key}} selected{{end}}>{{.Title}} · {{.DateLabel}}</option>{{end}}
         </select>
+        <div class="holiday-preview-nav" aria-label="Quick banner preview">
+          <button class="holiday-preview-step" type="submit" name="holiday-step" value="previous" aria-label="Preview previous holiday banner"{{if eq .HolidayPreviewFocus "previous"}} autofocus{{end}}>← Previous</button>
+          <button class="holiday-preview-step" type="submit" name="holiday-step" value="next" aria-label="Preview next holiday banner"{{if eq .HolidayPreviewFocus "next"}} autofocus{{end}}>Next →</button>
+        </div>
         <button class="holiday-preview-button" type="submit">Preview banner</button>
         <p class="setting-helper">This control is available only in local development.</p>
       </form>
