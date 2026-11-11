@@ -133,7 +133,16 @@ async function main() {
     }
 
     const short = await capture(`${prefix}-1146x531`, 1146, 531);
+    const dense = await capture(`${prefix}-1063x465`, 1063, 465);
     if (!captureOnly) {
+      if (dense.document.height > 465) throw new Error(`1063×465 layout scrolls the page: ${JSON.stringify(dense.document)}`);
+      if (dense.header.height > 60 || dense.banner.height > 24) throw new Error(`Holiday title is not in the compact header row: ${JSON.stringify({header:dense.header,banner:dense.banner})}`);
+      if (dense.buttons.length !== 6 || dense.buttons.some(button => button.width < 70 || button.height < 36 || button.y < dense.travel.y || button.y + button.height > dense.travel.y + dense.travel.height || button.y + button.height > 465)) {
+        throw new Error(`Travel choices are clipped at 1063×465: ${JSON.stringify(dense.buttons)}`);
+      }
+      const denseSchool = await evaluate("['.school-timer','.school-late','.school-rain-note','.school-pickup-alert'].map(selector=>{const e=document.querySelector(selector),r=e?.getBoundingClientRect();return {selector,visible:!!e&&!!e.getClientRects().length,top:r?.top,bottom:r?.bottom}})");
+      if (denseSchool.some(item => !item.visible || item.top < 0 || item.bottom > 465)) throw new Error(`School details are clipped at 1063×465: ${JSON.stringify(denseSchool)}`);
+      await cdp('Emulation.setDeviceMetricsOverride', { width: 1146, height: 531, deviceScaleFactor: 1, mobile: false });
       if (short.document.height > 531) throw new Error(`Short layout scrolls the page: ${JSON.stringify(short.document)}`);
       if (short.banner.height > 60) throw new Error(`Holiday header was not compacted: ${short.banner.height}px`);
       if (!short.ayla || short.ayla.height < 100) throw new Error(`Ayla school details are too compressed: ${JSON.stringify(short.ayla)}`);
@@ -173,7 +182,7 @@ async function main() {
       if (desktop.document.height > 720) throw new Error(`Desktop layout scrolls the page: ${JSON.stringify(desktop.document)}`);
       if (touch.document.height > 800) throw new Error(`Touch layout scrolls the page: ${JSON.stringify(touch.document)}`);
       console.log(`Layout assertions passed. Screenshots: ${outputDir}`);
-      console.log(JSON.stringify({ short: { header: short.header, banner: short.banner, school: short.ayla, feature: short.feature, travel: short.travel }, tv: { dashboard: tv.dashboard } }, null, 2));
+      console.log(JSON.stringify({ dense: { header:dense.header, banner:dense.banner, school:dense.ayla, feature:dense.feature, travel:dense.travel }, short: { header: short.header, banner: short.banner, school: short.ayla, feature: short.feature, travel: short.travel }, tv: { dashboard: tv.dashboard } }, null, 2));
     } else {
       console.log(`Fixture screenshots captured. Screenshots: ${outputDir}`);
     }
