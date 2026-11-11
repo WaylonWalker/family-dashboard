@@ -157,6 +157,7 @@ body.low-power-simplified .low-power-view{display:grid;grid-template-rows:auto a
 /* Unresolved travel decisions get one warm marker and a compact review lane. */
 .travel-review{flex-shrink:0;margin:9px 0 12px;padding:11px 12px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;background:var(--soft)}
 .essentials-travel{margin:8px 0 0;padding:9px 10px;max-height:245px;overflow:auto}
+.feature .essentials-travel{padding:8px 0 8px 10px;border:0;border-left:2px solid #c27d3f;border-radius:0;background:transparent}
 .travel-review.has-pending{border-left-color:#c27d3f}
 .travel-review-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .travel-review-head .eyebrow{margin:0 0 3px}

@@ -124,7 +124,7 @@ async function main() {
       await cdp('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
       await delay(200);
       const metrics = await evaluate(`(() => {
-        const box = selector => { const element = document.querySelector(selector); if (!element) return null; const rect = element.getBoundingClientRect(), style=getComputedStyle(element); return {x:rect.x,y:rect.y,width:rect.width,height:rect.height,clientHeight:element.clientHeight,scrollHeight:element.scrollHeight,overflowY:style.overflowY,minHeight:style.minHeight,gridRows:style.gridTemplateRows,gridColumn:style.gridColumn,padding:style.padding}; };
+        const box = selector => { const element = document.querySelector(selector); if (!element) return null; const rect = element.getBoundingClientRect(), style=getComputedStyle(element); return {x:rect.x,y:rect.y,width:rect.width,height:rect.height,clientHeight:element.clientHeight,scrollHeight:element.scrollHeight,overflowY:style.overflowY,minHeight:style.minHeight,gridRows:style.gridTemplateRows,gridColumn:style.gridColumn,padding:style.padding,borderTopWidth:style.borderTopWidth,borderRightWidth:style.borderRightWidth,borderBottomWidth:style.borderBottomWidth}; };
         return {viewport:{width:innerWidth,height:innerHeight},document:{width:document.documentElement.scrollWidth,height:document.documentElement.scrollHeight},shell:box('.shell'),header:box('.header'),banner:box('.celebration-banner'),dashboard:box('.dashboard'),calendar:box('.calendar'),routine:box('.school-routine'),ayla:box('.school-card'),feature:box('.feature'),travel:box('#layout-travel-fixture'),buttons:[...document.querySelectorAll('#layout-travel-fixture .travel-choice')].map(button=>{const rect=button.getBoundingClientRect();return {text:button.textContent.trim(),x:rect.x,y:rect.y,width:rect.width,height:rect.height}})};
       })()`);
       const screenshot = await cdp('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
@@ -140,6 +140,7 @@ async function main() {
       if (dense.buttons.length !== 6 || dense.buttons.some(button => button.width < 70 || button.height < 36 || button.y < dense.travel.y || button.y + button.height > dense.travel.y + dense.travel.height || button.y + button.height > 465)) {
         throw new Error(`Travel choices are clipped at 1063×465: ${JSON.stringify(dense.buttons)}`);
       }
+      if (dense.travel.borderTopWidth !== '0px' || dense.travel.borderRightWidth !== '0px' || dense.travel.borderBottomWidth !== '0px') throw new Error(`Travel queue has a redundant inset frame: ${JSON.stringify(dense.travel)}`);
       const denseSchool = await evaluate("['.school-timer','.school-late','.school-rain-note','.school-pickup-alert'].map(selector=>{const e=document.querySelector(selector),r=e?.getBoundingClientRect();return {selector,visible:!!e&&!!e.getClientRects().length,top:r?.top,bottom:r?.bottom}})");
       if (denseSchool.some(item => !item.visible || item.top < 0 || item.bottom > 465)) throw new Error(`School details are clipped at 1063×465: ${JSON.stringify(denseSchool)}`);
       await cdp('Emulation.setDeviceMetricsOverride', { width: 1146, height: 531, deviceScaleFactor: 1, mobile: false });

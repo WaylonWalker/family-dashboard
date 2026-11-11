@@ -442,6 +442,19 @@ func TestNextEventSkipsEventsAlreadyInProgress(t *testing.T) {
 	}
 }
 
+func TestSchoolRoutineEventsStayInCalendarButAreSkippedByNextUp(t *testing.T) {
+	now := time.Date(2026, time.November, 10, 13, 50, 0, 0, time.UTC)
+	school := Event{Title: "Wyatt bus ride to school", Start: now.Add(17 * time.Minute).Format(time.RFC3339), End: now.Add(27 * time.Minute).Format(time.RFC3339)}
+	appointment := Event{Title: "Family appointment", Start: now.Add(75 * time.Minute).Format(time.RFC3339), End: now.Add(2 * time.Hour).Format(time.RFC3339)}
+	next, remaining := nextEventExcluding([]Event{school, appointment}, now, isSchoolRoutineEvent)
+	if next == nil || next.Title != appointment.Title {
+		t.Fatalf("next event = %+v, want %q", next, appointment.Title)
+	}
+	if len(remaining) != 1 || remaining[0].Title != school.Title {
+		t.Fatalf("remaining calendar events = %+v, want school event retained", remaining)
+	}
+}
+
 func TestTravelRulesMatchTitlesAndApplyCutovers(t *testing.T) {
 	rules, err := parseTravelRules(`[
 		{"aliases":["studio","acting 2"],"location":"Lakeview","minutes":20},
