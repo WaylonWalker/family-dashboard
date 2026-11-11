@@ -60,6 +60,10 @@ build:
 test:
     go test ./...
 
+# Browser regression for the short-landscape dashboard layout. Requires Chromium.
+test-layout:
+    DASHBOARD_LAYOUT_KIOSK=1 node scripts/test_dashboard_layout.cjs
+
 # Run tests with Go's race detector.
 test-race:
     go test -race ./...

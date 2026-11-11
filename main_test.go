@@ -55,6 +55,42 @@ func TestKioskShowsCompactPendingTravelStatusWithoutReviewQueue(t *testing.T) {
 	}
 }
 
+func TestMorningSchoolCardsShareWearHintAndKeepPriorityDetails(t *testing.T) {
+	t.Setenv("GOOGLE_CALENDAR_ICAL_URL", "")
+	t.Setenv("PLAY_OUTSIDE_OPEN_WEATHER_API_KEY", "")
+	a, err := newApp(filepath.Join(t.TempDir(), "tasks.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	page := Page{SchoolCards: []SchoolCard{
+		{Name: "Ayla", LeaveCountdown: "8m", LeaveClock: "8:23 AM", LateCountdown: "28m", Wear: "Warm layers · rain jacket", RainNote: "Rain is possible during the walk home.", PickupAlert: true, PickupCountdown: "38m"},
+		{Name: "Wyatt", LeaveCountdown: "12m", LeaveClock: "8:27 AM", LateCountdown: "25m", Wear: "Warm layers · rain jacket"},
+	}}
+	var rendered bytes.Buffer
+	if err := a.tmpl.ExecuteTemplate(&rendered, "index.html", page); err != nil {
+		t.Fatal(err)
+	}
+	morning := rendered.String()
+	if strings.Count(morning, "Warm layers · rain jacket") != 1 {
+		t.Fatal("morning routine should show the shared clothing hint once")
+	}
+	for _, detail := range []string{"Ayla", "Wyatt", "8m", "12m", "Late in", "Rain is possible", "Rain pickup"} {
+		if !strings.Contains(morning, detail) {
+			t.Errorf("morning routine is missing %q", detail)
+		}
+	}
+
+	page.SchoolAfternoon = true
+	rendered.Reset()
+	if err := a.tmpl.ExecuteTemplate(&rendered, "index.html", page); err != nil {
+		t.Fatal(err)
+	}
+	afternoon := rendered.String()
+	if strings.Contains(afternoon, "Warm layers · rain jacket") || !strings.Contains(afternoon, "After school") {
+		t.Fatal("afternoon routine should retain its home countdown presentation")
+	}
+}
+
 func TestReceiveFrigatePersonEventStoresShortLivedKioskReplay(t *testing.T) {
 	now := time.Date(2026, 11, 4, 12, 0, 0, 0, time.UTC)
 	a := &app{frigateToken: "test-token", now: func() time.Time { return now }}
