@@ -29,7 +29,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: dashboard
-          image: registry.wayl.one/family-dashboard:sha-af4c768345d3e29dffe2851603b021d82d25c981@sha256:2d01e462e3a629b8a33c80e6a5e156e971211ceb3a199df400fd774089deb486
+          image: registry.wayl.one/family-dashboard:sha-b76909e32e7d0ac27028e3df15efc84da800a0cb@sha256:89ecb7e62542959560085e258a6c1fd515f7792b4c87849cd09f28bebbd54785
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
