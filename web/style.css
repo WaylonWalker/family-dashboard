@@ -848,12 +848,12 @@ body[data-kiosk="true"] .panel-footer{min-height:28px;padding-top:6px}
   isolation: isolate;
   gap: 8px;
   margin: 14px 0 11px;
-  overflow: hidden;
-  padding: 8px 7px 9px;
-  border: 2px dashed var(--party-nav-border);
-  border-radius: 13px;
-  background-color: var(--party-nav-surface);
-  background-image: var(--party-nav-background);
+  overflow: visible;
+  padding: 0 0 9px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
 }
 .celebration-mode .feature-tab {
   position: relative;
@@ -1055,7 +1055,7 @@ body[data-kiosk="true"] .panel-footer{min-height:28px;padding-top:6px}
 .celebration-header .celebration-clock strong { color: var(--party-card-ink); }
 .celebration-header .celebration-clock span { color: var(--party-accent); }
 .celebration-header .settings-launch { border-color: var(--party-accent); background: var(--party-accent); color: var(--party-accent-ink); }
-.celebration-mode .feature-tabs { border-color: var(--party-nav-border); background-color: var(--party-nav-surface); background-image: var(--party-nav-background); }
+.celebration-mode .feature-tabs { border-bottom-color: var(--line); background: transparent; }
 .celebration-mode .feature-tab { border-color: var(--party-card-border); background: var(--party-card); box-shadow: 0 3px 0 var(--party-nav-shadow); color: var(--party-card-ink); }
 .celebration-mode .feature-tab.is-active { border-color: var(--party-active-border); background: var(--party-active-bg); color: var(--party-active-ink); }
 .holiday-banner .holiday-copy { max-width: calc(100% - 92px); }

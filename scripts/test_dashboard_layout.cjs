@@ -119,6 +119,19 @@ async function main() {
       feature.querySelector('.feature-header').after(review);
       return true;
     })()`);
+    const holidayTabChrome = await evaluate(`(() => {
+      const body = document.body;
+      const alreadyCelebrating = body.classList.contains('celebration-mode');
+      body.classList.add('celebration-mode');
+      const navStyle = getComputedStyle(document.querySelector('.feature-tabs'));
+      const tabStyle = getComputedStyle(document.querySelector('.feature-tab'));
+      const result = {top:navStyle.borderTopWidth,right:navStyle.borderRightWidth,bottom:navStyle.borderBottomWidth,left:navStyle.borderLeftWidth,background:navStyle.backgroundColor,tabBorder:tabStyle.borderTopWidth};
+      if (!alreadyCelebrating) body.classList.remove('celebration-mode');
+      return result;
+    })()`);
+    if (holidayTabChrome.top !== '0px' || holidayTabChrome.right !== '0px' || holidayTabChrome.left !== '0px' || holidayTabChrome.bottom !== '1px' || holidayTabChrome.background !== 'rgba(0, 0, 0, 0)' || holidayTabChrome.tabBorder === '0px') {
+      throw new Error(`Holiday tabs have redundant framing or lost their individual boundaries: ${JSON.stringify(holidayTabChrome)}`);
+    }
 
     async function capture(name, width, height) {
       await cdp('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
