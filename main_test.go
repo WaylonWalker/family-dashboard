@@ -55,6 +55,54 @@ func TestKioskShowsCompactPendingTravelStatusWithoutReviewQueue(t *testing.T) {
 	}
 }
 
+func TestMorningSchoolCardsShareWearHintAndKeepPriorityDetails(t *testing.T) {
+	t.Setenv("GOOGLE_CALENDAR_ICAL_URL", "")
+	t.Setenv("PLAY_OUTSIDE_OPEN_WEATHER_API_KEY", "")
+	a, err := newApp(filepath.Join(t.TempDir(), "tasks.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	page := Page{SchoolCards: []SchoolCard{
+		{Name: "Ayla", LeaveCountdown: "8m", LeaveClock: "8:23 AM", LateCountdown: "28m", Wear: "Warm layers · rain jacket", RainNote: "Rain is possible during the walk home.", PickupAlert: true, PickupCountdown: "38m"},
+		{Name: "Wyatt", LeaveCountdown: "12m", LeaveClock: "8:27 AM", LateCountdown: "25m", Wear: "Warm layers · rain jacket"},
+	}}
+	var rendered bytes.Buffer
+	if err := a.tmpl.ExecuteTemplate(&rendered, "index.html", page); err != nil {
+		t.Fatal(err)
+	}
+	morning := rendered.String()
+	if strings.Count(morning, "Warm layers · rain jacket") != 1 {
+		t.Fatal("morning routine should show the shared clothing hint once")
+	}
+	for _, detail := range []string{"Ayla", "Wyatt", "8m", "12m", "Late in", "Rain pickup"} {
+		if !strings.Contains(morning, detail) {
+			t.Errorf("morning routine is missing %q", detail)
+		}
+	}
+	if strings.Contains(morning, "Rain is possible") {
+		t.Fatal("rain note should be omitted when the pickup alert is available")
+	}
+
+	page.SchoolCards[0].PickupAlert = false
+	rendered.Reset()
+	if err := a.tmpl.ExecuteTemplate(&rendered, "index.html", page); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(rendered.String(), "Rain is possible") {
+		t.Fatal("rain note should remain available when there is no pickup alert")
+	}
+
+	page.SchoolAfternoon = true
+	rendered.Reset()
+	if err := a.tmpl.ExecuteTemplate(&rendered, "index.html", page); err != nil {
+		t.Fatal(err)
+	}
+	afternoon := rendered.String()
+	if strings.Contains(afternoon, "Warm layers · rain jacket") || !strings.Contains(afternoon, "After school") {
+		t.Fatal("afternoon routine should retain its home countdown presentation")
+	}
+}
+
 func TestReceiveFrigatePersonEventStoresShortLivedKioskReplay(t *testing.T) {
 	now := time.Date(2026, 11, 4, 12, 0, 0, 0, time.UTC)
 	a := &app{frigateToken: "test-token", now: func() time.Time { return now }}
@@ -403,6 +451,19 @@ func TestNextEventSkipsEventsAlreadyInProgress(t *testing.T) {
 	}
 	if len(remaining) != 1 || remaining[0].Title != "No school" {
 		t.Fatalf("remaining events = %+v, want in-progress all-day event retained", remaining)
+	}
+}
+
+func TestSchoolRoutineEventsStayInCalendarButAreSkippedByNextUp(t *testing.T) {
+	now := time.Date(2026, time.November, 10, 13, 50, 0, 0, time.UTC)
+	school := Event{Title: "Wyatt bus ride to school", Start: now.Add(17 * time.Minute).Format(time.RFC3339), End: now.Add(27 * time.Minute).Format(time.RFC3339)}
+	appointment := Event{Title: "Family appointment", Start: now.Add(75 * time.Minute).Format(time.RFC3339), End: now.Add(2 * time.Hour).Format(time.RFC3339)}
+	next, remaining := nextEventExcluding([]Event{school, appointment}, now, isSchoolRoutineEvent)
+	if next == nil || next.Title != appointment.Title {
+		t.Fatalf("next event = %+v, want %q", next, appointment.Title)
+	}
+	if len(remaining) != 1 || remaining[0].Title != school.Title {
+		t.Fatalf("remaining calendar events = %+v, want school event retained", remaining)
 	}
 }
 

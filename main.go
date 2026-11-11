@@ -1102,7 +1102,14 @@ func (a *app) pageContext(ctx context.Context, now time.Time) Page {
 		tomorrowEventsMore = len(tomorrowEvents) - 4
 		tomorrowEvents = tomorrowEvents[:4]
 	}
-	nextUp, events := nextEvent(events, n)
+	wv := a.weather.snapshotContext(ctx, n)
+	schoolCards := schoolDayCards(schoolItems, wv, n, a.tz)
+	var nextUp *Event
+	if len(schoolCards) > 0 {
+		nextUp, events = nextEventExcluding(events, n, isSchoolRoutineEvent)
+	} else {
+		nextUp, events = nextEvent(events, n)
+	}
 	tasks := a.store.list()
 	count := 0
 	for _, t := range tasks {
@@ -1110,8 +1117,6 @@ func (a *app) pageContext(ctx context.Context, now time.Time) Page {
 			count++
 		}
 	}
-	wv := a.weather.snapshotContext(ctx, n)
-	schoolCards := schoolDayCards(schoolItems, wv, n, a.tz)
 	addEventWeather(nextUp, wv, n, a.tz)
 	weatherKind := "unknown"
 	if len(wv.Slots) > 0 {
@@ -1262,8 +1267,25 @@ func allDayDays(start, end time.Time, loc *time.Location) int {
 }
 
 func nextEvent(events []Event, now time.Time) (*Event, []Event) {
+	return nextEventExcluding(events, now, nil)
+}
+
+func isSchoolRoutineEvent(event Event) bool {
+	title := strings.ToLower(event.Title)
+	for _, phrase := range []string{"arrive at school", "leave school", "bus ride to school", "bus ride home"} {
+		if strings.Contains(title, phrase) {
+			return true
+		}
+	}
+	return false
+}
+
+func nextEventExcluding(events []Event, now time.Time, excluded func(Event) bool) (*Event, []Event) {
 	const nextUpWindow = 3 * time.Hour
 	for i, event := range events {
+		if excluded != nil && excluded(event) {
+			continue
+		}
 		if event.TravelMinutes == 0 {
 			continue
 		}
@@ -1277,6 +1299,9 @@ func nextEvent(events []Event, now time.Time) (*Event, []Event) {
 		return &event, append(events[:i], events[i+1:]...)
 	}
 	for i, event := range events {
+		if excluded != nil && excluded(event) {
+			continue
+		}
 		start, startErr := time.Parse(time.RFC3339, event.Start)
 		end, endErr := time.Parse(time.RFC3339, event.End)
 		if startErr != nil || endErr != nil || !start.After(now) || start.After(now.Add(nextUpWindow)) || !end.After(now) {
