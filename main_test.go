@@ -74,10 +74,22 @@ func TestMorningSchoolCardsShareWearHintAndKeepPriorityDetails(t *testing.T) {
 	if strings.Count(morning, "Warm layers · rain jacket") != 1 {
 		t.Fatal("morning routine should show the shared clothing hint once")
 	}
-	for _, detail := range []string{"Ayla", "Wyatt", "8m", "12m", "Late in", "Rain is possible", "Rain pickup"} {
+	for _, detail := range []string{"Ayla", "Wyatt", "8m", "12m", "Late in", "Rain pickup"} {
 		if !strings.Contains(morning, detail) {
 			t.Errorf("morning routine is missing %q", detail)
 		}
+	}
+	if strings.Contains(morning, "Rain is possible") {
+		t.Fatal("rain note should be omitted when the pickup alert is available")
+	}
+
+	page.SchoolCards[0].PickupAlert = false
+	rendered.Reset()
+	if err := a.tmpl.ExecuteTemplate(&rendered, "index.html", page); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(rendered.String(), "Rain is possible") {
+		t.Fatal("rain note should remain available when there is no pickup alert")
 	}
 
 	page.SchoolAfternoon = true

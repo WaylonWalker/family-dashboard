@@ -108,7 +108,7 @@ async function main() {
       const routine = document.createElement('section');
       routine.className = 'school-routine';
       routine.setAttribute('aria-label', 'School routine fixture');
-      routine.innerHTML = '<div class="school-routine-head"><strong>School morning</strong><span>Leave on time</span></div><div class="school-wear school-wear-shared">Warm layers · rain jacket · bring a coat for the colder afternoon</div><div class="school-card-grid"><article class="school-card"><div class="school-card-name">Ayla</div><div class="school-timer">8m</div><div class="school-caption">leave by · 8:23 AM</div><div class="school-late">Late in <strong>28m</strong></div><div class="school-rain-note">Rain is possible during Ayla’s walk home; plan to pick her up.</div><div class="school-pickup-alert" role="alert">Rain pickup · leave in <strong>38m</strong></div></article><article class="school-card"><div class="school-card-name">Wyatt</div><div class="school-timer">12m</div><div class="school-caption">leave by · 8:27 AM</div><div class="school-late">Late in <strong>25m</strong></div></article></div>';
+      routine.innerHTML = '<div class="school-routine-head"><strong>School morning</strong><span>Leave on time</span></div><div class="school-wear school-wear-shared">Warm layers · rain jacket · bring a coat for the colder afternoon</div><div class="school-card-grid"><article class="school-card"><div class="school-card-name">Ayla</div><div class="school-timer">8m</div><div class="school-caption">leave by · 8:23 AM</div><div class="school-late">Late in <strong>28m</strong></div><div class="school-pickup-alert" role="alert">Rain pickup · leave in <strong>38m</strong></div></article><article class="school-card"><div class="school-card-name">Wyatt</div><div class="school-timer">12m</div><div class="school-caption">leave by · 8:27 AM</div><div class="school-late">Late in <strong>25m</strong></div></article></div>';
       calendar.querySelector('.week-strip').after(routine);
 
       const feature = document.querySelector('.feature');
@@ -141,17 +141,17 @@ async function main() {
         throw new Error(`Travel choices are clipped at 1063×465: ${JSON.stringify(dense.buttons)}`);
       }
       if (dense.travel.borderTopWidth !== '0px' || dense.travel.borderRightWidth !== '0px' || dense.travel.borderBottomWidth !== '0px') throw new Error(`Travel queue has a redundant inset frame: ${JSON.stringify(dense.travel)}`);
-      const denseSchool = await evaluate("['.school-timer','.school-late','.school-rain-note','.school-pickup-alert'].map(selector=>{const e=document.querySelector(selector),r=e?.getBoundingClientRect();return {selector,visible:!!e&&!!e.getClientRects().length,top:r?.top,bottom:r?.bottom}})");
+      const denseSchool = await evaluate("['.school-timer','.school-late','.school-pickup-alert'].map(selector=>{const e=document.querySelector(selector),r=e?.getBoundingClientRect();return {selector,visible:!!e&&!!e.getClientRects().length,top:r?.top,bottom:r?.bottom}})");
       if (denseSchool.some(item => !item.visible || item.top < 0 || item.bottom > 465)) throw new Error(`School details are clipped at 1063×465: ${JSON.stringify(denseSchool)}`);
       await cdp('Emulation.setDeviceMetricsOverride', { width: 1146, height: 531, deviceScaleFactor: 1, mobile: false });
       if (short.document.height > 531) throw new Error(`Short layout scrolls the page: ${JSON.stringify(short.document)}`);
       if (short.banner.height > 60) throw new Error(`Holiday header was not compacted: ${short.banner.height}px`);
-      if (!short.ayla || short.ayla.height < 100) throw new Error(`Ayla school details are too compressed: ${JSON.stringify(short.ayla)}`);
+      if (!short.ayla || short.ayla.height < 76) throw new Error(`Ayla school details are too compressed: ${JSON.stringify(short.ayla)}`);
       const buttons = short.buttons;
       if (buttons.length !== 6 || buttons.some(button => button.width < 70 || button.height < 36 || button.y < short.travel.y || button.y + button.height > short.travel.y + short.travel.height || button.y + button.height > 531)) {
         throw new Error(`Travel choices are clipped or too small: ${JSON.stringify(buttons)}`);
       }
-      const criticalSchoolDetails = await evaluate("['.school-timer','.school-late','.school-rain-note','.school-pickup-alert'].map(selector=>{const e=document.querySelector(selector),r=e?.getBoundingClientRect();return {selector,visible:!!e&&!!e.getClientRects().length,top:r?.top,bottom:r?.bottom}})");
+      const criticalSchoolDetails = await evaluate("['.school-timer','.school-late','.school-pickup-alert'].map(selector=>{const e=document.querySelector(selector),r=e?.getBoundingClientRect();return {selector,visible:!!e&&!!e.getClientRects().length,top:r?.top,bottom:r?.bottom}})");
       if (criticalSchoolDetails.some(item => !item.visible || item.top < 0 || item.bottom > 531)) throw new Error(`Critical school details are outside the visible viewport: ${JSON.stringify(criticalSchoolDetails)}`);
       const schoolOverlap = await evaluate(`(() => [...document.querySelectorAll('.school-card')].some(card => {
         const items = [...card.children].filter(item => item.getClientRects().length).map(item => item.getBoundingClientRect());
